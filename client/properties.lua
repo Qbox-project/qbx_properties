@@ -255,9 +255,9 @@ local function CreatePropertiesList(Garage, Furnished)
     return options
 end
 
-local function CreateProperty(Data)
-    Data.maxWeight = Data.weight and Data.weight * 1000 or false
-    TriggerServerEvent('qbx-property:server:CreateProperty', Data)
+local function CreateProperty(propertyData)
+    propertyData.maxWeight = propertyData.weight and propertyData.weight * 1000 or false
+    TriggerServerEvent('qbx-property:server:CreateProperty', propertyData)
 end
 
 local function getTaxesList()
@@ -306,7 +306,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         return
     end
     local coords = GetEntityCoords(cache.ped)
-    local Result = {
+    local inputResult = {
         name = GeneralOptions[1] or GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z)),
         price = GeneralOptions[2],
         rent = GeneralOptions[3],
@@ -318,7 +318,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         appliedtaxes = PropertyCreation[4] or nil,
         coords = {x = coords.x, y = coords.y, z = coords.z, h = GetEntityHeading(cache.ped)},
     }
-    CreateProperty(Result)
+    CreateProperty(inputResult)
 end)
 
 RegisterNetEvent('qbx-property:client:enterProperty', function(coords, propertyid)
