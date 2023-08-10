@@ -6,6 +6,7 @@ local Translations = {
         ApartmentDoorBusted = "Hey man, it's your neighbor. I heard a loud noise coming from your apartment. Is everything okay?",
         noapartmentfound = 'No apartment found',
         playernotonline = 'Player is not online',
+        failed_createproperty = 'Failed to create property',
     },
     general = {
         accept = 'Accept',

@@ -11,7 +11,7 @@ local function createProperty(data)
     local id = result?[1].id + 1 or 1
 
     local name = id .. ' ' .. data.name
-    exports.oxmysql:insert('INSERT INTO properties (name, interior, furnished, garage, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @furnished, @garage, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
+    local SQLid = exports.oxmysql.insert_async('INSERT INTO properties (name, interior, furnished, garage, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @furnished, @garage, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
         ['@name'] = name,
         ['@interior'] = data.interior,
         ['@furnished'] = data.furnished or false,
@@ -22,11 +22,10 @@ local function createProperty(data)
         ['@appliedtaxes'] = json.encode(data.appliedtaxes or {}),
         ['@maxweight'] = data.maxweight or 10000,
         ['@slots'] = data.slots or 10
-    }, function(insertResult)
-        if insertResult?.affectedRows < 0 then
-           print('Failed to create property')
-        end
-    end)
+    })
+    if not SQLid then
+        return false
+    end
 end
 
 --- Finds the players inside properties and adds them to the playersInside table
@@ -214,7 +213,10 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(PropertyData)
     local PlayerData = Player.PlayerData
     if not PlayerData.job.type == 'realestate' then return end
 
-    createProperty(PropertyData)
+    if not createProperty(PropertyData) then
+        TriggerClientEvent('QBCore:Notify', source, Lang:t('error.failed_createproperty'), 'error')
+        return
+    end
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end)
 
