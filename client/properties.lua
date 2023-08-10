@@ -1,5 +1,6 @@
-local PropertyZones = {}
-local InteriorZones = {}
+if not Config.useProperties then return end
+local propertyZones = {}
+local interiorZones = {}
 local isInZone = false
 
 local function createPropertyInteriorZones(IPL, customZones)
@@ -31,6 +32,124 @@ local function createPropertyInteriorZones(IPL, customZones)
     })
 end
 
+local function calcPrice(price, taxes)
+    local totaltax = Config.Taxes.General
+    for taxname, tax in pairs(Config.Taxes) do
+        if taxes[taxname] then
+            totaltax = totaltax + tax
+        end
+    end
+    return math.floor(price + (price * (totaltax/100)))
+end
+
+local function populatePropertyMenu(PropertyData, propertyType)
+    if not PropertyData then return end
+    local PlayerData = QBCore.Functions.GetPlayerData()
+    if not PlayerData then return end
+    local isRealEstateAgent = PlayerData.job.type == 'realestate'
+    local isBought, isRented, isOwner = PropertyData.owners and true, PropertyData.rent_date and true, PropertyData.owners[PlayerData.citizenid] and true or false
+
+    local options = {}
+
+    if isBought or isRented then
+        if isOwner then
+            options[#options+1] = {
+                label = Lang:t('property_menu.enter'),
+                args = {
+                    action = 'enter',
+                    PropertyData = PropertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+        else
+            options[#options+1] = {
+                label = Lang:t('property_menu.ring'),
+                args = {
+                    action = 'ring',
+                    PropertyData = PropertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+        end
+        if isRented then
+            options[#options+1] = {
+                label = Lang:t('property_menu.extend_rent'),
+                args = {
+                    action = 'extend_rent',
+                    PropertyData = PropertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+        end
+    elseif isRealEstateAgent then
+        options[#options+1] = {
+            label = Lang:t('property_menu.sell', {price = calcPrice(PropertyData.price, PropertyData.taxes)}),
+            args = {
+                action = 'sell',
+                PropertyData = PropertyData,
+                propertyType = propertyType,
+            },
+            close = true
+        }
+        options[#options+1] = {
+            label = Lang:t('property_menu.rent'),
+            args = {
+                action = 'rent',
+                PropertyData = PropertyData,
+                propertyType = propertyType,
+            },
+            close = true
+        }
+    end
+
+    if isRealEstateAgent then
+        options[#options+1] = {
+            label = Lang:t('property_menu.modify'),
+            args = {
+                action = 'modify',
+                PropertyData = PropertyData,
+                propertyType = propertyType,
+            },
+            close = true
+        }
+    end
+
+    options[#options+1] = {
+        label = Lang:t('property_menu.back'),
+        args = {
+            action = 'back',
+        },
+        close = true
+    }
+
+
+    lib.registerMenu({
+        id = 'property_menu',
+        title = PropertyData.name,
+        position = 'top-left',
+        options = options
+    }, function(selected, scrollIndex, args)
+        if args.action == 'enter' then
+            if args.propertyType == 'garage' then
+                TriggerServerEvent('qbx-property:server:EnterGarage', args.PropertyData.id)
+            else
+                TriggerServerEvent('qbx-property:server:EnterProperty', args.PropertyData.id)
+            end
+        elseif args.action == 'ring' then
+            TriggerServerEvent('qbx-property:server:RingDoor', args.PropertyData.id)
+        elseif args.action == 'extend_rent' then
+
+        elseif args.action == 'sell' then
+        elseif args.action == 'modify' then
+        elseif args.action == 'back' then
+            lib.showMenu('properties_menu')
+        end
+    end)
+end
+
 local function populatePropertiesMenu(ids, propertyType)
     if not ids then return end
     local options = {}
@@ -40,10 +159,11 @@ local function populatePropertiesMenu(ids, propertyType)
         if not propertyData then goto continue end
         options[#options+1] = {
             label = propertyData.name,
-            propertyType = propertyType,
-            args = propertyData,
-            isCheck = false,
-            isScroll = false,
+            args = {
+                propertyData = propertyData,
+                propertyType = propertyType,
+            },
+            close = true
         }
         ::continue::
     end
@@ -52,22 +172,10 @@ local function populatePropertiesMenu(ids, propertyType)
         id = 'properties_menu',
         title = 'Property List',
         position = 'top-left',
-        onSelected = function(selected, secondary, args)
-            if not secondary then
-                print("Normal button")
-            else
-                if args.isCheck then
-                    print("Check button")
-                end
-
-                if args.isScroll then
-                    print("Scroll button")
-                end
-            end
-        end,
         options = options
     }, function(selected, scrollIndex, args)
-        print(selected, scrollIndex, args)
+        populatePropertyMenu(args.propertyData, args.propertyType)
+        lib.showMenu('property_menu')
     end)
 end
 
@@ -110,7 +218,7 @@ local function createPropertiesZones()
                 end
             end
         end
-        PropertyZones[k] = zone
+        propertyZones[k] = zone
 
         local PlayerData = QBCore.Functions.GetPlayerData() or {}
         for _, value in pairs(v.properties) do
@@ -124,10 +232,10 @@ local function createPropertiesZones()
 end
 
 local function clearProperties()
-    for _, v in pairs(PropertyZones) do
+    for _, v in pairs(propertyZones) do
         v.reset = true
     end
-    table.wipe(PropertyZones)
+    table.wipe(propertyZones)
 end
 
 RegisterNetEvent('qbx-property:client:refreshProperties', function()
@@ -147,12 +255,21 @@ local function CreatePropertiesList(Garage, Furnished)
 end
 
 local function CreateProperty(Data)
-    local totalprice = Data.price + (Data.price * ((Config.Taxes.General + (Data.garden and Config.Taxes.Garden or 0) + (Data.pool and Config.Taxes.Pool or 0)) / 100)) or Config.MinimumPrice
-    local totalrent = (Data.rent and Data.rent + (Data.rent * ((Config.Taxes.General + (Data.garden and Config.Taxes.Garden or 0) + (Data.pool and Config.Taxes.Pool or 0)) / 100))) or false
-    local StorageWeight = Data.weight and Data.weight * 1000 or false
-    Data.price, totalrent, StorageWeight = totalprice, totalrent, StorageWeight
-
+    Data.maxWeight = Data.weight and Data.weight * 1000 or false
     TriggerServerEvent('qbx-property:server:CreateProperty', Data)
+end
+
+local function getTaxesList()
+    local taxes = {}
+    for k, v in pairs(Config.Taxes) do
+        if k ~= 'General' then
+            taxes[#taxes + 1] = {
+                label = k,
+                value = v
+            }
+        end
+    end
+    return taxes
 end
 
 RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
@@ -176,9 +293,8 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     if not GeneralOptions[4] then
         PropertyOptions[2] = {type = 'number', label = "Storage Volume", description = "Size of the storage (Kg)", default = 50, min = 1}
         PropertyOptions[3] = {type = 'number', label = "Storage Size", description = "Number of slots the Storage has", default = 10, min = 1}
-        if Config.GardenAndPoolTaxes then
-            PropertyOptions[4] = {type = 'checkbox', label = "Garden?", description = "Adds a tax if the property has a pool", checked = false}
-            PropertyOptions[5] = {type = 'checkbox', label = "Pool?", description = "Adds a tax if the property has a pool", checked = false}
+        if Config.UseTaxes then
+            PropertyOptions[4] = {type = 'multi-select', label = "Taxes", description = "Adds a tax if the property has the selected feature", options = getTaxesList()}
         end
     end
 
@@ -198,8 +314,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         interior = PropertyCreation[1],
         weight = PropertyCreation[2] or nil,
         slots = PropertyCreation[3] or nil,
-        garden = PropertyCreation[4] or nil,
-        pool = PropertyCreation[5] or nil,
+        appliedtaxes = PropertyCreation[4] or nil,
         coords = {x = coords.x, y = coords.y, z = coords.z, h = GetEntityHeading(cache.ped)},
     }
     CreateProperty(Result)
@@ -211,7 +326,7 @@ end)
 
 RegisterNetEvent('qbx-property:client:LeaveProperty', function(coords)
     if not coords then return end
-    InteriorZones = nil
+    interiorZones = nil
     DoScreenFadeOut(500)
     Wait(250)
     SetEntityCoords(cache.ped, coords.xyz, 0.0, 0.0, false, false, false, false)

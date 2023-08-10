@@ -1,3 +1,4 @@
+if not Config.useProperties then return end
 local properties = {}
 local propertiesGroups = {}
 
@@ -10,7 +11,7 @@ local function createProperty(data)
     local id = result?[1].id + 1 or 1
 
     local name = id .. ' ' .. data.name
-    exports.oxmysql:insert('INSERT INTO properties (name, interior, furnished, garage, coords, price, rent) VALUES (@name, @interior, @furnished, @garage, @coords, @price, @rent)', {
+    exports.oxmysql:insert('INSERT INTO properties (name, interior, furnished, garage, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @furnished, @garage, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
         ['@name'] = name,
         ['@interior'] = data.interior,
         ['@furnished'] = data.furnished or false,
@@ -18,64 +19,78 @@ local function createProperty(data)
         ['@coords'] = json.encode(data.coords),
         ['@price'] = data.price,
         ['@rent'] = data.rent,
-    })
+        ['@appliedtaxes'] = json.encode(data.appliedtaxes or {}),
+        ['@maxweight'] = data.maxweight or 10000,
+        ['@slots'] = data.slots or 10
+    }, function(insertResult)
+        if insertResult?.affectedRows < 0 then
+           print('Failed to create property')
+        end
+    end)
 end
 
-local function fillInsideTable()
+--- Finds the players inside properties and adds them to the playersInside table
+local function findPlayersInsideProperties()
     for _, v in pairs(QBCore.Functions.GetPlayers()) do
         local InProperty = Player(v).state.inProperty
         if not InProperty then goto continue end
-        print('fillInsideTable')
         DebugPrint(InProperty)
         print(InProperty.propertyid..'\n --')
 
         local property = properties[InProperty.propertyid]
         if property then
-            property.inside[#property.inside + 1] = v
+            property.playersInside[#property.playersInside + 1] = v
         end
 
         ::continue::
     end
 end
 
---- Refresh the properties table on the server
-function RefreshProperties()
-    table.wipe(properties)
 
-    local result = MySQL.query.await('SELECT * FROM properties', {})
-    if not result then return end
+--- Get the properties from the database
+--- @param propertyId integer
+--- @return table
+local function getPropertyOwners(propertyId)
+    local propertyowners = MySQL.query.await('SELECT * FROM property_owners WHERE property_id = ?', { propertyId })
+    local owners = {}
 
-    for _, v in pairs(result) do
-        local propertyowners = MySQL.query.await('SELECT * FROM property_owners WHERE property_id = ?', { v.id })
-        local owners = {}
-
-        if propertyowners then
-            for _, owner in pairs(propertyowners) do
-                owners[owner.citizenid] = (owner.owner and 'owner') or (owner.co_owner and 'co_owner') or
-                (owner.tenant and 'tenant') or false
-            end
+    if propertyowners then
+        for _, owner in pairs(propertyowners) do
+            owners[owner.citizenid] = (owner.owner and 'owner') or (owner.co_owner and 'co_owner') or
+            (owner.tenant and 'tenant') or false
         end
-
-        v.coords = json.decode(v.coords)
-        properties[v.id] = {
-            name = v.name,
-            interior = v.interior,
-            furnished = v.furnished or false,
-            decorations = v.decorations or nil,
-            garage = v.garage or false,
-            garage_slots = (v.garage_slots and json.decode(v.garage_slots)) or nil,
-            coords = vector4(v.coords.x, v.coords.y, v.coords.z, v.coords.h),
-            stash = v.stash or nil,
-            logout = v.logout or nil,
-            outfit = v.outfit or nil,
-            price = v.price,
-            rent = v.rent,
-            rent_date = v.rent_date ~= 0 and v.rent_date/1000 or false,
-            owners = next(owners) and owners or false,
-            inside = {}
-        }
     end
 
+    return owners
+end
+
+--- Formats the property data
+---@param PropertyData table
+---@param owners table
+---@return table
+local function formatPropertyData(PropertyData, owners)
+    local coords = json.decode(PropertyData.coords)
+    return {
+        name = PropertyData.name,
+        interior = PropertyData.interior,
+        furnished = PropertyData.furnished or false,
+        decorations = PropertyData.decorations or nil,
+        garage = PropertyData.garage or false,
+        garage_slots = (PropertyData.garage_slots and json.decode(PropertyData.garage_slots)) or nil,
+        coords = vector4(coords.x, coords.y, coords.z, coords.h),
+        stash = json.decode(PropertyData.stash) or nil,
+        logout = json.decode(PropertyData.logout) or nil,
+        outfit = json.decode(PropertyData.outfit) or nil,
+        appliedtaxes = PropertyData.appliedtaxes or nil,
+        price = PropertyData.price,
+        rent = PropertyData.rent,
+        rent_date = PropertyData.rent_date ~= 0 and PropertyData.rent_date/1000 or false,
+        owners = next(owners) and owners or false,
+        playersInside = {}
+    }
+end
+
+local function updatePropertiesGroups()
     for k, v in pairs(properties) do
         local propertyCoords = v.coords
         local found = false
@@ -98,39 +113,54 @@ function RefreshProperties()
             }
         end
     end
+end
 
-    fillInsideTable()
+--- Refresh the properties table on the server
+function RefreshProperties()
+    table.wipe(properties)
+
+    local result = MySQL.query.await('SELECT * FROM properties', {})
+    if not result then return end
+
+    for _, v in pairs(result) do
+        local owners = getPropertyOwners(v.id)
+        local property = formatPropertyData(v, owners)
+        properties[v.id] = property
+    end
+
+    updatePropertiesGroups()
+    findPlayersInsideProperties()
 
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end
 
 -- Enter furnished property
-RegisterNetEvent('qbx-property:server:enterProperty', function(propertyid)
+RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId)
     local source = source
-    local concealedPlayers = {}
-    local PlayersInside = {}
+    local concealPlayers = {}
+    local playersInsideProperty = {}
 
     for k, v in pairs(properties) do
         if v.garage or not v.furnished then goto continue end
-        if k == propertyid then
-            for _, serverid in pairs(v.inside) do
-                PlayersInside[#PlayersInside + 1] = serverid
+        if k == propertyId then
+            for _, serverid in pairs(v.playersInside) do
+                playersInsideProperty[#playersInsideProperty + 1] = serverid
             end
             goto continue
         end
         for _, serverid in pairs(v.inside) do
-            concealedPlayers[#concealedPlayers + 1] = serverid
+            concealPlayers[#concealPlayers + 1] = serverid
         end
         ::continue::
     end
 
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, concealedPlayers, true)
-    for _, v in pairs(PlayersInside) do
+    TriggerClientEvent('qbx-property:client:concealPlayers', source, concealPlayers, true)
+    for _, v in pairs(playersInsideProperty) do
         TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
     end
 
-    TriggerClientEvent('qbx-property:client:enterProperty', source, propertyid)
-    Player(source).set('InProperty', {propertyid = propertyid})
+    TriggerClientEvent('qbx-property:client:enterProperty', source, propertyId)
+    Player(source).set('InProperty', {propertyid = propertyId})
 end)
 
 -- Enter garage
@@ -141,7 +171,7 @@ RegisterNetEvent('qbx-property:server:enterGarage', function(garageId)
     for k, v in pairs(properties) do
         if not v.garage then goto continue end
         if k == garageId then goto continue end
-        for _, serverid in pairs(v.inside) do
+        for _, serverid in pairs(v.playersInside) do
             concealedPlayers[#concealedPlayers + 1] = serverid
         end
         ::continue::

@@ -1,12 +1,14 @@
 Config = {}
 
-Config.useapartments = true -- false to disable apartments
-Config.useproperties = true -- false to disable properties
+Config.useApartments = true -- false to disable apartments
+Config.useProperties = true -- false to disable properties
 
 -- Minimum price for a property (Avoid Players making their own properties for 1$ for example, i guess?)
 Config.MinimumPrice = 1000
-Config.GardenAndPoolTaxes = true
+
+Config.UseTaxes = true
 Config.Taxes = { -- % of the property price (if price is 1000$ and tax is 10%, then the player pays 1100$), applies to both rent (repeatedly) and buy (once)
+    -- TaxName = TaxPercentage
     Garden = 3,
     Pool = 5,
     General = 10,
@@ -77,7 +79,17 @@ Config.apartmentlocations = {
 }
 
 Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are still interiors
-    ["AltaStreet"] = {
+    --[[
+    ["InteriorName"] = {
+        ipl = "iplname" or false,
+        coords = {
+            entrance = vector4(x, y, z, h), -- required (default values)
+            wardrobe = vector4(x, y, z, h), -- required (default values)
+            stash = vector4(x, y, z, h), -- required (default values)
+            logout = vector3(x, y, z), -- required (default values)
+        }
+     ]]
+    ["Alta Street"] = {
         ipl = false,
         coords = {
             entrance = vector4(-271.87, -940.34, 92.51, 70),
@@ -86,7 +98,7 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-283.27, -959.68, 70),
         }
     },
-    ["apa_v_mp_h_01_a"] = {
+    ["Eclipse Tower"] = {
         ipl = "apa_v_mp_h_01_a",
         coords = {
             entrance = vector4(-786.866, 315.764, 217.638, 160),
@@ -95,7 +107,7 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-786.866, 315.764, 217.638),
         }
     },
-    ["LowEnd"] = {
+    ["Low End"] = {
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -107,19 +119,20 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
 }
 
 Config.Shells = {
-    ["empty1"] = {
-        prop = "", -- shell prop i guess idk
+--[[
+    ["Shell Name"] = {
+        shell = string, -- shell object/prop
         offsets = {
-            entrance = vector4(0, 0, 0, 0),
-            wardrobe = vector4(0, 0, 0, 0),
-            stash = vector4(0, 0, 0, 0),
-            logout = vector3(0, 0, 0),
+            entrance = vector4(0, 0, 0, 0), -- required
+            wardrobe = vector4(0, 0, 0, 0), -- required
+            stash = vector4(0, 0, 0, 0), -- required
+            logout = vector3(0, 0, 0), -- required
         }
-    }
+    } ]]
 }
 
 Config.GarageIPLs = {
-    ["LowEnd"] = {
+    ["Low End"] = {
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -143,7 +156,7 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["HighEnd"] = {
+    ["High End"] = {
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -161,7 +174,7 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["ThreeLevel"] = {
+    ["Three Level"] = {
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -189,7 +202,7 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["EclipseBoulevard"] = { -- 10 slots garages of the Acid DLC
+    ["Eclipse Boulevard"] = { -- 10 slots garages of the Acid DLC
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -268,7 +281,7 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["VineWoodCarClub"] = {
+    ["VineWood Car Club"] = {
         ipl = 'm23_1_dlc_int_02_m23_1',
         coords = {
             entrance = vector4(1200, -3250, -50, 0.0),
@@ -289,7 +302,7 @@ Config.GarageIPLs = {
             }
         }
     }, ]]
-    ["FreakShop"] = {
+    ["Freak Shop"] = {
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
