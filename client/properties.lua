@@ -154,8 +154,8 @@ local function populatePropertiesMenu(ids, propertyType)
     if not ids then return end
     local options = {}
 
-    for _, v in pairs(ids) do
-        local propertyData = lib.callback.await('qbx-property:server:GetPropertyData', false, v)
+    for _, propertyId in pairs(ids) do
+        local propertyData = lib.callback.await('qbx-property:server:GetPropertyData', false, propertyId)
         if not propertyData then goto continue end
         options[#options+1] = {
             label = propertyData.name,
