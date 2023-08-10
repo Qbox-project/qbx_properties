@@ -2,8 +2,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(255) NOT NULL,
 	`interior` VARCHAR(255) NOT NULL,
-	`furnished` BOOLEAN NOT NULL,
-	`garage` BOOLEAN NOT NULL,
+	`property_type` ENUM('shell', 'ipl', 'garage') NOT NULL,
 	`coords` JSON NOT NULL,
 	`price` INT NOT NULL,
 	`rent` INT NOT NULL,
@@ -22,9 +21,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
 CREATE TABLE IF NOT EXISTS `property_owners` (
 	`property_id` INT NOT NULL,
 	`citizenid` INT NOT NULL,
-	`owner` BOOLEAN,
-	`co_owner` BOOLEAN,
-	`tenant` BOOLEAN,
+	`role` ENUM('owner', 'co_owner', 'tenant') NOT NULL,
 	PRIMARY KEY (property_id, citizenid) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

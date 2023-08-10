@@ -11,11 +11,10 @@ local function createProperty(data)
     local id = result?[1].id + 1 or 1
 
     local name = id .. ' ' .. data.name
-    local SQLid = exports.oxmysql.insert_async('INSERT INTO properties (name, interior, furnished, garage, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @furnished, @garage, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
+    local SQLid = exports.oxmysql.insert_async('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
         ['@name'] = name,
         ['@interior'] = data.interior,
-        ['@furnished'] = data.furnished or false,
-        ['@garage'] = data.garage or false,
+        ['@property_type'] = data.garage and 'garage' or data.furnished and 'ipl' or 'shell',
         ['@coords'] = json.encode(data.coords),
         ['@price'] = data.price,
         ['@rent'] = data.rent,
@@ -55,8 +54,7 @@ local function getPropertyOwners(propertyId)
 
     if propertyowners then
         for _, owner in pairs(propertyowners) do
-            owners[owner.citizenid] = (owner.owner and 'owner') or (owner.co_owner and 'co_owner') or
-            (owner.tenant and 'tenant') or false
+            owners[owner.citizenid] = owner.role or false
         end
     end
 
@@ -72,9 +70,8 @@ local function formatPropertyData(PropertyData, owners)
     return {
         name = PropertyData.name,
         interior = PropertyData.interior,
-        furnished = PropertyData.furnished or false,
+        property_type = PropertyData.property_type or 'ipl',
         decorations = PropertyData.decorations or nil,
-        garage = PropertyData.garage or false,
         garage_slots = (PropertyData.garage_slots and json.decode(PropertyData.garage_slots)) or nil,
         coords = vector4(coords.x, coords.y, coords.z, coords.h),
         stash = json.decode(PropertyData.stash) or nil,
@@ -108,7 +105,7 @@ local function updatePropertiesGroups()
                 name = v.name,
                 coords = propertyCoords,
                 properties = {k},
-                propertyType = v.garage and 'garage' or 'property'
+                propertyType = v.property_type
             }
         end
     end
@@ -140,7 +137,7 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId)
     local playersInsideProperty = {}
 
     for k, v in pairs(properties) do
-        if not v.garage and v.furnished then
+        if v.property_type == 'ipl' then
             if k == propertyId then
                 for _, serverid in pairs(playersInside) do
                     playersInsideProperty[#playersInsideProperty + 1] = serverid
@@ -165,18 +162,28 @@ end)
 -- Enter garage
 RegisterNetEvent('qbx-property:server:enterGarage', function(garageId)
     local source = source
-    local concealedPlayers = {}
+    local playersToConceal = {}
+    local playersInsideProperty = {}
 
     for k, v in pairs(properties) do
-        if not v.garage then goto continue end
-        if k == garageId then goto continue end
-        for _, serverid in pairs(v.playersInside) do
-            concealedPlayers[#concealedPlayers + 1] = serverid
+        if v.property_type == 'garage' then
+            if k == propertyId then
+                for _, serverid in pairs(playersInside) do
+                    playersInsideProperty[#playersInsideProperty + 1] = serverid
+                end
+            else
+                for _, serverid in pairs(v.playersInside) do
+                    playersToConceal[#playersToConceal + 1] = serverid
+                end
+            end
         end
-        ::continue::
     end
 
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, concealedPlayers, true)
+    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
+    for _, v in pairs(playersInsideProperty) do
+        TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
+    end
+
     TriggerClientEvent('qbx-property:client:enterGarage', source, propertyid)
     Player(source).set('InProperty', {propertyid = propertyid})
 end)
@@ -191,7 +198,7 @@ function PropertiesRentCheck()
         MySQL.Async.execute('UPDATE properties SET rent_date = false, garage_slots = NULL WHERE id = ?', { v.id })
         MySQL.Async.execute('DELETE FROM property_owners WHERE property_id = ?', { v.id })
 
-        local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND owner = 1', { v.id })
+        local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND role = 1', { v.id })
         if not renters then goto continue end
         for _, owner in pairs(renters) do
             TriggerEvent('qbx-phone:server:sendNewMailToOffline', owner.citizenid, {
