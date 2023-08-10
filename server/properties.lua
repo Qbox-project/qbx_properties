@@ -136,24 +136,24 @@ end
 -- Enter furnished property
 RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId)
     local source = source
-    local concealPlayers = {}
+    local playersToConceal = {}
     local playersInsideProperty = {}
 
     for k, v in pairs(properties) do
-        if v.garage or not v.furnished then goto continue end
-        if k == propertyId then
-            for _, serverid in pairs(v.playersInside) do
-                playersInsideProperty[#playersInsideProperty + 1] = serverid
+        if not v.garage and v.furnished then
+            if k == propertyId then
+                for _, serverid in pairs(playersInside) do
+                    playersInsideProperty[#playersInsideProperty + 1] = serverid
+                end
+            else
+                for _, serverid in pairs(v.playersInside) do
+                    playersToConceal[#playersToConceal + 1] = serverid
+                end
             end
-            goto continue
         end
-        for _, serverid in pairs(v.inside) do
-            concealPlayers[#concealPlayers + 1] = serverid
-        end
-        ::continue::
     end
 
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, concealPlayers, true)
+    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
     for _, v in pairs(playersInsideProperty) do
         TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
     end
