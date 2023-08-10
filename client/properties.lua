@@ -179,6 +179,17 @@ local function populatePropertiesMenu(ids, propertyType)
     end)
 end
 
+local function addPropertyGroupBlip(PropertyGroup)
+    local PlayerData = QBCore.Functions.GetPlayerData() or {}
+    for _, propertyId in pairs(PropertyGroup.properties) do
+        local hasKeys, isRented = lib.callback.await('qbx-property:server:hasPropertyKeys', false, propertyId, PlayerData.citizenid), lib.callback.await('qbx-property:server:isPropertyRented', false, propertyId)
+        if hasKeys then
+            local Status = (PropertyGroup.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
+            AddBlip(propertyId, PropertyGroup.name, PropertyGroup.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
+        end
+    end
+end
+
 local function createPropertiesZones()
     local propertiesGroups = lib.callback.await('qbx-property:server:GetProperties', false)
     if not propertiesGroups then return end
@@ -220,15 +231,7 @@ local function createPropertiesZones()
             end
         end
         propertyZones[k] = zone
-
-        local PlayerData = QBCore.Functions.GetPlayerData() or {}
-        for _, propertyId in pairs(v.properties) do
-            local hasKeys, isRented = lib.callback.await('qbx-property:server:hasPropertyKeys', false, propertyId, PlayerData.citizenid), lib.callback.await('qbx-property:server:isPropertyRented', false, propertyId)
-            if hasKeys then
-                local Status = (v.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
-                AddBlip(k, v.name, v.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
-            end
-        end
+        addPropertyGroupBlip(v)
     end
 end
 
