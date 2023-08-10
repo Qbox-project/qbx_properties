@@ -200,12 +200,13 @@ local function createPropertiesZones()
             if self.reset then self.remove() return end
             if not self.currentDistance then return end
             DrawMarker(Config.Properties.Marker.type,
-            self.coords.x, self.coords.y, self.coords.z + Config.Properties.Marker.offsetZ, -- coords
-            0.0, 0.0, 0.0, -- direction?
-            0.0, 0.0, 0.0, -- rotation
-            MarkerScale.x, MarkerScale.y, MarkerScale.z, -- scale
-            Markercolor.r, Markercolor.g, Markercolor.b, Markercolor.a, -- color RBGA
-            false, true, 2, false, nil, nil, false)
+                self.coords.x, self.coords.y, self.coords.z + Config.Properties.Marker.offsetZ, -- coords
+                0.0, 0.0, 0.0, -- direction?
+                0.0, 0.0, 0.0, -- rotation
+                MarkerScale.x, MarkerScale.y, MarkerScale.z, -- scale
+                Markercolor.r, Markercolor.g, Markercolor.b, Markercolor.a, -- color RBGA
+                false, true, 2, false, nil, nil, false
+            )
 
             if self.currentDistance < 1 and not lib.getOpenMenu() then
                 SetTextComponentFormat("STRING")
