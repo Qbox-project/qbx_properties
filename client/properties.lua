@@ -47,12 +47,12 @@ local function populatePropertyMenu(PropertyData, propertyType)
     local PlayerData = QBCore.Functions.GetPlayerData()
     if not PlayerData then return end
     local isRealEstateAgent = PlayerData.job.type == 'realestate'
-    local isBought, isRented, isOwner = PropertyData.owners and true, PropertyData.rent_date and true, PropertyData.owners[PlayerData.citizenid] and true or false
+    local isBought, isRented, hasKeys = PropertyData.owners and true, PropertyData.rent_date and true, PropertyData.owners[PlayerData.citizenid] and true or false
 
     local options = {}
 
     if isBought or isRented then
-        if isOwner then
+        if hasKeys then
             options[#options+1] = {
                 label = Lang:t('property_menu.enter'),
                 args = {
@@ -223,10 +223,10 @@ local function createPropertiesZones()
 
         local PlayerData = QBCore.Functions.GetPlayerData() or {}
         for _, value in pairs(v.properties) do
-            local isOwner, isRented = lib.callback.await('qbx-property:server:IsOwner', false, value, PlayerData.citizenid)
-            if isOwner then
+            local hasKeys, isRented = lib.callback.await('qbx-property:server:hasKeys', false, value, PlayerData.citizenid)
+            if hasKeys then
                 local Status = (v.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
-                AddBlip(false, k, v.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale, v.name)
+                AddBlip(k, v.name, v.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
             end
         end
     end
