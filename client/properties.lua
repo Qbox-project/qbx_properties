@@ -278,7 +278,7 @@ end
 
 RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     if isInZone then
-        TriggerClientEvent('QBCore:Notify', source, text, type, length)
+        QBCore.Functions.Notify('A property already exists there!', 'error', 5000)
         return
     end
     local GeneralOptions = lib.inputDialog('Property Creator', {
@@ -305,7 +305,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     local PropertyCreation = lib.inputDialog('Property Creator', PropertyOptions, {allowCancel = true})
     if not PropertyCreation then return end
     if not PropertyCreation[1] then
-        TriggerEvent('QBCore:Notify', 'You need to select an interior!', 'error')
+        QBCore.Functions.Notify('You need to select an interior!', 'error')
         return
     end
     local coords = GetEntityCoords(cache.ped)

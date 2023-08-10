@@ -214,7 +214,7 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(PropertyData)
     if not PlayerData.job.type == 'realestate' then return end
 
     if not createProperty(PropertyData) then
-        TriggerClientEvent('QBCore:Notify', source, Lang:t('error.failed_createproperty'), 'error')
+        QBCore.Functions.Notify(source, Lang:t('error.failed_createproperty'), 'error')
         return
     end
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
