@@ -222,8 +222,8 @@ local function createPropertiesZones()
         propertyZones[k] = zone
 
         local PlayerData = QBCore.Functions.GetPlayerData() or {}
-        for _, value in pairs(v.properties) do
-            local hasKeys, isRented = lib.callback.await('qbx-property:server:hasKeys', false, value, PlayerData.citizenid)
+        for _, propertyId in pairs(v.properties) do
+            local hasKeys, isRented = lib.callback.await('qbx-property:server:hasPropertyKeys', false, propertyId, PlayerData.citizenid), lib.callback.await('qbx-property:server:isPropertyRented', false, propertyId)
             if hasKeys then
                 local Status = (v.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
                 AddBlip(k, v.name, v.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)

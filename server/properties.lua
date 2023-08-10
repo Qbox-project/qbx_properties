@@ -226,10 +226,14 @@ RegisterNetEvent('qbx-property:server:AddProperty', function()
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
 end)
 
-lib.callback.register('qbx-property:server:hasKeys', function(source, propertyId, citizenId)
+lib.callback.register('qbx-property:server:hasPropertyKeys', function(source, propertyId, citizenId)
     local hasKeys = properties[propertyId]?.owners?[citizenId] and true or false
-    local isRented = properties[propertyId]?.rent_date and true or false
     return hasKeys, isRented
+end)
+
+lib.callback.register('qbx-property:server:isPropertyRented', function(source, propertyId)
+    local isRented = properties[propertyId]?.rent_date and true or false
+    return isRented
 end)
 
 lib.callback.register('qbx-property:server:GetProperties', function()
