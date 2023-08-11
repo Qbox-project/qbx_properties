@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`coords` JSON NOT NULL,
 	`price` INT NOT NULL,
 	`rent` INT NOT NULL,
-	`rent_date` TIMESTAMP DEFAULT NULL,
+	`rent_expiration` TIMESTAMP DEFAULT NULL,
 	`stash` JSON,
 	`outfit` JSON,
 	`logout` JSON,

@@ -80,7 +80,7 @@ local function formatPropertyData(PropertyData, owners)
         appliedtaxes = PropertyData.appliedtaxes or nil,
         price = PropertyData.price,
         rent = PropertyData.rent,
-        rent_date = PropertyData.rent_date ~= 0 and PropertyData.rent_date/1000 or false,
+        rent_expiration = PropertyData.rent_expiration ~= 0 and PropertyData.rent_expiration/1000 or false,
         owners = next(owners) and owners or false,
         playersInside = {}
     }
@@ -190,12 +190,12 @@ end)
 
 --- Check for expired rents
 function PropertiesRentCheck()
-    local rentedproperties = MySQL.query.await('SELECT * FROM properties WHERE NOT rent_date = false', {})
+    local rentedproperties = MySQL.query.await('SELECT * FROM properties WHERE NOT rent_expiration = false', {})
     if not rentedproperties then return end
 
     for _, v in pairs(rentedproperties) do
-        if v.rent_date / 1000 > os.time() or os.date("%x", v.rent_date / 1000) == os.date("%x", os.time()) then goto continue end
-        MySQL.Async.execute('UPDATE properties SET rent_date = false, garage_slots = NULL WHERE id = ?', { v.id })
+        if v.rent_expiration / 1000 > os.time() or os.date("%x", v.rent_expiration / 1000) == os.date("%x", os.time()) then goto continue end
+        MySQL.Async.execute('UPDATE properties SET rent_expiration = false, garage_slots = NULL WHERE id = ?', { v.id })
         MySQL.Async.execute('DELETE FROM property_owners WHERE property_id = ?', { v.id })
 
         local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND role = 1', { v.id })
@@ -241,7 +241,7 @@ lib.callback.register('qbx-property:server:hasPropertyKeys', function(source, pr
 end)
 
 lib.callback.register('qbx-property:server:isPropertyRented', function(source, propertyId)
-    local isRented = properties[propertyId]?.rent_date and true or false
+    local isRented = properties[propertyId]?.rent_expiration and true or false
     return isRented
 end)
 

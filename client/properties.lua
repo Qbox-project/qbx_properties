@@ -47,7 +47,7 @@ local function populatePropertyMenu(PropertyData, propertyType)
     local PlayerData = QBCore.Functions.GetPlayerData()
     if not PlayerData then return end
     local isRealEstateAgent = PlayerData.job.type == 'realestate'
-    local isBought, isRented, hasKeys = PropertyData.owners and true, PropertyData.rent_date and true, PropertyData.owners[PlayerData.citizenid] and true or false
+    local isBought, isRented, hasKeys = PropertyData.owners and true, PropertyData.rent_expiration and true, PropertyData.owners[PlayerData.citizenid] and true or false
 
     local options = {}
 
