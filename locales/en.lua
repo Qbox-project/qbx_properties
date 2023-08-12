@@ -19,7 +19,7 @@ local Translations = {
     },
     properties_menu = {
         garage = 'Garage',
-        property = 'Property',
+        ipl = 'Property',
         showmenuhelp = '~g~E~w~ - Enter %{propertyType}',
     },
     create_property_menu = {
@@ -46,7 +46,12 @@ local Translations = {
         bust_door_open = 'Bust Door Open',
     },
     property_menu = {
-
+        ring = 'Ring Doorbell',
+        enter = 'Enter Property',
+        modify = 'Modify Property',
+        extend_rent = 'Extend Rent',
+        extend_rent_desc = 'Rent expires in %{rent_expiration} days, extend for $%{price}?',
+        back = 'Back',
     },
     manage_property_menu = {
 
