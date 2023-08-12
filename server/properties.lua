@@ -11,7 +11,7 @@ local function createProperty(data)
     local id = (result?[1]?.id or 0) + 1
 
     local name = id .. ' ' .. data.name
-    local SQLid = exports.oxmysql.insert_async('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
+    exports.oxmysql:insert('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
         ['@name'] = name,
         ['@interior'] = data.interior,
         ['@property_type'] = data.garage and 'garage' or data.furnished and 'ipl' or 'shell',
@@ -21,10 +21,10 @@ local function createProperty(data)
         ['@appliedtaxes'] = json.encode(data.appliedtaxes or {}),
         ['@maxweight'] = data.maxweight or 10000,
         ['@slots'] = data.slots or 10
-    })
-    if not SQLid then
-        return false
-    end
+    }, function(result)
+        if not result then return false end
+    end)
+    return id
 end
 
 --- Finds the players inside properties and adds them to the playersInside table
@@ -61,27 +61,32 @@ local function getPropertyOwners(propertyId)
     return owners
 end
 
+local function calcDaysLeft(time)
+    --[[ calc days left ]]
+    return math.floor((time/1000 - os.time()) / 86400)
+end
+
 --- Formats the property data
 ---@param PropertyData table
 ---@param owners table
 ---@return table
 local function formatPropertyData(PropertyData, owners)
-    local coords = json.decode(PropertyData.coords)
+    local coords = type(PropertyData.coords) == "string" and json.decode(PropertyData.coords) or PropertyData.coords
     return {
         name = PropertyData.name,
         interior = PropertyData.interior,
         property_type = PropertyData.property_type or 'ipl',
         decorations = PropertyData.decorations or nil,
-        garage_slots = (PropertyData.garage_slots and json.decode(PropertyData.garage_slots)) or nil,
+        garage_slots = (type(PropertyData.garage_slots) == "string" and json.decode(PropertyData.garage_slots)) or nil,
         coords = vector4(coords.x, coords.y, coords.z, coords.h),
-        stash = json.decode(PropertyData.stash) or nil,
-        logout = json.decode(PropertyData.logout) or nil,
-        outfit = json.decode(PropertyData.outfit) or nil,
-        appliedtaxes = PropertyData.appliedtaxes or nil,
+        stash = type(PropertyData.stash) == "string" and json.decode(PropertyData.stash),
+        logout = type(PropertyData.logout) == "string" and json.decode(PropertyData.logout) or nil,
+        outfit = type(PropertyData.outfit) == "string" and json.decode(PropertyData.outfit) or nil,
+        appliedtaxes = PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
-        rent_expiration = PropertyData.rent_expiration ~= 0 and PropertyData.rent_expiration/1000 or false,
-        owners = next(owners) and owners or false,
+        rent_expiration = PropertyData.rent_expiration and calcDaysLeft(PropertyData.rent_expiration) or false,
+        owners = next(owners) and owners or {},
         playersInside = {}
     }
 end
@@ -211,6 +216,12 @@ local function PropertiesRentCheck()
     end
 end
 
+local function addPropertyToList(propertyData, propertyId)
+    local property = formatPropertyData(propertyData, {})
+    properties[propertyId] = property
+    updatePropertiesGroups()
+end
+
 RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
     if not propertyData then return end
     local source = source
@@ -221,10 +232,13 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
     local PlayerData = Player.PlayerData
     if not PlayerData.job.type == 'realestate' then return end
 
-    if not createProperty(PropertyData) then
+    local propertyId = createProperty(propertyData)
+    if not propertyId then
         QBCore.Functions.Notify(source, Lang:t('error.failed_createproperty'), 'error')
         return
     end
+
+    addPropertyToList(propertyData, propertyId)
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end)
 
