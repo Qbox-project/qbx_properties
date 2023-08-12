@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`maxweight` INT,
 	`slots` INT,
 	`garage_slots` JSON,
-	PRIMARY KEY (id) ON DELETE CASCADE ON UPDATE CASCADE
+	PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS `property_owners` (
