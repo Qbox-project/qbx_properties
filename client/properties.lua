@@ -269,11 +269,11 @@ end
 --- return table
 local function getTaxesList()
     local taxes = {}
-    for k, v in pairs(Config.Taxes) do
+    for k, _ in pairs(Config.Taxes) do
         if k ~= 'General' then
             taxes[#taxes + 1] = {
                 label = k,
-                value = v
+                value = k
             }
         end
     end
@@ -285,6 +285,18 @@ end
 local function createProperty(propertyData)
     propertyData.maxWeight = propertyData.weight and propertyData.weight * 1000 or false
     TriggerServerEvent('qbx-property:server:CreateProperty', propertyData)
+end
+
+--- Get the list of applied taxes if any
+---@param taxes table | nil
+---@return table | nil
+local function getAppliedTaxesList(taxes)
+    if not taxes then return nil end
+    local appliedTaxes = {}
+    for _, v in pairs(taxes) do
+        appliedTaxes[v] = Config.Taxes[v]
+    end
+    return appliedTaxes
 end
 
 RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
@@ -309,7 +321,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         propertyOptions[2] = {type = 'number', label = "Storage Volume", description = "Size of the storage (Kg)", default = 50, min = 1}
         propertyOptions[3] = {type = 'number', label = "Storage Size", description = "Number of slots the Storage has", default = 10, min = 1}
         if Config.UseTaxes then
-            PropertyOptions[4] = {type = 'multi-select', label = "Taxes", description = "Adds a tax if the property has the selected feature", options = getTaxesList()}
+            propertyOptions[4] = {type = 'multi-select', label = "Taxes", description = "Adds a tax if the property has the selected feature", options = getTaxesList()}
         end
     end
 
@@ -329,7 +341,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         interior = propertyCreation[1],
         weight = propertyCreation[2] or nil,
         slots = propertyCreation[3] or nil,
-        appliedtaxes = PropertyCreation[4] or nil,
+        appliedtaxes = getAppliedTaxesList(propertyCreation[4]) or nil,
         coords = {x = coords.x, y = coords.y, z = coords.z, h = GetEntityHeading(cache.ped)},
     }
     createProperty(inputResult)
