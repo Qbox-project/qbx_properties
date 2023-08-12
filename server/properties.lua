@@ -8,7 +8,7 @@ local propertiesGroups = {}
 local function createProperty(data)
     if not data or not data.coords then return false end
     local result = MySQL.Sync.fetchAll('SELECT id FROM properties ORDER BY id DESC LIMIT 1', {})
-    local id = result?[1].id + 1 or 1
+    local id = (result?[1]?.id or 0) + 1
 
     local name = id .. ' ' .. data.name
     local SQLid = exports.oxmysql.insert_async('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
