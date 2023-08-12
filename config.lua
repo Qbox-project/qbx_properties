@@ -78,17 +78,8 @@ Config.apartmentlocations = {
     },
 }
 
+---@type { [string]: { ipl: string | false, coords: { entrance: vector4, wardrobe: vector4, stash: vector4, logout: vector3 } } }
 Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are still interiors
-    --[[
-    ["InteriorName"] = {
-        ipl = "iplname" or false,
-        coords = {
-            entrance = vector4(x, y, z, h), -- required (default values)
-            wardrobe = vector4(x, y, z, h), -- required (default values)
-            stash = vector4(x, y, z, h), -- required (default values)
-            logout = vector3(x, y, z), -- required (default values)
-        }
-     ]]
     ["Alta Street"] = {
         ipl = false,
         coords = {

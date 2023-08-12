@@ -3,8 +3,8 @@ local properties = {}
 local propertiesGroups = {}
 
 --- Create a new property
----@param data table {name: string, interior: number, furnished: boolean, garage: boolean, coords: vector4, price: number, rent: number}
----@return boolean
+--- @param data table {name: string, interior: number, furnished: boolean, garage: boolean, coords: vector4, price: number, rent: number}
+--- @return integer | boolean propertyId
 local function createProperty(data)
     if not data or not data.coords then return false end
     local result = MySQL.Sync.fetchAll('SELECT id FROM properties ORDER BY id DESC LIMIT 1', {})
@@ -87,6 +87,7 @@ local function formatPropertyData(PropertyData, owners)
 end
 
 local function updatePropertiesGroups()
+    propertiesGroups = {}
     for k, v in pairs(properties) do
         local propertyCoords = v.coords
         local found = false
@@ -112,9 +113,8 @@ local function updatePropertiesGroups()
 end
 
 --- Refresh the properties table on the server
-function RefreshProperties()
-    table.wipe(properties)
-
+local function RefreshProperties()
+    properties = {}
     local result = MySQL.query.await('SELECT * FROM properties', {})
     if not result then return end
 
@@ -189,7 +189,7 @@ RegisterNetEvent('qbx-property:server:enterGarage', function(garageId)
 end)
 
 --- Check for expired rents
-function PropertiesRentCheck()
+local function PropertiesRentCheck()
     local rentedproperties = MySQL.query.await('SELECT * FROM properties WHERE NOT rent_expiration = false', {})
     if not rentedproperties then return end
 
@@ -211,8 +211,9 @@ function PropertiesRentCheck()
     end
 end
 
-RegisterNetEvent('qbx-property:server:CreateProperty', function(PropertyData)
-    if not PropertyData then return end
+RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
+    if not propertyData then return end
+    local source = source
 
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return end
