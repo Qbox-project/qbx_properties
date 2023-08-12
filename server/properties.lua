@@ -250,14 +250,17 @@ RegisterNetEvent('qbx-property:server:AddProperty', function()
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
 end)
 
-lib.callback.register('qbx-property:server:hasPropertyKeys', function(source, propertyId, citizenId)
-    local hasKeys = properties[propertyId]?.owners?[citizenId] and true or false
-    return hasKeys, isRented
-end)
-
-lib.callback.register('qbx-property:server:isPropertyRented', function(source, propertyId)
-    local isRented = properties[propertyId]?.rent_expiration and true or false
-    return isRented
+lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function(source)
+    local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
+    local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
+    if not hasKeys then return end
+    local propertyList = {}
+    for _, v in pairs(hasKeys) do
+        propertyList[v.property_id] = {
+            isRented = properties[v.property_id].rent_expiration and true or false,
+        }
+    end
+    return propertyList
 end)
 
 lib.callback.register('qbx-property:server:GetProperties', function()

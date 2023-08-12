@@ -180,15 +180,9 @@ local function populatePropertiesMenu(ids, propertyType)
     end)
 end
 
-local function addPropertyGroupBlip(PropertyGroup)
-    local PlayerData = QBCore.Functions.GetPlayerData() or {}
-    for _, propertyId in pairs(PropertyGroup.properties) do
-        local hasKeys, isRented = lib.callback.await('qbx-property:server:hasPropertyKeys', false, propertyId, PlayerData.citizenid), lib.callback.await('qbx-property:server:isPropertyRented', false, propertyId)
-        if hasKeys then
-            local Status = (PropertyGroup.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
-            AddBlip(propertyId, PropertyGroup.name, PropertyGroup.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
-        end
-    end
+local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
+    local Status = (propertyGroup.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
+    AddBlip(propertyId, propertyGroup.name, propertyGroup.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
 end
 
 local function createPropertiesZones()
@@ -197,6 +191,8 @@ local function createPropertiesZones()
 
     local Markercolor = Config.Properties.Marker.color
     local MarkerScale = Config.Properties.Marker.scale
+    local ownedOrRentedProperties = lib.callback.await('qbx-property:server:GetOwnedOrRentedProperties', false)
+
     for k, v in pairs(propertiesGroups) do
         print(string.format('ID: %s, Coords: %s, Type: %s', tostring(v.properties[1]), tostring(v.coords), tostring(v.propertyType)))
         local zone = lib.points.new({
@@ -234,7 +230,9 @@ local function createPropertiesZones()
             end
         end
         propertyZones[k] = zone
-        addPropertyGroupBlip(v)
+        if ownedOrRentedProperties[k] then
+            addPropertyGroupBlip(k, v, ownedOrRentedProperties[k].isRented)
+        end
     end
 end
 
