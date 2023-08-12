@@ -228,6 +228,8 @@ local function createPropertiesZones()
                     populatePropertiesMenu(self.propertyIds, self.propertyType)
                     --lib.showMenu('properties_menu')
                 end
+            else
+                isInZone = false
             end
         end
         propertyZones[k] = zone
