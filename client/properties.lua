@@ -76,6 +76,7 @@ local function populatePropertyMenu(propertyData, propertyType)
         if isRented then
             options[#options+1] = {
                 label = Lang:t('property_menu.extend_rent'),
+                description = Lang:t('property_menu.extend_rent_desc', {rent_expiration = propertyData.rent_expiration, price = calcPrice(propertyData.rent, propertyData.appliedtaxes)}),
                 args = {
                     action = 'extend_rent',
                     propertyData = propertyData,
