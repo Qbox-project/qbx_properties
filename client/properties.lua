@@ -360,11 +360,48 @@ RegisterNetEvent('qbx-property:client:LeaveProperty', function(coords)
     DoScreenFadeIn(500)
 end)
 
--- fix bob74_ipl's | other IPLs to be used correctly
+-- Prepare IPLs
+local interiors = {
+    [290561] = { -- Eclipse Boulevard
+        entitysets = {
+            "entity_set_shell_02",
+            "entity_set_numbers_01",
+            "entity_set_tint_01",
+        },
+        color = {
+            "entity_set_tint_01",
+            1
+        }
+    },
+    [291841] = { -- Vinewood Car Club
+        entitysets = {
+            "entity_set_signs",
+            "entity_set_plus",
+            "entity_set_stairs",
+            "entity_set_backdrop_frames"
+        }
+    },
+    [290817] = {
+        entitysets = {
+            "entity_set_roller_door_closed"
+        }
+    }
+}
+
 local function setupInteriors()
     local Franklin = exports['bob74_ipl']:GetFranklinObject()
     Franklin.Style.Set(Franklin.Style.settled)
     Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
+
+    for k, v in pairs(interiors) do
+        for _, entityset in pairs(v.entitysets) do
+            ActivateInteriorEntitySet(k, entityset)
+        end
+        if v.color then
+            SetInteriorEntitySetColor(k, v.color[1], v.color[2])
+        end
+        RefreshInterior(k)
+    end
 end
 
 local function init()
