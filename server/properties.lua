@@ -267,7 +267,7 @@ lib.callback.register('qbx-property:server:GetProperties', function()
     return propertiesGroups or false
 end)
 
-lib.callback.register('qbx-property:server:GetPropertyData', function(propertyId)
+lib.callback.register('qbx-property:server:GetPropertyData', function(source, propertyId)
     return properties[propertyId] or false
 end)
 
