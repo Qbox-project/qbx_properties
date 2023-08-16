@@ -200,7 +200,7 @@ local function PropertiesRentCheck()
 
     for _, v in pairs(rentedproperties) do
         if v.rent_expiration / 1000 > os.time() or os.date("%x", v.rent_expiration / 1000) == os.date("%x", os.time()) then goto continue end
-        MySQL.Async.execute('UPDATE properties SET rent_expiration = false, garage_slots = NULL WHERE id = ?', { v.id })
+        MySQL.Async.execute('UPDATE properties SET rent_expiration = NULL, garage_slots = NULL WHERE id = ?', { v.id })
         MySQL.Async.execute('DELETE FROM property_owners WHERE property_id = ?', { v.id })
 
         local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND role = 1', { v.id })
