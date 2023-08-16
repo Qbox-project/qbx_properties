@@ -85,7 +85,7 @@ local function formatPropertyData(PropertyData, owners)
         appliedtaxes = PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
-        rent_expiration = PropertyData.rent_expiration and calcDaysLeft(PropertyData.rent_expiration) or false,
+        rent_expiration = PropertyData.rent_expiration ~= 0 and calcDaysLeft(PropertyData.rent_expiration) or false,
         owners = next(owners) and owners or {},
         playersInside = {}
     }
