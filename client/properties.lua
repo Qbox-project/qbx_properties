@@ -360,6 +360,24 @@ RegisterNetEvent('qbx-property:client:LeaveProperty', function(coords)
     DoScreenFadeIn(500)
 end)
 
-CreateThread(function()
+-- fix bob74_ipl's | other IPLs to be used correctly
+local function setupInteriors()
+    local Franklin = exports['bob74_ipl']:GetFranklinObject()
+    Franklin.Style.Set(Franklin.Style.settled)
+    Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
+end
+
+local function init()
+    if next(propertyZones) ~= nil then
+        clearProperties()
+    end
     createPropertiesZones()
+    setupInteriors()
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', init)
+AddEventHandler('onResourceStart', function(resource)
+   if resource == GetCurrentResourceName() then
+        init()
+   end
 end)
