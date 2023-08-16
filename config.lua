@@ -174,6 +174,7 @@ Config.Shells = {
     } ]]
 }
 
+---@type { [string]: { ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }, styles: table} } }
 Config.GarageIPLs = {
     ["Low End"] = {
         ipl = false,
@@ -266,7 +267,7 @@ Config.GarageIPLs = {
     ["Eclipse Boulevard"] = { -- 10 slots garages of the Acid DLC
         ipl = false,
         coords = {
-            entrance = vector4(265.95, -1007.41, -101.01, 2.71),
+            entrance = vector4(531.65, -2637.61, -49.0, 89.55),
             slots = {
                 vec4(265.95, -1007.41, -101.01, 2.71),
                 vec4(265.95, -1007.41, -101.01, 2.71),
@@ -281,7 +282,36 @@ Config.GarageIPLs = {
             }
         },
         styles = {
-
+            Walls = {
+                ["White"] = "entity_set_shell_01",
+                ["Industrial"] = "entity_set_shell_02",
+                ["Indulgent"] = "entity_set_shell_03",
+            },
+            Number = {
+                ["1"] = "entity_set_numbers_01",
+                ["2"] = "entity_set_numbers_02",
+                ["3"] = "entity_set_numbers_03",
+                ["4"] = "entity_set_numbers_04",
+                ["5"] = "entity_set_numbers_05",
+            },
+            Tint = {
+                color = true,
+                entityset = "entity_set_tint_01",
+                colors = {
+                    ["White"] = 1,
+                    ["Gray"] = 2,
+                    ["Black"] = 3,
+                    ["Purple"] = 4,
+                    ["Orange"] = 5,
+                    ["Yellow"] = 6,
+                    ["Blue"] = 7,
+                    ["Red"] = 8,
+                    ["Green"] = 9,
+                    ["Vintage Blue"] = 10,
+                    ["Vintage Red"] = 11,
+                    ["Vintage green"] = 12
+                }
+            },
         }
     },
     ["Casino"] = {
@@ -366,7 +396,15 @@ Config.GarageIPLs = {
         ipl = 'm23_1_dlc_int_02_m23_1',
         coords = {
             entrance = vector4(1200, -3250, -50, 0.0),
-            slots = {}
+            slots = {},
+        },
+        styles = {
+            Props = {
+                ["Signs"] = "entity_set_signs",
+                ["Plus"] = "entity_set_plus",
+                ["Stairs"] = "entity_set_stairs",
+                ["Backdrop Frames"] = "entity_set_backdrop_frames"
+            }
         }
     },
     --[[ Can the garage be isolated from the rest of the interior ? :hmm:
@@ -386,7 +424,7 @@ Config.GarageIPLs = {
     ["Freak Shop"] = {
         ipl = false,
         coords = {
-            entrance = vector4(265.95, -1007.41, -101.01, 2.71),
+            entrance = vector4(570.0, -415.0, -70.0, 0),
             slots = {
                 vec4(265.95, -1007.41, -101.01, 2.71),
                 vec4(265.95, -1007.41, -101.01, 2.71),
