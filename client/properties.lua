@@ -269,7 +269,7 @@ end
 local function getTaxesList()
     local taxes = {}
     for k, _ in pairs(Config.Properties.taxes) do
-        if k ~= 'General' then
+        if k ~= 'general' then
             taxes[#taxes + 1] = {
                 label = k,
                 value = k
