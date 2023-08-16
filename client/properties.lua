@@ -33,8 +33,8 @@ local function createPropertyInteriorZones(IPL, customZones)
 end
 
 local function calcPrice(price, taxes)
-    local totaltax = Config.Taxes.General
-    for taxname, tax in pairs(Config.Taxes) do
+    local totaltax = Config.Properties.taxes.general
+    for taxname, tax in pairs(Config.Properties.taxes) do
         if taxes[taxname] then
             totaltax = totaltax + tax
         end
@@ -181,16 +181,16 @@ local function populatePropertiesMenu(ids, propertyType)
 end
 
 local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
-    local Status = (propertyGroup.propertyType == 'garage' and 'Garage') or (isRented and 'Rent') or 'Owned'
-    AddBlip(propertyId, propertyGroup.name, propertyGroup.coords, Config.Properties.Blip[Status].sprite, Config.Properties.Blip[Status].color, Config.Properties.Blip[Status].scale)
+    local Status = (propertyGroup.propertyType == 'garage' and 'garage') or (isRented and 'rent') or 'owned'
+    AddBlip(propertyId, propertyGroup.name, propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
 end
 
 local function createPropertiesZones()
     local propertiesGroups = lib.callback.await('qbx-property:server:GetProperties', false)
     if not propertiesGroups then return end
 
-    local Markercolor = Config.Properties.Marker.color
-    local MarkerScale = Config.Properties.Marker.scale
+    local markerColor = Config.Properties.marker.color
+    local markerScale = Config.Properties.marker.scale
     local ownedOrRentedProperties = lib.callback.await('qbx-property:server:GetOwnedOrRentedProperties', false)
 
     for k, v in pairs(propertiesGroups) do
@@ -207,12 +207,12 @@ local function createPropertiesZones()
         function zone:nearby()
             if self.reset then self.remove() return end
             if not self.currentDistance then return end
-            DrawMarker(Config.Properties.Marker.type,
-                self.coords.x, self.coords.y, self.coords.z + Config.Properties.Marker.offsetZ, -- coords
+            DrawMarker(Config.Properties.marker.type,
+                self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
                 0.0, 0.0, 0.0, -- direction?
                 0.0, 0.0, 0.0, -- rotation
-                MarkerScale.x, MarkerScale.y, MarkerScale.z, -- scale
-                Markercolor.r, Markercolor.g, Markercolor.b, Markercolor.a, -- color RBGA
+                markerScale.x, markerScale.y, markerScale.z, -- scale
+                markerColor.r, markerColor.g, markerColor.b, markerColor.a, -- color RBGA
                 false, true, 2, false, nil, nil, false
             )
 
@@ -268,7 +268,7 @@ end
 --- return table
 local function getTaxesList()
     local taxes = {}
-    for k, _ in pairs(Config.Taxes) do
+    for k, _ in pairs(Config.Properties.taxes) do
         if k ~= 'General' then
             taxes[#taxes + 1] = {
                 label = k,
@@ -293,7 +293,7 @@ local function getAppliedTaxesList(taxes)
     if not taxes then return nil end
     local appliedTaxes = {}
     for _, v in pairs(taxes) do
-        appliedTaxes[v] = Config.Taxes[v]
+        appliedTaxes[v] = Config.Properties.taxes[v]
     end
     return appliedTaxes
 end
@@ -305,7 +305,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     end
     local generalOptions = lib.inputDialog('Property Creator', {
         {type = 'input', label = 'Name', description = 'Name the Property (Optional)', placeholder = 'Vinewood Villa'},
-        {type = 'number', label = 'Price', required = true, icon = 'dollar-sign', default = 1000, min = Config.MinimumPrice},
+        {type = 'number', label = 'Price', required = true, icon = 'dollar-sign', default = 1000, min = Config.Properties.minimumPrice},
         {type = 'number', label = 'Rent Price', required = true, description = 'Rent price for 7 days', icon = 'dollar-sign', default = 100, placeholder = "69"},
         {type = 'checkbox', label = 'Garage?', checked = false},
         {type = 'checkbox', label = 'Furnished? (Not For Garages!)', checked = true},
@@ -319,7 +319,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     if not generalOptions[4] then
         propertyOptions[2] = {type = 'number', label = "Storage Volume", description = "Size of the storage (Kg)", default = 50, min = 1}
         propertyOptions[3] = {type = 'number', label = "Storage Size", description = "Number of slots the Storage has", default = 10, min = 1}
-        if Config.UseTaxes then
+        if Config.Properties.useTaxes then
             propertyOptions[4] = {type = 'multi-select', label = "Taxes", description = "Adds a tax if the property has the selected feature", options = getTaxesList()}
         end
     end

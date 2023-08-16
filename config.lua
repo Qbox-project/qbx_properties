@@ -3,42 +3,40 @@ Config = {}
 Config.useApartments = true -- false to disable apartments
 Config.useProperties = true -- false to disable properties
 
--- Minimum price for a property (Avoid Players making their own properties for 1$ for example, i guess?)
-Config.MinimumPrice = 1000
-
-Config.UseTaxes = true
-Config.Taxes = { -- % of the property price (if price is 1000$ and tax is 10%, then the player pays 1100$), applies to both rent (repeatedly) and buy (once)
-    -- TaxName = TaxPercentage
-    Garden = 3,
-    Pool = 5,
-    General = 10,
-}
-
 Config.Properties = {
-    Marker = {
+    marker = {
         type = 25,
         offsetZ = -0.95,
         color = {r = 82, g = 145, b = 170, a = 155},
         scale = {x = 0.8, y = 0.8, z = 0.8},
     },
-
-    Blip = {
-        Owned = {
+    blip = {
+        owned = {
             sprite = 40,
             color = 38,
             scale = 0.7,
         },
-        Rent = {
+        rent = {
             sprite = 40,
             color = 25,
             scale = 0.7,
         },
-        Garage = {
+        garage = {
             sprite = 357,
             color = 3,
             scale = 0.7,
         },
     },
+    --- @type number Minimum price for a property (Avoid Players making their own properties for 1$ for example, i guess?)
+    minimumPrice = 10000,
+    --- @type boolean
+    useTaxes = true,
+    --- @type { [string]: number } Applies to both rent (repeatedly) and buy (once)
+    taxes = {
+        garden = 3,
+        pool = 5,
+        general = 10,
+    }
 }
 
 Config.Apartments = {
