@@ -32,6 +32,7 @@ Config.Properties = {
     --- @type boolean
     useTaxes = true,
     --- @type { [string]: number } Applies to both rent (repeatedly) and buy (once)
+    --- /!\ Case sensitive /!\
     taxes = {
         garden = 3,
         pool = 5,
