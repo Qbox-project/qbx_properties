@@ -24,6 +24,8 @@ local Translations = {
     },
     create_property_menu = {
         title = 'Create Property',
+        interior_label_garage = '%{interior} (%{slots} slots)',
+        interior_label = '%{interior}',
     },
     apartment_menu = {
         title = 'Apartments',

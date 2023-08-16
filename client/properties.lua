@@ -258,7 +258,7 @@ local function createInteriorsList(Garage, Furnished)
     local options = {}
     for k,v in pairs((Garage and Config.GarageIPLs) or (Furnished and Config.IPLS) or Config.Shells) do
         options[#options+1] = {}
-        options[#options].label = Garage and (k .. " (" .. #v.coords.slots .. ' Slots)') or nil -- Lang:t('', {slots = #v.slots})
+        options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = k, slots = #v.coords?.slots}) or Lang:t('create_property_menu.interior_label', {interior = k})
         options[#options].value = k
     end
     return options
