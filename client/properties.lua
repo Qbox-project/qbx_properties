@@ -305,7 +305,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     end
     local generalOptions = lib.inputDialog('Property Creator', {
         {type = 'input', label = 'Name', description = 'Name the Property (Optional)', placeholder = 'Vinewood Villa'},
-        {type = 'number', label = 'Price', required = true, icon = 'dollar-sign', default = 1000, min = Config.Properties.minimumPrice},
+        {type = 'number', label = 'Price', required = true, icon = 'dollar-sign', default = Config.Properties.minimumPrice, min = Config.Properties.minimumPrice},
         {type = 'number', label = 'Rent Price', required = true, description = 'Rent price for 7 days', icon = 'dollar-sign', default = 100, placeholder = "69"},
         {type = 'checkbox', label = 'Garage?', checked = false},
         {type = 'checkbox', label = 'Furnished? (Not For Garages!)', checked = true},
