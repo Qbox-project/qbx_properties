@@ -131,7 +131,12 @@ local function populatePropertyMenu(propertyData, propertyType)
         id = 'property_menu',
         title = propertyData.name,
         position = 'top-left',
-        options = options
+        options = options,
+        onClose = function(keyPressed)
+            if keyPressed == "Backspace" then
+                lib.showMenu('properties_menu')
+            end
+        end,
     }, function(selected, scrollIndex, args)
         if args.action == 'enter' then
             if args.propertyType == 'garage' then
