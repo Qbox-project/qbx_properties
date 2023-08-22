@@ -27,6 +27,22 @@ local function createProperty(data)
     return id
 end
 
+--- Calculate the price with taxes
+--- @param price integer
+--- @param taxes table
+--- @return integer
+local function calcPrice(price, taxes)
+    local totaltax = Config.Properties.taxes.general
+    if taxes then
+        for taxname, tax in pairs(Config.Properties.taxes) do
+            if taxes[taxname] then
+                totaltax = totaltax + tax
+            end
+        end
+    end
+    return math.floor(price + (price * (totaltax/100)))
+end
+
 --- Finds the players inside properties and adds them to the playersInside table
 local function findPlayersInsideProperties()
     for _, v in pairs(QBCore.Functions.GetPlayers()) do
