@@ -412,10 +412,6 @@ local function setupInteriors()
 end
 
 local function init()
-    if next(propertyZones) ~= nil then
-        clearProperties()
-    end
-    createPropertiesZones()
     setupInteriors()
 end
 
