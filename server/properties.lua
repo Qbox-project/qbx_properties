@@ -79,7 +79,7 @@ end
 
 local function calcDaysLeft(time)
     --[[ calc days left ]]
-    return math.floor((time/1000 - os.time()) / 86400)
+    return time and time > 0 and math.floor((time/1000 - os.time()) / 86400) or false
 end
 
 --- Formats the property data
