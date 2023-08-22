@@ -370,7 +370,7 @@ lib.addCommand('createproperty', {
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
 end)
 
-AddEventHandler('onResourceStart', function(resource)
+AddEventHandler('onServerResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         PropertiesRentCheck()
         RefreshProperties()
