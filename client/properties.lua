@@ -51,11 +51,11 @@ local function populatePropertyMenu(propertyData, propertyType)
     local isRealEstateAgent = PlayerData.job.type == 'realestate'
     local isBought, isRented, hasKeys = next(propertyData.owners) ~= nil and true or false, propertyData.rent_expiration and true or false, propertyData.owners[PlayerData.citizenid] and true or false
     local options = {}
-
     if isBought or isRented then
         if hasKeys then
             options[#options+1] = {
                 label = Lang:t('property_menu.enter'),
+                icon = 'door-open',
                 args = {
                     action = 'enter',
                     propertyData = propertyData,
@@ -63,9 +63,23 @@ local function populatePropertyMenu(propertyData, propertyType)
                 },
                 close = true
             }
+            if isRented then
+                options[#options+1] = {
+                    label = Lang:t('property_menu.extend_rent'),
+                    description = Lang:t('property_menu.extend_rent_desc', {rent_expiration = propertyData.rent_expiration, price = calcPrice(propertyData.rent, propertyData.appliedtaxes)}),
+                    icon = 'file-invoice-dollar',
+                    args = {
+                        action = 'extend_rent',
+                        propertyData = propertyData,
+                        propertyType = propertyType,
+                    },
+                    close = true
+                }
+            end
         else
             options[#options+1] = {
                 label = Lang:t('property_menu.ring'),
+                icon = 'bell',
                 args = {
                     action = 'ring',
                     propertyData = propertyData,
@@ -74,21 +88,11 @@ local function populatePropertyMenu(propertyData, propertyType)
                 close = true
             }
         end
-        if isRented then
-            options[#options+1] = {
-                label = Lang:t('property_menu.extend_rent'),
-                description = Lang:t('property_menu.extend_rent_desc', {rent_expiration = propertyData.rent_expiration, price = calcPrice(propertyData.rent, propertyData.appliedtaxes)}),
-                args = {
-                    action = 'extend_rent',
-                    propertyData = propertyData,
-                    propertyType = propertyType,
-                },
-                close = true
-            }
-        end
     elseif isRealEstateAgent then
         options[#options+1] = {
-            label = Lang:t('property_menu.sell', {price = calcPrice(propertyData.price, propertyData.taxes)}),
+            label = Lang:t('property_menu.sell'),
+            description = Lang:t('property_menu.sell_desc', {price = calcPrice(propertyData.price, propertyData.taxes)}),
+            icon = 'file-invoice-dollar',
             args = {
                 action = 'sell',
                 propertyData = propertyData,
@@ -97,9 +101,21 @@ local function populatePropertyMenu(propertyData, propertyType)
             close = true
         }
         options[#options+1] = {
-            label = Lang:t('property_menu.rent'),
+            label = Lang:t('property_menu.rent', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
+            description = Lang:t('property_menu.rent_desc', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
+            icon = 'file-invoice-dollar',
             args = {
                 action = 'rent',
+                propertyData = propertyData,
+                propertyType = propertyType,
+            },
+            close = true
+        }
+    else
+        options[#options+1] = {
+            label = Lang:t('property_menu.visit'),
+            args = {
+                action = 'visit',
                 propertyData = propertyData,
                 propertyType = propertyType,
             },
@@ -110,6 +126,7 @@ local function populatePropertyMenu(propertyData, propertyType)
     if isRealEstateAgent then
         options[#options+1] = {
             label = Lang:t('property_menu.modify'),
+            icon = "toolbox",
             args = {
                 action = 'modify',
                 propertyData = propertyData,
@@ -121,6 +138,7 @@ local function populatePropertyMenu(propertyData, propertyType)
 
     options[#options+1] = {
         label = Lang:t('property_menu.back'),
+        icon = 'arrow-left',
         args = {
             action = 'back',
         },
@@ -148,9 +166,10 @@ local function populatePropertyMenu(propertyData, propertyType)
         elseif args.action == 'ring' then
             TriggerServerEvent('qbx-property:server:RingDoor', args.propertyData.id)
         elseif args.action == 'extend_rent' then
-
         elseif args.action == 'sell' then
+            sellToPlayer(args.propertyData)
         elseif args.action == 'modify' then
+            modifyProperty(args.propertyData)
         elseif args.action == 'back' then
             lib.showMenu('properties_menu')
         end
