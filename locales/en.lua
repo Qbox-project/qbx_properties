@@ -1,12 +1,16 @@
 local Translations = {
     success = {
-        ApartmentDoorBusted = "You busted the door open",
+        boughtProperty = 'You bought the property for $%{price}',
+        soldProperty = 'You sold the property for $%{price}',
     },
     error = {
-        ApartmentDoorBusted = "Hey man, it's your neighbor. I heard a loud noise coming from your apartment. Is everything okay?",
-        noapartmentfound = 'No apartment found',
         playernotonline = 'Player is not online',
         failed_createproperty = 'Failed to create property',
+        players_nearby = 'There are no players nearby!',
+        cancelled = 'Cancelled',
+        problem = 'There was a problem',
+        offerDenied = 'Offer denied',
+        notenoughmoney = 'The person does not have enough money',
     },
     general = {
         accept = 'Accept',
@@ -17,37 +21,22 @@ local Translations = {
         stashname = 'Apartment Storage',
         logout = '[E] - Logout',
     },
-    properties_menu = {
-        garage = 'Garage',
-        ipl = 'Property',
-        showmenuhelp = '~g~E~w~ - Enter %{propertyType}',
-    },
     create_property_menu = {
         title = 'Create Property',
         interior_label_garage = '%{interior} (%{slots} slots)',
         interior_label = '%{interior}',
     },
-    apartment_menu = {
-        title = 'Apartments',
-        search_apartments = 'Search Apartments',
-        enter_apartment = 'Enter Apartment',
-    },
-    apartments_menu = {
-        input = {
-            PlayerId = 'Player ID',
-            PlayerName = 'Player Name',
-            Search = 'Search',
-            PlayerNameDefault = 'first and/or last name',
-        },
-        search_apartments = 'Search Apartments',
-        ring_doorbell = 'Ring %{name}\'s doorbell',
-        showmenuhelp = '[E] - See Apartments',
-        doorbell_dialog = 'Someone is at the door',
-        doorbell_dialog_content = '%{name} is at the door, do you want to let him in?',
-        sidescroll = 'Enter %{name}\'s apartment',
-        bust_door_open = 'Bust Door Open',
+    properties_menu = {
+        garage = 'Garage',
+        ipl = 'Property',
+        showmenuhelp = '~g~E~w~ - Enter %{propertyType}',
     },
     property_menu = {
+        visit = 'Visit',
+        rent = 'Rent',
+        rent_desc = 'Rent property to someone for $%{price}?',
+        sell = 'Sell',
+        sell_desc = 'Sell property to someone for $%{price}?',
         ring = 'Ring Doorbell',
         enter = 'Enter Property',
         modify = 'Modify Property',
@@ -56,7 +45,6 @@ local Translations = {
         back = 'Back',
     },
     manage_property_menu = {
-
     },
 }
 
