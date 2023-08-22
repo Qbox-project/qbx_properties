@@ -284,7 +284,10 @@ lib.callback.register('qbx-property:server:GetProperties', function()
 end)
 
 lib.callback.register('qbx-property:server:GetPropertyData', function(source, propertyId)
-    return properties[propertyId] or false
+    local data = properties[propertyId]
+    if not data then return false end
+    data.id = propertyId
+    return data
 end)
 
 lib.addCommand('createproperty', {
