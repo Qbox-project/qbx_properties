@@ -339,11 +339,11 @@ end)
 lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function(source)
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
     local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
-    if not hasKeys then return end
+    if not hasKeys or not properties then return end
     local propertyList = {}
     for _, v in pairs(hasKeys) do
         propertyList[v.property_id] = {
-            isRented = properties[v.property_id].rent_expiration and true or false,
+            isRented = properties[v.property_id]?.rent_expiration and true or false,
         }
     end
     return propertyList
