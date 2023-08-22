@@ -360,7 +360,7 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Nightclub"] = {
+    ["Nightclub Garage"] = {
         ipl = false,
         coords = {
             entrance = vector4(-1521.01, -2978.57, -80.44, 272.48),
