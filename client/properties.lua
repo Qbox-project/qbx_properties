@@ -268,6 +268,7 @@ local function populatePropertiesMenu(ids, propertyType)
         if not propertyData then goto continue end
         options[#options+1] = {
             label = propertyData.name,
+            icon = propertyType == 'garage' and 'warehouse' or 'house-chimney',
             args = {
                 propertyData = propertyData,
                 propertyType = propertyType,
