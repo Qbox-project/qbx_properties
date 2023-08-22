@@ -37,6 +37,11 @@ Config.Properties = {
         garden = 3,
         pool = 5,
         general = 10,
+    },
+    realtorCommission = {
+        default = 5,
+        min = 1,
+        max = 15,
     }
 }
 
