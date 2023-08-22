@@ -34,9 +34,11 @@ end
 
 local function calcPrice(price, taxes)
     local totaltax = Config.Properties.taxes.general
-    for taxname, tax in pairs(Config.Properties.taxes) do
-        if taxes[taxname] then
-            totaltax = totaltax + tax
+    if taxes then
+        for taxname, tax in pairs(Config.Properties.taxes) do
+            if taxes[taxname] then
+                totaltax = totaltax + tax
+            end
         end
     end
     return math.floor(price + (price * (totaltax/100)))
