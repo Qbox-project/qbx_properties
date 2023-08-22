@@ -28,6 +28,14 @@ function AddBlip(blipId, name, coords, blip, color, size)
     AddTextComponentString(name)
     EndTextCommandSetBlipName(blips[blipId])
 end
+
+--- Remove blips
+function RemoveBlips()
+    for _, blip in pairs(blips) do
+        RemoveBlip(blip)
+    end
+    blips = {}
+end
 --#endregion Functions
 
 ---@param players table

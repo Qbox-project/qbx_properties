@@ -352,6 +352,7 @@ local function clearProperties()
         v.reset = true
     end
     propertyZones = {}
+    RemoveBlips()
 end
 
 RegisterNetEvent('qbx-property:client:refreshProperties', function()
