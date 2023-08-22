@@ -44,6 +44,89 @@ local function calcPrice(price, taxes)
     return math.floor(price + (price * (totaltax/100)))
 end
 
+lib.callback.register('qbx-properties:client:promptOffer', function(price)
+    local alert = lib.alertDialog({
+        header = 'Property Offer',
+        content = string.format('Do you want to buy this property for $%s?', price),
+        centered = true,
+        cancel = true
+    })
+    return alert == 'confirm' and true or false
+end)
+
+
+local function showSelectionScaleform(scaleform)
+    PushScaleformMovieFunction(scaleform, "CLEAR_ALL")
+    PopScaleformMovieFunctionVoid()
+
+    for i, data in ipairs({
+        {GetControlInstructionalButton(0, 38, 1), "Sell Property"},
+        {GetControlInstructionalButton(0, 120, 1), "Cancel"},
+        {GetControlInstructionalButton(0, 44, 1), "Next Player"}
+    }) do
+        PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
+        PushScaleformMovieFunctionParameterInt(i - 1)
+        PushScaleformMovieFunctionParameterString(data[1])
+        PushScaleformMovieFunctionParameterString(data[2])
+        PopScaleformMovieFunctionVoid()
+    end
+
+    PushScaleformMovieFunction(scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
+    PushScaleformMovieFunctionParameterInt(0)
+    PopScaleformMovieFunctionVoid()
+    DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
+end
+
+local function sellToPlayer(propertyData)
+    local input = lib.inputDialog('Property Creator', {
+        {
+            type = 'slider',
+            label = 'Commission %',
+            default = Config.Properties.realtorCommission.default,
+            min = Config.Properties.realtorCommission.min,
+            max = Config.Properties.realtorCommission.max,
+            step = 0.5,
+            required = true,
+            icon = 'percent'
+        },
+    }, { allowCancel = true })
+    if not input then return end
+    local comission = input[1]
+
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, true)
+    if not players then
+        QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
+        return
+    end
+
+    local playerNumber = 1
+    local scaleform = lib.requestScaleformMovie("instructional_buttons", 10000)
+    CreateThread(function()
+        while true do
+            Wait(0)
+            showSelectionScaleform(scaleform)
+            local player = players[playerNumber]
+            local playerPed = player.ped
+            local playerCoords = GetEntityCoords(playerPed)
+            DrawMarker(2, playerCoords.x, playerCoords.y, playerCoords.z + 1.1, 0, 0, 0, 180, 0, 0, 0.25, 0.25, 0.25, 255, 50, 50, 255, true, true, 2, false, nil, nil, false)
+            if IsControlJustPressed(0, 38) then -- E
+                TriggerServerEvent('qbx-property:server:sellProperty', GetPlayerServerId(player.id), propertyData.id, comission)
+                return
+            elseif IsControlJustPressed(0, 120) then -- X
+                QBCore.Functions.Notify(Lang:t("error.cancelled"), 'error', 7500)
+                return
+            elseif IsControlJustPressed(0, 44) then -- Q (A on AZERTY)
+                if playerNumber >= #players then
+                    playerNumber = 1
+                else
+                    playerNumber = playerNumber + 1
+                end
+            end
+        end
+    end)
+end
+
+
 local function populatePropertyMenu(propertyData, propertyType)
     if not propertyData then return end
     local PlayerData = QBCore.Functions.GetPlayerData()
