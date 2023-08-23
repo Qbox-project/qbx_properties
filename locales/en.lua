@@ -20,6 +20,10 @@ local Translations = {
         openstash = '[E] - Open Stash',
         stashname = 'Apartment Storage',
         logout = '[E] - Logout',
+        ipl = 'Furnished',
+        shell = 'Unfurnished',
+        garage = 'Garage',
+        none = 'None',
     },
     create_property_menu = {
         title = 'Create Property',
@@ -43,6 +47,20 @@ local Translations = {
         extend_rent = 'Extend Rent',
         extend_rent_desc = 'Rent expires in %{rent_expiration} days, extend for $%{price}?',
         back = 'Back',
+    },
+    modify_property_menu = {
+        title = 'Modify Property',
+        name = 'Name: %{name}',
+        price = 'Price: %{price}',
+        rent = 'Rent Price: %{price}',
+        property_type = 'Type: %{property_type}',
+        interior = 'Interior: %{interior}',
+        storage = {
+            slots = "Slots: %{value}",
+            maxweight = "Max weight: %{value} Kg",
+        },
+        taxes = 'Taxes: %{taxes}',
+        done = 'Done',
     },
     manage_property_menu = {
     },
