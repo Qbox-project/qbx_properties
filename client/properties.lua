@@ -126,7 +126,121 @@ local function sellToPlayer(propertyData)
     end)
 end
 
+--- Get a string of all taxes applied to a property
+---@param taxes table
+---@return string
+local function getTaxesString(taxes)
+    if not taxes or not next(taxes) then return Lang:t('general.none') end
+    local str = ""
+    for k, _ in pairs(taxes) do
+        str = str .. k .. ", "
+    end
+    return string.sub(str, 1, -3)
+end
 
+--- Modify the property's characteristics
+---@param propertyData table
+local function modifyProperty(propertyData)
+    local newData = {}
+    local options = {
+        {label = Lang:t('modify_property_menu.name', {name = propertyData.name}), args = { action = "name" }, close = true},
+        {label = Lang:t('modify_property_menu.price', {price = propertyData.price}), args = { action = "price" }, close = true},
+        {label = Lang:t('modify_property_menu.rent', {price = propertyData.rent}), args = { action = "rent" }, close = true},
+        {label = Lang:t('modify_property_menu.property_type', {property_type = Lang:t('general.'..propertyData.property_type)}), close = false},
+        {label = Lang:t('modify_property_menu.interior', {interior = propertyData.interior}), args = { action = "interior" }, close = true},
+    }
+
+    if propertyData.property_type ~= 'garage' then
+        options[#options+1] = {label = Lang:t('modify_property_menu.storage.slots', {value = propertyData.slots or 0}), args = { action = "slots" }, close = true}
+        options[#options+1] = {label = Lang:t('modify_property_menu.storage.maxweight', {value = propertyData.maxweight/1000}), args = { action = "maxweight" }, close = true}
+    end
+    if Config.Properties.useTaxes then
+        options[#options+1] = {label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(propertyData.appliedtaxes)}), args = { action = "taxes" }, close = true}
+    end
+
+    options[#options+1] = {label = Lang:t('modify_property_menu.done'), args = { action = "done" }, close = true}
+    lib.registerMenu({
+        id = 'modify_property_menu',
+        title = Lang:t('modify_property_menu.title'),
+        position = 'top-left',
+        options = options,
+    }, function(selected, scrollIndex, args)
+        if not args then return end
+        if args.action == "name" then
+            local propertyString = string.split(propertyData.name, ' ')
+            local propertyNumber = tonumber(propertyString[1])
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'input', label = Lang:t('modify_property_menu.name', {name = propertyData.name}), default = table.concat(propertyString, ' ', 2), required = true},
+            }, {allowCancel = true})
+
+            if input then
+                newData.name = propertyNumber .. " " .. input[1]
+                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.name', {name = newData.name})}, 1)
+            end
+        elseif args.action == "price" or args.action == "rent" then
+            local price = newData[args.action] or propertyData[args.action]
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'input', label = Lang:t('modify_property_menu.'..args.action, {price = price}), default = price, required = true},
+            }, {allowCancel = true})
+
+            if input then
+                newData[args.action] = tonumber(input[1])
+                local newOptions = options[args.action == "price" and 2 or 3]
+                newOptions.label = Lang:t('modify_property_menu.'..args.action, {price = newData[args.action]})
+                lib.setMenuOptions('modify_property_menu', newOptions, args.action == "price" and 2 or 3)
+            end
+        elseif args.action == "interior" then
+            local interior = newData.interior or propertyData.interior
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'select', label = Lang:t('modify_property_menu.interior', {interior = interior}), default = interior, options = createInteriorsList(propertyData.property_type == 'garage', propertyData.property_type ~= 'garage')},
+            }, {allowCancel = true})
+
+            if input then
+                newData.interior = input[1]
+                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.interior', {interior = newData.interior})}, 5)
+            end
+        elseif args.action == "slots" or args.action == "maxweight" then
+            local value = (newData[args.action] or propertyData[args.action]) / (args.action == "maxweight" and 1000 or 1)
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'number', label = Lang:t('modify_property_menu.storage.'..args.action, {value = value}), default = value, required = true},
+            }, {allowCancel = true})
+
+            if input then
+                newData[args.action] = tonumber(input[1]) * (args.action == "maxweight" and 1000 or 1)
+                local newOptions = options[args.action == "slots" and 6 or 7]
+                newOptions.label = Lang:t('modify_property_menu.storage.'..args.action, {value = newData[args.action] / (args.action == "maxweight" and 1000 or 1)})
+                lib.setMenuOptions('modify_property_menu', newOptions, args.action == "slots" and 6 or 7)
+            end
+       --[[ BROKEN FOR NOW
+            elseif args.action == "taxes" then
+            local taxes = newData.taxes or propertyData.appliedtaxes
+            local default = {}
+            DebugPrint(taxes)
+            for k, _ in pairs(taxes) do
+                default[#default+1] = k
+            end
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'multi-select', label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(taxes)}), default = default, options = getTaxesList()},
+            }, {allowCancel = true})
+
+            if input then
+                newData.taxes = getAppliedTaxesList(input[1])
+                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(newData.taxes)})}, 8)
+            end ]]
+        end
+
+        if args.action == 'done' then
+           -- update the property & refresh
+        else
+            lib.showMenu('modify_property_menu')
+        end
+    end)
+    lib.showMenu('modify_property_menu')
+end
+
+--- Populate the property menu
+---@param propertyData table
+---@param propertyType string
 local function populatePropertyMenu(propertyData, propertyType)
     if not propertyData then return end
     local PlayerData = QBCore.Functions.GetPlayerData()
@@ -259,6 +373,9 @@ local function populatePropertyMenu(propertyData, propertyType)
     end)
 end
 
+--- Populate the properties menu (list of properties in a same location)
+---@param ids table
+---@param propertyType string
 local function populatePropertiesMenu(ids, propertyType)
     if not ids then return end
     local options = {}
@@ -315,7 +432,7 @@ local function createPropertiesZones()
 
         function zone:nearby()
             if not self then return end
-            if self?.reset then self.remove() return end
+            if self?.reset then self?.remove() return end
             if not self.currentDistance then return end
             DrawMarker(Config.Properties.marker.type,
                 self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
@@ -527,12 +644,12 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 end)
 
 AddEventHandler('onClientResourceStart', function(resource)
-   if resource == GetCurrentResourceName() then
+    if resource == GetCurrentResourceName() then
         init()
         SetTimeout(200, function()
             if not next(propertyZones) then
                 refreshProperties()
             end
         end)
-   end
+    end
 end)
