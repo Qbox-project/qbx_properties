@@ -432,7 +432,7 @@ local function createPropertiesZones()
 
         function zone:nearby()
             if not self then return end
-            if self?.reset then self?.remove() return end
+            if self?.reset then self:remove() return end
             if not self.currentDistance then return end
             DrawMarker(Config.Properties.marker.type,
                 self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
