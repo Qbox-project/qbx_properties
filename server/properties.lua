@@ -101,6 +101,8 @@ local function formatPropertyData(PropertyData, owners)
         appliedtaxes = PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
+        maxweight = PropertyData.maxweight,
+        slots = PropertyData.slots,
         rent_expiration = calcDaysLeft(PropertyData.rent_expiration) or false,
         owners = next(owners) and owners or {},
         playersInside = {}
