@@ -355,11 +355,13 @@ local function clearProperties()
     RemoveBlips()
 end
 
-RegisterNetEvent('qbx-property:client:refreshProperties', function()
+local function refreshProperties()
     print('refreshProperties')
     clearProperties()
     createPropertiesZones()
-end)
+end
+
+RegisterNetEvent('qbx-property:client:refreshProperties', refreshProperties)
 
 --- Create a list of interiors
 --- @param Garage boolean
@@ -519,9 +521,18 @@ local function init()
     setupInteriors()
 end
 
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', init)
-AddEventHandler('onResourceStart', function(resource)
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    init()
+    refreshProperties()
+end)
+
+AddEventHandler('onClientResourceStart', function(resource)
    if resource == GetCurrentResourceName() then
         init()
+        SetTimeout(200, function()
+            if not next(propertyZones) then
+                refreshProperties()
+            end
+        end)
    end
 end)
