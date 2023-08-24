@@ -98,7 +98,7 @@ local function formatPropertyData(PropertyData, owners)
         stash = type(PropertyData.stash) == "string" and json.decode(PropertyData.stash),
         logout = type(PropertyData.logout) == "string" and json.decode(PropertyData.logout) or nil,
         outfit = type(PropertyData.outfit) == "string" and json.decode(PropertyData.outfit) or nil,
-        appliedtaxes = PropertyData.appliedtaxes or {},
+        appliedtaxes = json.decode(PropertyData.appliedtaxes) or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
         maxweight = PropertyData.maxweight,
@@ -336,6 +336,45 @@ RegisterNetEvent('qbx-property:server:AddProperty', function()
     if not PlayerData.job.type == 'realestate' then return end
 
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
+end)
+
+RegisterNetEvent('qbx-property:server:RingDoor', function(propertyId)
+    -- trigger a phone notification (system) on the property owners
+    -- if they accept the source gets to enter the property
+    -- might be complicated with the current npwd notification system :headscratch:
+    QBCore.Functions.Notify(source, "Feature incoming soon :tm:", "error", 5000)
+end)
+
+--- Modifies the property's data in the database
+---@param propertyId integer
+---@return boolean
+local function modifyProperty(propertyId)
+    if not propertyId then return end
+    local propertyData = properties[propertyId]
+    local affectedRows = MySQL.update.await('UPDATE properties SET name = @name, interior = @interior, price = @price, rent = @rent, coords = @coords, appliedtaxes = @appliedtaxes, maxweight = @maxweight, slots = @slots WHERE id = @propertyId', {
+        ['@name'] = propertyData.name,
+        ['@interior'] = propertyData.interior,
+        ['@coords'] = json.encode(propertyData.coords),
+        ['@price'] = propertyData.price,
+        ['@rent'] = propertyData.rent,
+        ['@appliedtaxes'] = json.encode(propertyData.appliedtaxes or {}),
+        ['@maxweight'] = propertyData.maxweight or 10000,
+        ['@slots'] = propertyData.slots or 10,
+        ['@propertyId'] = propertyId
+    })
+    return affectedRows and true or false
+end
+
+--- Modifies the property's data
+---@param propertyId integer
+---@param newData table
+RegisterNetEvent('qbx-property:server:modifyProperty', function(propertyId, newData)
+    if not propertyId or not newData then return end
+    for k, v in pairs(newData) do
+        properties[propertyId][k] = v
+    end
+    if not modifyProperty(propertyId) then return end
+    TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end)
 
 lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function(source)

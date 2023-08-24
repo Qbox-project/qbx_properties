@@ -197,7 +197,9 @@ local function modifyProperty(propertyData)
 
             if input then
                 newData.interior = input[1]
-                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.interior', {interior = newData.interior})}, 5)
+                local newOptions = options[5]
+                newOptions.label = Lang:t('modify_property_menu.interior', {interior = newData.interior})
+                lib.setMenuOptions('modify_property_menu', newOptions, 5)
             end
         elseif args.action == "slots" or args.action == "maxweight" then
             local value = (newData[args.action] or propertyData[args.action]) / (args.action == "maxweight" and 1000 or 1)
@@ -211,26 +213,27 @@ local function modifyProperty(propertyData)
                 newOptions.label = Lang:t('modify_property_menu.storage.'..args.action, {value = newData[args.action] / (args.action == "maxweight" and 1000 or 1)})
                 lib.setMenuOptions('modify_property_menu', newOptions, args.action == "slots" and 6 or 7)
             end
-       --[[ BROKEN FOR NOW
-            elseif args.action == "taxes" then
+        elseif args.action == "taxes" then
+            local index = #options - 1
             local taxes = newData.taxes or propertyData.appliedtaxes
             local default = {}
-            DebugPrint(taxes)
             for k, _ in pairs(taxes) do
                 default[#default+1] = k
             end
             local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
                 {type = 'multi-select', label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(taxes)}), default = default, options = getTaxesList()},
             }, {allowCancel = true})
-
             if input then
                 newData.taxes = getAppliedTaxesList(input[1])
-                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(newData.taxes)})}, 8)
-            end ]]
+                local newOptions = options[index]
+                newOptions.label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(newData.taxes)})
+                lib.setMenuOptions('modify_property_menu', newOptions, index)
+            end
         end
 
         if args.action == 'done' then
-           -- update the property & refresh
+            if not next(newData) then return end
+            TriggerServerEvent('qbx-property:server:modifyProperty', propertyData.id, newData)
         else
             lib.showMenu('modify_property_menu')
         end
@@ -634,18 +637,14 @@ local function setupInteriors()
     end
 end
 
-local function init()
-    setupInteriors()
-end
-
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    init()
+    setupInteriors()
     refreshProperties()
 end)
 
-AddEventHandler('onClientResourceStart', function(resource)
+AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
-        init()
+        setupInteriors()
         SetTimeout(200, function()
             if not next(propertyZones) then
                 refreshProperties()
