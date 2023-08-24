@@ -94,7 +94,7 @@ local function formatPropertyData(PropertyData, owners)
         property_type = PropertyData.property_type or 'ipl',
         decorations = PropertyData.decorations or nil,
         garage_slots = (type(PropertyData.garage_slots) == "string" and json.decode(PropertyData.garage_slots)) or nil,
-        coords = vector4(coords.x, coords.y, coords.z, coords.h),
+        coords = vec4(coords.x, coords.y, coords.z, coords.w or 0),
         stash = type(PropertyData.stash) == "string" and json.decode(PropertyData.stash),
         logout = type(PropertyData.logout) == "string" and json.decode(PropertyData.logout) or nil,
         outfit = type(PropertyData.outfit) == "string" and json.decode(PropertyData.outfit) or nil,

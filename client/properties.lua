@@ -515,7 +515,7 @@ end
 --- Create a property
 ---@param propertyData table
 local function createProperty(propertyData)
-    propertyData.maxWeight = propertyData.weight and propertyData.weight * 1000 or false
+    propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000 or false
     TriggerServerEvent('qbx-property:server:CreateProperty', propertyData)
 end
 
@@ -529,6 +529,17 @@ local function getAppliedTaxesList(taxes)
         appliedTaxes[v] = Config.Properties.taxes[v]
     end
     return appliedTaxes
+end
+
+--- Get the rounded coords
+---@param coords table
+---@return table
+local function getRoundedCoords(coords)
+    local newcoords = {}
+    for k, v in pairs(coords) do
+        newcoords[k] = math.floor(v*1000)/1000
+    end
+    return newcoords
 end
 
 RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
@@ -563,7 +574,10 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         QBCore.Functions.Notify('You need to select an interior!', 'error')
         return
     end
-    local coords = GetEntityCoords(cache.ped)
+    local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
+    local coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
+    coords = getRoundedCoords(coords)
+
     local inputResult = {
         name = generalOptions[1] or GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z)),
         price = generalOptions[2],
@@ -571,10 +585,10 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         garage = generalOptions[4] or nil,
         furnished = generalOptions[4] and nil or generalOptions[5],
         interior = propertyCreation[1],
-        weight = propertyCreation[2] or nil,
+        maxweight = propertyCreation[2] or nil,
         slots = propertyCreation[3] or nil,
         appliedtaxes = getAppliedTaxesList(propertyCreation[4]) or nil,
-        coords = {x = coords.x, y = coords.y, z = coords.z, h = GetEntityHeading(cache.ped)},
+        coords = {x = coords.x, y = coords.y, z = coords.z, w = coords.w},
     }
     createProperty(inputResult)
 end)
@@ -645,7 +659,7 @@ end)
 AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         setupInteriors()
-        SetTimeout(200, function()
+        SetTimeout(2000, function()
             if not next(propertyZones) then
                 refreshProperties()
             end
