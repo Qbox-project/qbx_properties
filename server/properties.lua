@@ -347,7 +347,6 @@ end)
 
 --- Modifies the property's data in the database
 ---@param propertyId integer
----@return boolean
 local function modifyProperty(propertyId)
     if not propertyId then return end
     local propertyData = properties[propertyId]
@@ -362,7 +361,8 @@ local function modifyProperty(propertyId)
         ['@slots'] = propertyData.slots or 10,
         ['@propertyId'] = propertyId
     })
-    return affectedRows and true or false
+    if not affectedRows then return end
+    RefreshProperties()
 end
 
 --- Modifies the property's data
@@ -373,8 +373,7 @@ RegisterNetEvent('qbx-property:server:modifyProperty', function(propertyId, newD
     for k, v in pairs(newData) do
         properties[propertyId][k] = v
     end
-    if not modifyProperty(propertyId) then return end
-    TriggerClientEvent('qbx-property:client:refreshProperties', -1)
+    modifyProperty(propertyId)
 end)
 
 lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function(source)

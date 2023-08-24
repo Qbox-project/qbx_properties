@@ -3,6 +3,11 @@ local propertyZones = {}
 local interiorZones = {}
 local isInZone = false
 
+--#region Functions
+
+--- Create the zones inside the property
+---@param IPL any
+---@param customZones any
 local function createPropertyInteriorZones(IPL, customZones)
     --[[   coords = {
             entrance = vector4(-271.87, -940.34, 92.51, 70),
@@ -44,25 +49,66 @@ local function calcPrice(price, taxes)
     return math.floor(price + (price * (totaltax/100)))
 end
 
-lib.callback.register('qbx-properties:client:promptOffer', function(price)
-    local alert = lib.alertDialog({
-        header = 'Property Offer',
-        content = string.format('Do you want to buy this property for $%s?', price),
-        centered = true,
-        cancel = true
-    })
-    return alert == 'confirm' and true or false
-end)
+--- Get the list of applied taxes if any
+---@param taxes table | nil
+---@return table | nil
+local function getAppliedTaxesList(taxes)
+    if not taxes then return nil end
+    local appliedTaxes = {}
+    for _, v in pairs(taxes) do
+        appliedTaxes[v] = Config.Properties.taxes[v]
+    end
+    return appliedTaxes
+end
 
+--- Get the rounded coords
+---@param coords table
+---@return table
+local function getRoundedCoords(coords)
+    local newcoords = {}
+    for k, v in pairs(coords) do
+        newcoords[k] = math.floor(v*1000)/1000
+    end
+    return newcoords
+end
+
+--- Create a list of interiors
+--- @param Garage boolean
+--- @param Furnished boolean
+--- @return table
+local function createInteriorsList(Garage, Furnished)
+    local options = {}
+    for k,v in pairs((Garage and Config.GarageIPLs) or (Furnished and Config.IPLS) or Config.Shells) do
+        options[#options+1] = {}
+        options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = k, slots = #v.coords?.slots}) or Lang:t('create_property_menu.interior_label', {interior = k})
+        options[#options].value = k
+    end
+    return options
+end
+
+--- Get the list of taxes
+--- return table
+local function getTaxesList()
+    local taxes = {}
+    for k, _ in pairs(Config.Properties.taxes) do
+        if k ~= 'general' then
+            taxes[#taxes + 1] = {
+                label = k,
+                value = k
+            }
+        end
+    end
+    return taxes
+end
 
 local function showSelectionScaleform(scaleform)
     PushScaleformMovieFunction(scaleform, "CLEAR_ALL")
     PopScaleformMovieFunctionVoid()
 
     for i, data in ipairs({
-        {GetControlInstructionalButton(0, 38, 1), "Sell Property"},
-        {GetControlInstructionalButton(0, 120, 1), "Cancel"},
-        {GetControlInstructionalButton(0, 44, 1), "Next Player"}
+        {GetControlInstructionalButton(0, 38, true), "Sell Property"},
+        {GetControlInstructionalButton(0, 120, true), "Cancel"},
+        {GetControlInstructionalButton(0, 44, true), "Next Player"}
     }) do
         PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
         PushScaleformMovieFunctionParameterInt(i - 1)
@@ -508,37 +554,6 @@ local function refreshProperties()
     createPropertiesZones()
 end
 
-RegisterNetEvent('qbx-property:client:refreshProperties', refreshProperties)
-
---- Create a list of interiors
---- @param Garage boolean
---- @param Furnished boolean
---- @return table
-local function createInteriorsList(Garage, Furnished)
-    local options = {}
-    for k,v in pairs((Garage and Config.GarageIPLs) or (Furnished and Config.IPLS) or Config.Shells) do
-        options[#options+1] = {}
-        options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = k, slots = #v.coords?.slots}) or Lang:t('create_property_menu.interior_label', {interior = k})
-        options[#options].value = k
-    end
-    return options
-end
-
---- Get the list of taxes
---- return table
-local function getTaxesList()
-    local taxes = {}
-    for k, _ in pairs(Config.Properties.taxes) do
-        if k ~= 'general' then
-            taxes[#taxes + 1] = {
-                label = k,
-                value = k
-            }
-        end
-    end
-    return taxes
-end
-
 --- Create a property
 ---@param propertyData table
 local function createProperty(propertyData)
@@ -546,28 +561,52 @@ local function createProperty(propertyData)
     TriggerServerEvent('qbx-property:server:CreateProperty', propertyData)
 end
 
---- Get the list of applied taxes if any
----@param taxes table | nil
----@return table | nil
-local function getAppliedTaxesList(taxes)
-    if not taxes then return nil end
-    local appliedTaxes = {}
-    for _, v in pairs(taxes) do
-        appliedTaxes[v] = Config.Properties.taxes[v]
-    end
-    return appliedTaxes
-end
+local interiors = {
+    [290561] = { -- Eclipse Boulevard
+        entitysets = {
+            "entity_set_shell_02",
+            "entity_set_numbers_01",
+            "entity_set_tint_01",
+        },
+        color = {
+            "entity_set_tint_01",
+            1
+        }
+    },
+    [291841] = { -- Vinewood Car Club
+        entitysets = {
+            "entity_set_signs",
+            "entity_set_plus",
+            "entity_set_stairs",
+            "entity_set_backdrop_frames"
+        }
+    },
+    [290817] = {
+        entitysets = {
+            "entity_set_roller_door_closed"
+        }
+    }
+}
 
---- Get the rounded coords
----@param coords table
----@return table
-local function getRoundedCoords(coords)
-    local newcoords = {}
-    for k, v in pairs(coords) do
-        newcoords[k] = math.floor(v*1000)/1000
+local function setupInteriors()
+    local Franklin = exports['bob74_ipl']:GetFranklinObject()
+    Franklin.Style.Set(Franklin.Style.settled)
+    Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
+
+    for k, v in pairs(interiors) do
+        for _, entityset in pairs(v.entitysets) do
+            ActivateInteriorEntitySet(k, entityset)
+        end
+        if v.color then
+            SetInteriorEntitySetColor(k, v.color[1], v.color[2])
+        end
+        RefreshInterior(k)
     end
-    return newcoords
 end
+--#endregion Functions
+
+--#region Events
+RegisterNetEvent('qbx-property:client:refreshProperties', refreshProperties)
 
 RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     if isInZone then
@@ -634,50 +673,6 @@ RegisterNetEvent('qbx-property:client:LeaveProperty', function(coords)
     DoScreenFadeIn(500)
 end)
 
--- Prepare IPLs
-local interiors = {
-    [290561] = { -- Eclipse Boulevard
-        entitysets = {
-            "entity_set_shell_02",
-            "entity_set_numbers_01",
-            "entity_set_tint_01",
-        },
-        color = {
-            "entity_set_tint_01",
-            1
-        }
-    },
-    [291841] = { -- Vinewood Car Club
-        entitysets = {
-            "entity_set_signs",
-            "entity_set_plus",
-            "entity_set_stairs",
-            "entity_set_backdrop_frames"
-        }
-    },
-    [290817] = {
-        entitysets = {
-            "entity_set_roller_door_closed"
-        }
-    }
-}
-
-local function setupInteriors()
-    local Franklin = exports['bob74_ipl']:GetFranklinObject()
-    Franklin.Style.Set(Franklin.Style.settled)
-    Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
-
-    for k, v in pairs(interiors) do
-        for _, entityset in pairs(v.entitysets) do
-            ActivateInteriorEntitySet(k, entityset)
-        end
-        if v.color then
-            SetInteriorEntitySetColor(k, v.color[1], v.color[2])
-        end
-        RefreshInterior(k)
-    end
-end
-
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     setupInteriors()
     refreshProperties()
@@ -693,3 +688,16 @@ AddEventHandler('onResourceStart', function(resource)
         end)
     end
 end)
+--#endregion Events
+
+--#region Callbacks
+lib.callback.register('qbx-properties:client:promptOffer', function(price)
+    local alert = lib.alertDialog({
+        header = 'Property Offer',
+        content = string.format('Do you want to buy this property for $%s?', price),
+        centered = true,
+        cancel = true
+    })
+    return alert == 'confirm' and true or false
+end)
+--#endregion Callbacks
