@@ -57,6 +57,7 @@ Config.Properties = {
     },
     --- How long to rent/extend rent for (in days)
     rentTime = 7,
+    realtorsBuyThemselves = true,
 }
 
 Config.Apartments = {
@@ -194,7 +195,7 @@ Config.Shells = {
     } ]]
 }
 
----@type { [string]: { ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }, styles: table} } }
+---@type { [string]: { ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }}, styles: table } }
 Config.GarageIPLs = {
     ["Low End"] = {
         ipl = false,

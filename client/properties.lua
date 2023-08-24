@@ -132,7 +132,7 @@ local function sellToPlayer(propertyData)
     if not input then return end
     local comission = input[1]
 
-    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, true)
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves or false)
     if not players then
         QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
@@ -147,7 +147,7 @@ end
 --- @param propertyData table
 --- @param isExtend boolean
 local function rentToPlayer(propertyData, isExtend)
-    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, true)
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves or false)
     if not players then
         QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
@@ -347,32 +347,10 @@ local function populatePropertyMenu(propertyData, propertyType)
                 close = true
             }
         end
-    elseif isRealEstateAgent then
-        options[#options+1] = {
-            label = Lang:t('property_menu.sell'),
-            description = Lang:t('property_menu.sell_desc', {price = calcPrice(propertyData.price, propertyData.taxes)}),
-            icon = 'file-invoice-dollar',
-            args = {
-                action = 'sell',
-                propertyData = propertyData,
-                propertyType = propertyType,
-            },
-            close = true
-        }
-        options[#options+1] = {
-            label = Lang:t('property_menu.rent', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
-            description = Lang:t('property_menu.rent_desc', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
-            icon = 'file-invoice-dollar',
-            args = {
-                action = 'rent',
-                propertyData = propertyData,
-                propertyType = propertyType,
-            },
-            close = true
-        }
     else
         options[#options+1] = {
             label = Lang:t('property_menu.visit'),
+            icon = 'door-open',
             args = {
                 action = 'visit',
                 propertyData = propertyData,
@@ -380,6 +358,30 @@ local function populatePropertyMenu(propertyData, propertyType)
             },
             close = true
         }
+        if isRealEstateAgent then
+            options[#options+1] = {
+                label = Lang:t('property_menu.sell'),
+                description = Lang:t('property_menu.sell_desc', {price = calcPrice(propertyData.price, propertyData.taxes)}),
+                icon = 'file-invoice-dollar',
+                args = {
+                    action = 'sell',
+                    propertyData = propertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+            options[#options+1] = {
+                label = Lang:t('property_menu.rent', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
+                description = Lang:t('property_menu.rent_desc', {price = calcPrice(propertyData.rent, propertyData.taxes)}),
+                icon = 'file-invoice-dollar',
+                args = {
+                    action = 'rent',
+                    propertyData = propertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+        end
     end
 
     if isRealEstateAgent then
@@ -416,11 +418,11 @@ local function populatePropertyMenu(propertyData, propertyType)
             end
         end,
     }, function(selected, scrollIndex, args)
-        if args.action == 'enter' then
+        if args.action == 'enter' or args.action == "visit" then
             if args.propertyType == 'garage' then
-                TriggerServerEvent('qbx-property:server:EnterGarage', args.propertyData.id)
+                TriggerServerEvent('qbx-property:server:enterGarage', args.propertyData.id, args.action == "visit")
             else
-                TriggerServerEvent('qbx-property:server:EnterProperty', args.propertyData.id)
+                TriggerServerEvent('qbx-property:server:enterProperty', args.propertyData.id, args.action == "visit")
             end
         elseif args.action == 'ring' then
             TriggerServerEvent('qbx-property:server:RingDoor', args.propertyData.id)
@@ -658,10 +660,6 @@ RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, prop
     SetEntityHeading(cache.ped, coords.entrance.w)
     DoScreenFadeIn(1500)
     CreatePropertyInteriorZones(coords, propertyId, isVisit)
-end)
-
-RegisterNetEvent('qbx-property:client:enterGarage', function(coords, propertyId, isVisit)
-
 end)
 
 RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)

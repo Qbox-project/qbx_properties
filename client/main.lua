@@ -73,28 +73,30 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             end
         end
 
-        InteriorZones.stash = lib.points.new({
-            coords = customZones?.stash?.xyz or coords.stash.xyz,
-            distance = 7.5,
-        })
-        function InteriorZones.stash:nearby()
-            if not self then return end
-            if not self.currentDistance then return end
-            DrawMarker(marker.type,
+        if coords.stash then
+            InteriorZones.stash = lib.points.new({
+                coords = customZones?.stash?.xyz or coords.stash.xyz,
+                distance = 7.5,
+            })
+            function InteriorZones.stash:nearby()
+                if not self then return end
+                if not self.currentDistance then return end
+                DrawMarker(marker.type,
                 self.coords.x, self.coords.y, self.coords.z + Config.InteriorZones.marker.offsetZ, -- coords
                 0.0, 0.0, 0.0, -- direction?
                 0.0, 0.0, 0.0, -- rotation
                 marker.scale.x, marker.scale.y, marker.scale.z, -- scale
                 marker.color.r, marker.color.g, marker.color.b, marker.color.a, -- color RBGA
                 false, true, 2, false, nil, nil, false
-            )
+                )
 
-            if self.currentDistance < 1 then
-                SetTextComponentFormat("STRING")
-                AddTextComponentString(Lang:t('interiorZones.stash'))
-                DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
-                if IsControlJustPressed(0, 38) then
-                    exports.ox_inventory:openInventory("stash", propertyId and "property_"..propertyId or "apartment_"..PlayerData.citizenid)
+                if self.currentDistance < 1 then
+                    SetTextComponentFormat("STRING")
+                    AddTextComponentString(Lang:t('interiorZones.stash'))
+                    DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
+                    if IsControlJustPressed(0, 38) then
+                        exports.ox_inventory:openInventory("stash", propertyId and "property_"..propertyId or "apartment_"..PlayerData.citizenid)
+                    end
                 end
             end
         end
@@ -188,4 +190,15 @@ local function concealPlayers(players, conceal)
     end
 end
 
+local function concealVehicles(netids, conceal)
+    if GetInvokingResource() ~= nil then return end
+    if not netids then return end
+
+    for _, netid in ipairs(netids) do
+        local entity = NetToVeh(netid)
+        NetworkConcealEntity(entity, conceal)
+    end
+end
+
 RegisterNetEvent('qbx-property:client:concealPlayers', concealPlayers)
+RegisterNetEvent('qbx-property:client:concealEntities', concealVehicles)
