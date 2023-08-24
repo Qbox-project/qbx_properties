@@ -195,32 +195,7 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVis
 end)
 
 -- Enter garage
-RegisterNetEvent('qbx-property:server:enterGarage', function(garageId)
-    local source = source
-    local playersToConceal = {}
-    local playersInsideProperty = {}
-
-    for k, v in pairs(properties) do
-        if v.property_type == 'garage' then
-            if k == propertyId then
-                for _, serverid in pairs(playersInside) do
-                    playersInsideProperty[#playersInsideProperty + 1] = serverid
-                end
-            else
-                for _, serverid in pairs(v.playersInside) do
-                    playersToConceal[#playersToConceal + 1] = serverid
-                end
-            end
-        end
-    end
-
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
-    for _, v in pairs(playersInsideProperty) do
-        TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
-    end
-
-    TriggerClientEvent('qbx-property:client:enterGarage', source, propertyid)
-    Player(source).set('InProperty', {propertyid = propertyid})
+RegisterNetEvent('qbx-property:server:enterGarage', function(propertyId, isVisit)
 end)
 
 --- Check for expired rents
