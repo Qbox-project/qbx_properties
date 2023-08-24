@@ -157,8 +157,28 @@ local function modifyProperty(propertyData)
     if Config.Properties.useTaxes then
         options[#options+1] = {label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(propertyData.appliedtaxes)}), args = { action = "taxes" }, close = true}
     end
-
+    options[#options+1] = {label = Lang:t('modify_property_menu.coords'), args = { action = "coords" }, close = true}
     options[#options+1] = {label = Lang:t('modify_property_menu.done'), args = { action = "done" }, close = true}
+
+    local point = lib.points.new({
+        coords = propertyData.coords.xyz,
+        heading = propertyData.coords.w,
+        distance = 15,
+    })
+
+    function point:nearby()
+        if not self then return end
+        if not self.currentDistance then return end
+        DrawMarker(26,
+            self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
+            0.0, 0.0, 0.0, -- direction?
+            0.0, 0.0, self.heading, -- rotation
+            1,1,1, -- scale
+            255, 50, 50, 255, -- color RBGA
+            false, false, 2, false, nil, nil, false
+        )
+    end
+
     lib.registerMenu({
         id = 'modify_property_menu',
         title = Lang:t('modify_property_menu.title'),
@@ -214,7 +234,7 @@ local function modifyProperty(propertyData)
                 lib.setMenuOptions('modify_property_menu', newOptions, args.action == "slots" and 6 or 7)
             end
         elseif args.action == "taxes" then
-            local index = #options - 1
+            local index = #options - 2
             local taxes = newData.taxes or propertyData.appliedtaxes
             local default = {}
             for k, _ in pairs(taxes) do
@@ -229,11 +249,18 @@ local function modifyProperty(propertyData)
                 newOptions.label = Lang:t('modify_property_menu.taxes', {taxes = getTaxesString(newData.taxes)})
                 lib.setMenuOptions('modify_property_menu', newOptions, index)
             end
+        elseif args.action == "coords" then
+            local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
+            local coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
+            coords = getRoundedCoords(coords)
+            newData.coords = vec4(coords.x, coords.y, coords.z, coords.w)
+            point.coords, point.heading = newData.coords.xyz, newData.coords.w
         end
 
         if args.action == 'done' then
             if not next(newData) then return end
             TriggerServerEvent('qbx-property:server:modifyProperty', propertyData.id, newData)
+            point:remove()
         else
             lib.showMenu('modify_property_menu')
         end
