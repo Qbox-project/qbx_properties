@@ -15,11 +15,6 @@ local Translations = {
     general = {
         accept = 'Accept',
         decline = 'Decline',
-        openwardrobe = '[E] - Open Wardrobe',
-        exit = '[E] - Exit',
-        openstash = '[E] - Open Stash',
-        stashname = 'Apartment Storage',
-        logout = '[E] - Logout',
         ipl = 'Furnished',
         shell = 'Unfurnished',
         garage = 'Garage',
@@ -28,6 +23,12 @@ local Translations = {
         rent = 'Rent',
         promptOfferHeader = 'Property Offer',
         promptOffer = 'Do you want to %{action} this property for $%{amount}?'
+    },
+    interiorZones = {
+        leave = '[~g~E~w~] - Leave',
+        stash = '[~g~E~w~] - Stash',
+        wardrobe = '[~g~E~w~]- Wardrobe',
+        logout = '[~g~E~w~] - Logout',
     },
     selection = {
         action = "%{action} Property",

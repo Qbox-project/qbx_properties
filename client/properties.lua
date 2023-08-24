@@ -1,42 +1,9 @@
 if not Config.useProperties then return end
 local propertyZones = {}
-local interiorZones = {}
 local isInZone = false
 local inSelection = false
 
 --#region Functions
-
---- Create the zones inside the property
----@param IPL any
----@param customZones any
-local function createPropertyInteriorZones(IPL, customZones)
-    --[[   coords = {
-            entrance = vector4(-271.87, -940.34, 92.51, 70),
-            wardrobe = vector4(-277.79, -960.54, 86.31, 70),
-            stash = vector4(-272.98, -950.01, 92.52, 70),
-            logout = vector3(-283.27, -959.68, 70),
-        }
-     ]]
-    InteriorZones[#InteriorZones+1] = lib.points.new({
-        coords = customZones.entrance.xyz or IPL.coords.entrance.xyz,
-        distance = 15,
-    })
-
-    InteriorZones[#InteriorZones+1] = lib.points.new({
-        coords = customZones.wardrobe.xyz or IPL.coords.wardrobe.xyz,
-        distance = 15,
-    })
-
-    InteriorZones[#InteriorZones+1] = lib.points.new({
-        coords = customZones.stash.xyz or IPL.coords.stash.xyz,
-        distance = 15,
-    })
-
-    InteriorZones[#InteriorZones+1] = lib.points.new({
-        coords = customZones.logout.xyz or IPL.coords.logout.xyz,
-        distance = 15,
-    })
-end
 
 local function calcPrice(price, taxes)
     local totaltax = Config.Properties.taxes.general
@@ -478,11 +445,11 @@ local function populatePropertiesMenu(ids, propertyType)
     if not ids then return end
     local options = {}
 
-    for _, propertyId in pairs(ids) do
+    for propertyId, name in pairs(ids) do
         local propertyData = lib.callback.await('qbx-property:server:GetPropertyData', false, propertyId)
         if not propertyData then goto continue end
         options[#options+1] = {
-            label = propertyData.name,
+            label = name,
             icon = propertyType == 'garage' and 'warehouse' or 'house-chimney',
             args = {
                 propertyData = propertyData,
@@ -683,17 +650,30 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     createProperty(inputResult)
 end)
 
-RegisterNetEvent('qbx-property:client:enterProperty', function(coords, propertyid)
+RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, propertyId, isVisit)
+    local coords = Config.IPLS[interior].coords
+    DoScreenFadeOut(1500)
+    Wait(250)
+    SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
+    SetEntityHeading(cache.ped, coords.entrance.w)
+    DoScreenFadeIn(1500)
+    CreatePropertyInteriorZones(coords, propertyId, isVisit)
+end)
+
+RegisterNetEvent('qbx-property:client:enterGarage', function(coords, propertyId, isVisit)
 
 end)
 
-RegisterNetEvent('qbx-property:client:LeaveProperty', function(coords)
+RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
     if not coords then return end
-    interiorZones = nil
+    for _, v in pairs(InteriorZones) do
+        v:remove()
+    end
+    InteriorZones = {}
     DoScreenFadeOut(500)
     Wait(250)
-    SetEntityCoords(cache.ped, coords.xyz, 0.0, 0.0, false, false, false, false)
-    SetEntityHeading(cache.ped, coords.h or coords.w)
+    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false)
+    SetEntityHeading(cache.ped, coords.w)
     DoScreenFadeIn(500)
 end)
 

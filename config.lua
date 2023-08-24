@@ -3,6 +3,15 @@ Config = {}
 Config.useApartments = true -- false to disable apartments
 Config.useProperties = true -- false to disable properties
 
+Config.InteriorZones = {
+    marker = {
+        type = 25,
+        offsetZ = -0.95,
+        color = {r = 82, g = 145, b = 170, a = 155},
+        scale = {x = 0.8, y = 0.8, z = 0.8},
+    },
+}
+
 Config.Properties = {
     marker = {
         type = 25,
@@ -87,7 +96,7 @@ Config.apartmentlocations = {
     },
 }
 
----@type { [string]: { ipl: string | false, coords: { entrance: vector4, wardrobe: vector4, stash: vector4, logout: vector3 } } }
+---@type { [string]: { ipl: string | false, coords: { entrance: vector4, wardrobe: vector4 | boolean, stash: vector4, logout: vector3 | boolean } } }
 Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are still interiors
     ["Alta Street"] = {
         ipl = false,
@@ -102,9 +111,9 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
         ipl = "apa_v_mp_h_01_a",
         coords = {
             entrance = vector4(-786.866, 315.764, 217.638, 160),
-            wardrobe = vector4(-786.866, 315.764, 217.638, 160),
-            stash = vector4(-786.866, 315.764, 217.638, 160),
-            logout = vector3(-786.866, 315.764, 217.638),
+            wardrobe = vector4(-797.97, 329.0, 220.44, 172.76),
+            stash = vector4(-796.04, 326.82, 217.04, 348.06),
+            logout = vector3(-795.9, 336.0, 220.44),
         }
     },
     ["Low End"] = {
@@ -129,18 +138,18 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
         ipl = false,
         coords = {
             entrance = vector4(782.6, -2998.04, -69.0, 284.77),
-            wardrobe = vector4(0, 0, 0, 0),
-            stash = vector4(0, 0, 0, 0),
-            logout = vector3(0, 0, 0),
+            wardrobe = false,
+            stash = vector4(787.85, -2991.92, -69.0, 272.58),
+            logout = false,
         }
     },
     ["Fixer Office"] = {
         ipl = false,
         coords = {
             entrance = vector4(-1003.2, -774.7, 61.89, 356.88),
-            wardrobe = vector4(0,0,0, 0),
-            stash = vector4(0, 0, 0, 0),
-            logout = vector3(0,0,0),
+            wardrobe = vector4(-997.55, -748.18, 70.49, 267.34),
+            stash = vector4(-1004.25, -758.83, 70.49, 184.27),
+            logout = vector3(-997.15, -757.16, 70.49),
         }
     },
     ["Office"] = {

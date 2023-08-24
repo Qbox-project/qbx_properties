@@ -25,7 +25,8 @@ server_scripts {
 
 modules {
     'qbx-core:core',
-    'qbx-core:utils'
+    'qbx-core:utils',
+    'qbx-core:client:playerdata',
 }
 
 lua54 'yes'

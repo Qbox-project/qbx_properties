@@ -24,7 +24,16 @@ local function createProperty(data)
     }, function(result)
         if not result then return false end
     end)
+    exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
     return id
+end
+
+local function RefreshStashes()
+    for propertyId, v in pairs(properties) do
+        if v.property_type ~= 'garage' then
+            exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, v.slots, v.maxweight, false, false, v.stash or Config.IPLS[v.interior].coords.stash.xyz)
+        end
+    end
 end
 
 --- Calculate the price with taxes
@@ -46,12 +55,10 @@ end
 --- Finds the players inside properties and adds them to the playersInside table
 local function findPlayersInsideProperties()
     for _, v in pairs(QBCore.Functions.GetPlayers()) do
-        local InProperty = Player(v).state.inProperty
-        if not InProperty then goto continue end
-        DebugPrint(InProperty)
-        print(InProperty.propertyid..'\n --')
+        local inProperty = Player(v).state.inProperty
+        if not inProperty then goto continue end
 
-        local property = properties[InProperty.propertyid]
+        local property = properties[inProperty.propertyid]
         if property then
             property.playersInside[#property.playersInside + 1] = v
         end
@@ -154,15 +161,16 @@ local function RefreshProperties()
 end
 
 -- Enter furnished property
-RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId)
+RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVisit)
     local source = source
     local playersToConceal = {}
     local playersInsideProperty = {}
-
+    local property = properties[propertyId]
+    if property.property_type ~= 'ipl' then return end -- remove when shells are implemented
     for k, v in pairs(properties) do
         if v.property_type == 'ipl' then
             if k == propertyId then
-                for _, serverid in pairs(playersInside) do
+                for _, serverid in pairs(v.playersInside) do
                     playersInsideProperty[#playersInsideProperty + 1] = serverid
                 end
             else
@@ -174,12 +182,16 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId)
     end
 
     TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
         TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
     end
-
-    TriggerClientEvent('qbx-property:client:enterProperty', source, propertyId)
-    Player(source).set('InProperty', {propertyid = propertyId})
+    if property.property_type == 'ipl' then
+        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit)
+    else
+        -- TODO: shell stuff (have fun with that)
+    end
+    Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
 
 -- Enter garage
@@ -394,6 +406,29 @@ RegisterNetEvent('qbx-property:server:RingDoor', function(propertyId)
     QBCore.Functions.Notify(source, "Feature incoming soon :tm:", "error", 5000)
 end)
 
+RegisterNetEvent('qbx-property:server:leaveProperty', function(propertyId, isInVehicle)
+    local source = source
+    local property = properties[propertyId]
+    local playersToConceal = {}
+    if not property then return end
+    local exitcoords = property.coords
+    for _, v in pairs(properties) do
+        for _, serverid in pairs(v.playersInside) do
+            playersToConceal[#playersToConceal + 1] = serverid
+        end
+    end
+
+    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, false)
+
+    if not isInVehicle then
+        Player(source).state:set('inProperty', false, true)
+        TriggerClientEvent('qbx-property:client:leaveProperty', source, exitcoords)
+    else
+
+    end
+end)
+
 --- Modifies the property's data in the database
 ---@param propertyId integer
 local function modifyProperty(propertyId)
@@ -412,6 +447,7 @@ local function modifyProperty(propertyId)
     })
     if not affectedRows then return end
     RefreshProperties()
+    exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, propertyData.slots, propertyData.maxweight, false, false, Config.IPLS[propertyData.interior].coords.stash.xyz)
 end
 
 --- Modifies the property's data
@@ -449,6 +485,17 @@ lib.callback.register('qbx-property:server:GetPropertyData', function(source, pr
     return data
 end)
 
+lib.callback.register('qbx-property:server:GetCustomZones', function(source, propertyId)
+    local property = properties[propertyId]
+    if not property then return false end
+    local zones = {
+        wardrobe = property.stash,
+        stash = property.stash,
+        logout = property.logout,
+    }
+    return zones or {}
+end)
+
 lib.addCommand('createproperty', {
     help = 'Create a property',
     params = {},
@@ -463,5 +510,6 @@ AddEventHandler('onServerResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         PropertiesRentCheck()
         RefreshProperties()
+        RefreshStashes()
     end
 end)
