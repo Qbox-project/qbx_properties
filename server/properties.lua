@@ -95,6 +95,13 @@ end
 ---@return table
 local function formatPropertyData(PropertyData, owners)
     local coords = type(PropertyData.coords) == "string" and json.decode(PropertyData.coords) or PropertyData.coords
+    local stash, logout, outfit = nil, nil, nil
+    if PropertyData.data then
+        stash = type(PropertyData.data.stash) == "string" and json.decode(PropertyData.data.stash) or PropertyData.data.stash
+        logout = type(PropertyData.data.logout) == "string" and json.decode(PropertyData.data.logout) or PropertyData.data.logout
+        outfit = type(PropertyData.data.outfit) == "string" and json.decode(PropertyData.data.outfit) or PropertyData.data.outfit
+    end
+
     return {
         name = PropertyData.name,
         interior = PropertyData.interior,
@@ -102,9 +109,9 @@ local function formatPropertyData(PropertyData, owners)
         decorations = PropertyData.decorations or nil,
         garage_slots = (type(PropertyData.garage_slots) == "string" and json.decode(PropertyData.garage_slots)) or nil,
         coords = vec4(coords.x, coords.y, coords.z, coords.w or 0),
-        stash = type(PropertyData.stash) == "string" and json.decode(PropertyData.stash),
-        logout = type(PropertyData.logout) == "string" and json.decode(PropertyData.logout) or nil,
-        outfit = type(PropertyData.outfit) == "string" and json.decode(PropertyData.outfit) or nil,
+        stash = stash,
+        logout = logout,
+        outfit = outfit,
         appliedtaxes = json.decode(PropertyData.appliedtaxes) or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
