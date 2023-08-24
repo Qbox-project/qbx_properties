@@ -2,6 +2,17 @@ local blips = {}
 
 --#region Functions
 
+--- Get the rounded coords
+---@param coords table
+---@return table
+function GetRoundedCoords(coords)
+    local newcoords = {}
+    for k, v in pairs(coords) do
+        newcoords[k] = math.floor(v*1000)/1000
+    end
+    return newcoords
+end
+
 --- Create a blip for the Apartment
 ---@param coords vector3
 ---@param name string name that will be displayed on the blip

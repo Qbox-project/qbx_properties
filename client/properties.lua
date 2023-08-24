@@ -61,17 +61,6 @@ local function getAppliedTaxesList(taxes)
     return appliedTaxes
 end
 
---- Get the rounded coords
----@param coords table
----@return table
-local function getRoundedCoords(coords)
-    local newcoords = {}
-    for k, v in pairs(coords) do
-        newcoords[k] = math.floor(v*1000)/1000
-    end
-    return newcoords
-end
-
 --- Create a list of interiors
 --- @param Garage boolean
 --- @param Furnished boolean
