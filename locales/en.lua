@@ -24,6 +24,15 @@ local Translations = {
         shell = 'Unfurnished',
         garage = 'Garage',
         none = 'None',
+        buy = 'Buy',
+        rent = 'Rent',
+        promptOfferHeader = 'Property Offer',
+        promptOffer = 'Do you want to %{action} this property for $%{amount}?'
+    },
+    selection = {
+        action = "%{action} Property",
+        cancel = "Cancel",
+        nextPlayer = "Next Player",
     },
     create_property_menu = {
         title = 'Create Property',
@@ -60,6 +69,7 @@ local Translations = {
             maxweight = "Max weight: %{value} Kg",
         },
         taxes = 'Taxes: %{taxes}',
+        coords = 'Move the property to your current location',
         done = 'Done',
     },
     manage_property_menu = {

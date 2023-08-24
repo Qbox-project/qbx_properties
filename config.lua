@@ -38,11 +38,16 @@ Config.Properties = {
         pool = 5,
         general = 10,
     },
+    --- @type { [string]: number }
+    --- rent commission is fixed, buy commission can be adjusted
     realtorCommission = {
         default = 5,
         min = 1,
         max = 15,
-    }
+        rent = 5,
+    },
+    --- How long to rent/extend rent for (in days)
+    rentTime = 7,
 }
 
 Config.Apartments = {

@@ -2,6 +2,7 @@ if not Config.useProperties then return end
 local propertyZones = {}
 local interiorZones = {}
 local isInZone = false
+local inSelection = false
 
 --#region Functions
 
@@ -90,14 +91,14 @@ local function getTaxesList()
     return taxes
 end
 
-local function showSelectionScaleform(scaleform)
+local function showSelectionScaleform(scaleform, action)
     PushScaleformMovieFunction(scaleform, "CLEAR_ALL")
     PopScaleformMovieFunctionVoid()
 
     for i, data in ipairs({
-        {GetControlInstructionalButton(0, 38, true), "Sell Property"},
-        {GetControlInstructionalButton(0, 120, true), "Cancel"},
-        {GetControlInstructionalButton(0, 44, true), "Next Player"}
+        {GetControlInstructionalButton(0, 38, true), Lang:t("selection.action", {action = action})},
+        {GetControlInstructionalButton(0, 120, true), Lang:t("selection.cancel")},
+        {GetControlInstructionalButton(0, 44, true), Lang:t("selection.nextPlayer")}
     }) do
         PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
         PushScaleformMovieFunctionParameterInt(i - 1)
@@ -112,6 +113,42 @@ local function showSelectionScaleform(scaleform)
     DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
 end
 
+--- Start the player selection and return the selected player
+---@param players table
+---@param callback function
+local function selectPlayer(players, action, callback)
+    inSelection = true
+    local playerNumber = 1
+    local scaleform = lib.requestScaleformMovie("instructional_buttons", 10000)
+    CreateThread(function()
+        while true do
+            Wait(0)
+            showSelectionScaleform(scaleform, action)
+            local player = players[playerNumber]
+            local playerPed = player.ped
+            local playerCoords = GetEntityCoords(playerPed)
+            DrawMarker(2, playerCoords.x, playerCoords.y, playerCoords.z + 1.1, 0, 0, 0, 180, 0, 0, 0.25, 0.25, 0.25, 255, 50, 50, 255, true, true, 2, false, nil, nil, false)
+            if IsControlJustPressed(0, 38) then -- E
+                inSelection = false
+                callback(player)
+                break
+            elseif IsControlJustPressed(0, 120) then -- X
+                inSelection = false
+                QBCore.Functions.Notify(Lang:t("error.cancelled"), 'error', 7500)
+                break
+            elseif IsControlJustPressed(0, 44) then -- Q (A on AZERTY)
+                if playerNumber >= #players then
+                    playerNumber = 1
+                else
+                    playerNumber = playerNumber + 1
+                end
+            end
+        end
+    end)
+end
+
+--- Sell the property to a player
+---@param propertyData table
 local function sellToPlayer(propertyData)
     local input = lib.inputDialog('Property Creator', {
         {
@@ -134,30 +171,23 @@ local function sellToPlayer(propertyData)
         return
     end
 
-    local playerNumber = 1
-    local scaleform = lib.requestScaleformMovie("instructional_buttons", 10000)
-    CreateThread(function()
-        while true do
-            Wait(0)
-            showSelectionScaleform(scaleform)
-            local player = players[playerNumber]
-            local playerPed = player.ped
-            local playerCoords = GetEntityCoords(playerPed)
-            DrawMarker(2, playerCoords.x, playerCoords.y, playerCoords.z + 1.1, 0, 0, 0, 180, 0, 0, 0.25, 0.25, 0.25, 255, 50, 50, 255, true, true, 2, false, nil, nil, false)
-            if IsControlJustPressed(0, 38) then -- E
-                TriggerServerEvent('qbx-property:server:sellProperty', GetPlayerServerId(player.id), propertyData.id, comission)
-                return
-            elseif IsControlJustPressed(0, 120) then -- X
-                QBCore.Functions.Notify(Lang:t("error.cancelled"), 'error', 7500)
-                return
-            elseif IsControlJustPressed(0, 44) then -- Q (A on AZERTY)
-                if playerNumber >= #players then
-                    playerNumber = 1
-                else
-                    playerNumber = playerNumber + 1
-                end
-            end
-        end
+    selectPlayer(players, "Sell", function(player)
+        TriggerServerEvent('qbx-property:server:sellProperty', GetPlayerServerId(player.id), propertyData.id, comission)
+    end)
+end
+
+--- Rent (or extends the rent) the property to a player
+--- @param propertyData table
+--- @param isExtend boolean
+local function rentToPlayer(propertyData, isExtend)
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, true)
+    if not players then
+        QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
+        return
+    end
+
+    selectPlayer(players, "Rent", function(player)
+        TriggerServerEvent('qbx-property:server:rentProperty', GetPlayerServerId(player.id), propertyData.id, isExtend)
     end)
 end
 
@@ -287,7 +317,7 @@ local function modifyProperty(propertyData)
         elseif args.action == "coords" then
             local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
             local coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
-            coords = getRoundedCoords(coords)
+            coords = GetRoundedCoords(coords)
             newData.coords = vec4(coords.x, coords.y, coords.z, coords.w)
             point.coords, point.heading = newData.coords.xyz, newData.coords.w
         end
@@ -325,25 +355,25 @@ local function populatePropertyMenu(propertyData, propertyType)
                 },
                 close = true
             }
-            if isRented then
-                options[#options+1] = {
-                    label = Lang:t('property_menu.extend_rent'),
-                    description = Lang:t('property_menu.extend_rent_desc', {rent_expiration = propertyData.rent_expiration, price = calcPrice(propertyData.rent, propertyData.appliedtaxes)}),
-                    icon = 'file-invoice-dollar',
-                    args = {
-                        action = 'extend_rent',
-                        propertyData = propertyData,
-                        propertyType = propertyType,
-                    },
-                    close = true
-                }
-            end
         else
             options[#options+1] = {
                 label = Lang:t('property_menu.ring'),
                 icon = 'bell',
                 args = {
                     action = 'ring',
+                    propertyData = propertyData,
+                    propertyType = propertyType,
+                },
+                close = true
+            }
+        end
+        if isRented and isRealEstateAgent then
+            options[#options+1] = {
+                label = Lang:t('property_menu.extend_rent'),
+                description = Lang:t('property_menu.extend_rent_desc', {rent_expiration = propertyData.rent_expiration, price = calcPrice(propertyData.rent, propertyData.appliedtaxes)}),
+                icon = 'file-invoice-dollar',
+                args = {
+                    action = 'extend_rent',
                     propertyData = propertyData,
                     propertyType = propertyType,
                 },
@@ -428,8 +458,11 @@ local function populatePropertyMenu(propertyData, propertyType)
         elseif args.action == 'ring' then
             TriggerServerEvent('qbx-property:server:RingDoor', args.propertyData.id)
         elseif args.action == 'extend_rent' then
+            rentToPlayer(args.propertyData, true)
         elseif args.action == 'sell' then
             sellToPlayer(args.propertyData)
+        elseif args.action == 'rent' then
+            rentToPlayer(args.propertyData, false)
         elseif args.action == 'modify' then
             modifyProperty(args.propertyData)
         elseif args.action == 'back' then
@@ -508,14 +541,14 @@ local function createPropertiesZones()
                 false, true, 2, false, nil, nil, false
             )
 
-            if self.currentDistance < 1 and not lib.getOpenMenu() then
+            if self.currentDistance < 1 and not lib.getOpenMenu() and not inSelection then
                 SetTextComponentFormat("STRING")
                 AddTextComponentString(Lang:t('properties_menu.showmenuhelp', {propertyType = Lang:t('properties_menu.'..self.propertyType)}))
                 DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
                 isInZone = true
                 if IsControlJustPressed(0, 38) then
                     populatePropertiesMenu(self.propertyIds, self.propertyType)
-                    --lib.showMenu('properties_menu')
+                    lib.showMenu('properties_menu')
                 end
             else
                 isInZone = false
@@ -631,7 +664,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
     end
     local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
     local coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
-    coords = getRoundedCoords(coords)
+    coords = GetRoundedCoords(coords)
 
     local inputResult = {
         name = generalOptions[1] or GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z)),
@@ -680,10 +713,10 @@ end)
 --#endregion Events
 
 --#region Callbacks
-lib.callback.register('qbx-properties:client:promptOffer', function(price)
+lib.callback.register('qbx-properties:client:promptOffer', function(price, isRent)
     local alert = lib.alertDialog({
-        header = 'Property Offer',
-        content = string.format('Do you want to buy this property for $%s?', price),
+        header = Lang:t('general.promptOfferHeader'),
+        content = Lang:t('general.promptOffer', {action = Lang:t('general.'.. (isRent and 'rent' or 'buy')), amount = price}),
         centered = true,
         cancel = true
     })
