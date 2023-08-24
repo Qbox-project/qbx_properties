@@ -111,7 +111,7 @@ end
 
 local function updatePropertiesGroups()
     propertiesGroups = {}
-    for k, v in pairs(properties) do
+    for id, v in pairs(properties) do
         local propertyCoords = v.coords
         local found = false
         for _, group in pairs(propertiesGroups) do
@@ -119,18 +119,18 @@ local function updatePropertiesGroups()
             local calcGroupCoords = vec3(math.floor(group.coords.x + 0.5), math.floor(group.coords.y + 0.5), math.floor(group.coords.z + 0.5))
 
             if calcGroupCoords == calcCoords then
-                group.properties[#group.properties + 1] = k
+                group.properties[id] = v.name
                 found = true
                 break
             end
         end
         if not found then
             propertiesGroups[#propertiesGroups + 1] = {
-                name = v.name,
                 coords = propertyCoords,
-                properties = {k},
+                properties = {},
                 propertyType = v.property_type
             }
+            propertiesGroups[#propertiesGroups].properties[id] = v.name
         end
     end
 end

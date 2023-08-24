@@ -506,7 +506,7 @@ end
 
 local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
     local Status = (propertyGroup.propertyType == 'garage' and 'garage') or (isRented and 'rent') or 'owned'
-    AddBlip(propertyId, propertyGroup.name, propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
+    AddBlip(propertyId, propertyGroup.properties[propertyId], propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
 end
 
 local function createPropertiesZones()
@@ -555,8 +555,10 @@ local function createPropertiesZones()
             end
         end
         propertyZones[k] = zone
-        if ownedOrRentedProperties[k] then
-            addPropertyGroupBlip(k, v, ownedOrRentedProperties[k].isRented)
+        for propertyId, _ in pairs(v.properties) do
+            if ownedOrRentedProperties[propertyId] then
+                addPropertyGroupBlip(propertyId, v, ownedOrRentedProperties[propertyId].isRented)
+            end
         end
     end
 end

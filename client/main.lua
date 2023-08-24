@@ -42,6 +42,7 @@ end
 
 --- Remove blips
 function RemoveBlips()
+    if not next(blips) then return end
     for _, blip in pairs(blips) do
         RemoveBlip(blip)
     end
