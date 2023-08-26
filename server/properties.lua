@@ -112,7 +112,7 @@ local function formatPropertyData(PropertyData, owners)
         stash = stash,
         logout = logout,
         outfit = outfit,
-        appliedtaxes = json.decode(PropertyData.appliedtaxes) or {},
+        appliedtaxes = type(PropertyData.appliedtaxes) ~= "table" and json.decode(PropertyData.appliedtaxes) or PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
         maxweight = PropertyData.maxweight,

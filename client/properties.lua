@@ -290,9 +290,9 @@ local function modifyProperty(propertyData)
         end
 
         if args.action == 'done' then
+            point:remove()
             if not next(newData) then return end
             TriggerServerEvent('qbx-property:server:modifyProperty', propertyData.id, newData)
-            point:remove()
         else
             lib.showMenu('modify_property_menu')
         end
