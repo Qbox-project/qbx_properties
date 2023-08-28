@@ -443,7 +443,8 @@ end
 --- Populate the properties menu (list of properties in a same location)
 ---@param ids table
 ---@param propertyType string
-local function populatePropertiesMenu(ids, propertyType)
+---@param coords vector4
+local function populatePropertiesMenu(ids, propertyType, coords)
     if not ids then return end
     local options = {}
 
@@ -462,12 +463,29 @@ local function populatePropertiesMenu(ids, propertyType)
         ::continue::
     end
 
+    if PlayerData.job.type == 'realestate' then
+        options[#options+1] = {
+            label = Lang:t('properties_menu.create'),
+            icon = 'plus',
+            args = {
+                action = 'create',
+                coords = coords,
+                propertyType = propertyType,
+            },
+            close = true
+        }
+    end
+
     lib.registerMenu({
         id = 'properties_menu',
         title = 'Property List',
         position = 'top-left',
         options = options
     }, function(selected, scrollIndex, args)
+        if args.action == "create" then
+            TriggerEvent("qbx-property:client:OpenCreationMenu", args.coords, args.propertyType)
+            return
+        end
         populatePropertyMenu(args.propertyData, args.propertyType)
         lib.showMenu('property_menu')
     end)
@@ -516,7 +534,7 @@ local function createPropertiesZones()
                 DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
                 isInZone = true
                 if IsControlJustPressed(0, 38) then
-                    populatePropertiesMenu(self.propertyIds, self.propertyType)
+                    populatePropertiesMenu(self.propertyIds, self.propertyType, self.coords)
                     lib.showMenu('properties_menu')
                 end
             else
@@ -601,8 +619,11 @@ end
 --#region Events
 RegisterNetEvent('qbx-property:client:refreshProperties', refreshProperties)
 
-RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
-    if isInZone then
+--- Create a property
+--- @param coords vector4 | nil
+--- @param propertyType string | nil
+RegisterNetEvent('qbx-property:client:OpenCreationMenu', function(coords, propertyType)
+    if not coords and isInZone then
         QBCore.Functions.Notify('A property already exists there!', 'error', 5000)
         return
     end
@@ -610,11 +631,15 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         {type = 'input', label = 'Name', description = 'Name the Property (Optional)', placeholder = 'Vinewood Villa'},
         {type = 'number', label = 'Price', required = true, icon = 'dollar-sign', default = Config.Properties.minimumPrice, min = Config.Properties.minimumPrice},
         {type = 'number', label = 'Rent Price', required = true, description = 'Rent price for 7 days', icon = 'dollar-sign', default = 100, placeholder = "69"},
-        {type = 'checkbox', label = 'Garage?', checked = false},
-        {type = 'checkbox', label = 'Furnished? (Not For Garages!)', checked = true},
+        not propertyType and {type = 'checkbox', label = 'Garage?', checked = false},
+        not propertyType and {type = 'checkbox', label = 'Furnished? (Not For Garages!)', checked = true},
     }, {allowCancel = true})
     if not generalOptions then return end
     if generalOptions[1] == '' then generalOptions[1] = nil end
+    if propertyType then
+        generalOptions[4] = propertyType == 'garage'
+        generalOptions[5] = propertyType == 'ipl'
+    end
 
     local propertyOptions = {
         {type = 'select', clearable = false, label = "Interior", options = createInteriorsList(generalOptions[4], generalOptions[5])}
@@ -633,9 +658,11 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function()
         QBCore.Functions.Notify('You need to select an interior!', 'error')
         return
     end
-    local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
-    local coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
-    coords = GetRoundedCoords(coords)
+    if not coords then
+        local coord, heading = GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)
+        coords = {x = coord.x, y = coord.y, z = coord.z, w = heading}
+        coords = GetRoundedCoords(coords)
+    end
 
     local inputResult = {
         name = generalOptions[1] or GetStreetNameFromHashKey(GetStreetNameAtCoord(coords.x, coords.y, coords.z)),
@@ -670,7 +697,7 @@ RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
     InteriorZones = {}
     DoScreenFadeOut(500)
     Wait(250)
-    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false)
+    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
     SetEntityHeading(cache.ped, coords.w)
     DoScreenFadeIn(500)
 end)

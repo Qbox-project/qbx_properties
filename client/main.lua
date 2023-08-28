@@ -13,7 +13,6 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
         end
         InteriorZones = {}
     end
-    local marker = Config.InteriorZones.marker
     local customZones = propertyId and lib.callback.await('qbx-property:server:GetCustomZones', false, propertyId) or {}
 
     InteriorZones.entrance = lib.points.new({
@@ -24,13 +23,14 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
     function InteriorZones.entrance:nearby()
         if not self then return end
         if not self.currentDistance then return end
+        local marker = Config.InteriorZones.entrance.marker
         DrawMarker(marker.type,
-            self.coords.x, self.coords.y, self.coords.z + Config.InteriorZones.marker.offsetZ, -- coords
+            self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
             0.0, 0.0, 0.0, -- direction?
             0.0, 0.0, 0.0, -- rotation
             marker.scale.x, marker.scale.y, marker.scale.z, -- scale
             marker.color.r, marker.color.g, marker.color.b, marker.color.a, -- color RBGA
-            false, true, 2, false, nil, nil, false
+            false, false, 2, false, nil, nil, false
         )
 
         if self.currentDistance < 1 then
@@ -53,8 +53,9 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             function InteriorZones.wardrobe:nearby()
                 if not self then return end
                 if not self.currentDistance then return end
+                local marker = Config.InteriorZones.wardrobe.marker
                 DrawMarker(marker.type,
-                    self.coords.x, self.coords.y, self.coords.z + Config.InteriorZones.marker.offsetZ, -- coords
+                    self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
                     0.0, 0.0, 0.0, -- direction?
                     0.0, 0.0, 0.0, -- rotation
                     marker.scale.x, marker.scale.y, marker.scale.z, -- scale
@@ -81,8 +82,9 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             function InteriorZones.stash:nearby()
                 if not self then return end
                 if not self.currentDistance then return end
+                local marker = Config.InteriorZones.stash.marker
                 DrawMarker(marker.type,
-                self.coords.x, self.coords.y, self.coords.z + Config.InteriorZones.marker.offsetZ, -- coords
+                self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
                 0.0, 0.0, 0.0, -- direction?
                 0.0, 0.0, 0.0, -- rotation
                 marker.scale.x, marker.scale.y, marker.scale.z, -- scale
@@ -109,8 +111,9 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             function InteriorZones.logout:nearby()
                 if not self then return end
                 if not self.currentDistance then return end
+                local marker = Config.InteriorZones.logout.marker
                 DrawMarker(marker.type,
-                self.coords.x, self.coords.y, self.coords.z + Config.InteriorZones.marker.offsetZ, -- coords
+                self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
                 0.0, 0.0, 0.0, -- direction?
                 0.0, 0.0, 0.0, -- rotation
                 marker.scale.x, marker.scale.y, marker.scale.z, -- scale

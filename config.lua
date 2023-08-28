@@ -4,11 +4,37 @@ Config.useApartments = true -- false to disable apartments
 Config.useProperties = true -- false to disable properties
 
 Config.InteriorZones = {
-    marker = {
-        type = 25,
-        offsetZ = -0.95,
-        color = {r = 82, g = 145, b = 170, a = 155},
-        scale = {x = 0.8, y = 0.8, z = 0.8},
+    entrance = {
+        marker = {
+            type = 25,
+            offsetZ = -0.95,
+            color = {r = 82, g = 145, b = 170, a = 155},
+            scale = {x = 0.8, y = 0.8, z = 0.8},
+        },
+    },
+    wardrobe = {
+        marker = {
+            type = 25,
+            offsetZ = -0.95,
+            color = {r = 82, g = 145, b = 170, a = 155},
+            scale = {x = 0.8, y = 0.8, z = 0.8},
+        },
+    },
+    stash = {
+        marker = {
+            type = 25,
+            offsetZ = -0.95,
+            color = {r = 82, g = 145, b = 170, a = 155},
+            scale = {x = 0.8, y = 0.8, z = 0.8},
+        },
+    },
+    logout = {
+        marker = {
+            type = 25,
+            offsetZ = -0.95,
+            color = {r = 82, g = 145, b = 170, a = 155},
+            scale = {x = 0.8, y = 0.8, z = 0.8},
+        },
     },
 }
 
@@ -129,10 +155,10 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
     ["Franklin House"] = {
         ipl = false,
         coords = {
-            entrance = vector4(7.52, 539.13, 176.02, 160),
-            wardrobe = vector4(8.65, 528, 170.5, 300),
-            stash = vector4(9, 535, 170.5, 0),
-            logout = vector3(0, 523, 170.5),
+            entrance = vector4(7.66, 538.31, 176.03, 170),
+            wardrobe = vector4(8.65, 528, 170.62, 300),
+            stash = vector4(9.2, 535.55, 170.62, 206.48),
+            logout = vector3(0, 523, 170.62),
         }
     },
     ["Warehouse"] = {

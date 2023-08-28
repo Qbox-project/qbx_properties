@@ -44,6 +44,7 @@ local Translations = {
         garage = 'Garage',
         ipl = 'Property',
         showmenuhelp = '~g~E~w~ - Enter %{propertyType}',
+        create = 'Add a Property',
     },
     property_menu = {
         visit = 'Visit',

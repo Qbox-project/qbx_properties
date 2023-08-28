@@ -24,7 +24,9 @@ local function createProperty(data)
     }, function(result)
         if not result then return false end
     end)
-    exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
+    if not data.garage then
+        exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
+    end
     return id
 end
 
@@ -129,10 +131,7 @@ local function updatePropertiesGroups()
         local propertyCoords = v.coords
         local found = false
         for _, group in pairs(propertiesGroups) do
-            local calcCoords = vec3(math.floor(propertyCoords.x + 0.5), math.floor(propertyCoords.y + 0.5), math.floor(propertyCoords.z + 0.5))
-            local calcGroupCoords = vec3(math.floor(group.coords.x + 0.5), math.floor(group.coords.y + 0.5), math.floor(group.coords.z + 0.5))
-
-            if calcGroupCoords == calcCoords then
+            if #(propertyCoords.xyz - group.coords.xyz) <= 1.1 then
                 group.properties[id] = v.name
                 found = true
                 break
@@ -250,6 +249,7 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
         return
     end
 
+    propertyData.name = propertyId .. ' ' .. propertyData.name
     addPropertyToList(propertyData, propertyId)
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end)
