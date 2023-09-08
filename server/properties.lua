@@ -120,6 +120,7 @@ local function formatPropertyData(PropertyData, owners)
         maxweight = PropertyData.maxweight,
         slots = PropertyData.slots,
         rent_expiration = calcDaysLeft(PropertyData.rent_expiration) or false,
+        options = type(PropertyData.options) == "string" and json.decode(PropertyData.options) or {},
         owners = next(owners) and owners or {},
         playersInside = {}
     }
@@ -193,7 +194,7 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVis
         TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
     end
     if property.property_type == 'ipl' then
-        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit)
+        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
     else
         -- TODO: shell stuff (have fun with that)
     end
@@ -416,7 +417,7 @@ end)
 local function modifyProperty(propertyId)
     if not propertyId then return end
     local propertyData = properties[propertyId]
-    local affectedRows = MySQL.update.await('UPDATE properties SET name = @name, interior = @interior, price = @price, rent = @rent, coords = @coords, appliedtaxes = @appliedtaxes, maxweight = @maxweight, slots = @slots WHERE id = @propertyId', {
+    local affectedRows = MySQL.update.await('UPDATE properties SET name = @name, interior = @interior, price = @price, rent = @rent, coords = @coords, appliedtaxes = @appliedtaxes, maxweight = @maxweight, slots = @slots, options = @options WHERE id = @propertyId', {
         ['@name'] = propertyData.name,
         ['@interior'] = propertyData.interior,
         ['@coords'] = json.encode(propertyData.coords),
@@ -425,6 +426,7 @@ local function modifyProperty(propertyId)
         ['@appliedtaxes'] = json.encode(propertyData.appliedtaxes or {}),
         ['@maxweight'] = propertyData.maxweight or 10000,
         ['@slots'] = propertyData.slots or 10,
+        ['@options'] = json.encode(propertyData.options or {}),
         ['@propertyId'] = propertyId
     })
     if not affectedRows then return end

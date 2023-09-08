@@ -123,9 +123,10 @@ Config.apartmentlocations = {
     },
 }
 
----@type { [string]: { ipl: string | false, coords: { entrance: vector4, wardrobe: vector4 | boolean, stash: vector4, logout: vector3 | boolean } } }
+---@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, wardrobe: vector4 | boolean, stash: vector4, logout: vector3 | boolean } } }
 Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are still interiors
-    ["Alta Street"] = {
+    alta_street = {
+        label = "Alta Street",
         ipl = false,
         coords = {
             entrance = vector4(-271.87, -940.34, 92.51, 70),
@@ -134,7 +135,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-283.27, -959.68, 70),
         }
     },
-    ["Eclipse Tower"] = {
+    eclipse_tower = {
+        label = "Eclipse Tower",
         ipl = "apa_v_mp_h_01_a",
         coords = {
             entrance = vector4(-786.866, 315.764, 217.638, 160),
@@ -143,7 +145,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-795.9, 336.0, 220.44),
         }
     },
-    ["Low End"] = {
+    low_end = {
+        label = "Low End",
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -152,7 +155,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(262.9, -1003.09, -99.01),
         }
     },
-    ["Franklin House"] = {
+    franklin = {
+        label = "Franklin House",
         ipl = false,
         coords = {
             entrance = vector4(7.66, 538.31, 176.03, 170),
@@ -161,7 +165,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(0, 523, 170.62),
         }
     },
-    ["Warehouse"] = {
+    warehouse = {
+        label = "Warehouse",
         ipl = false,
         coords = {
             entrance = vector4(782.6, -2998.04, -69.0, 284.77),
@@ -170,7 +175,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = false,
         }
     },
-    ["Fixer Office"] = {
+    fixer_office = {
+        label = "Fixer Office",
         ipl = false,
         coords = {
             entrance = vector4(-1003.2, -774.7, 61.89, 356.88),
@@ -179,7 +185,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-997.15, -757.16, 70.49),
         }
     },
-    ["Office"] = {
+    office = {
+        label = "Office",
         ipl = false,
         coords = {
             entrance = vector4(-78.99, -829.41, 243.39, 249.68),
@@ -188,7 +195,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(-83.26, -809.64, 243.39),
         }
     },
-    ["Basement"] = {
+    basement = {
+        label = "Basement",
         ipl = false,
         coords = {
             entrance = vector4(844.23, -3004.99, -44.4, 3.57),
@@ -197,7 +205,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
             logout = vector3(0, 0, 0),
         }
     },
-    ["Small Methlab"] = {
+    small_methlab = {
+        label = "Small Methlab",
         ipl = false,
         coords = {
             entrance = vector4(482.35, -2623.92, -49.06, 183.29),
@@ -210,7 +219,8 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
 
 Config.Shells = {
 --[[
-    ["Shell Name"] = {
+    shell_name = {
+        label = string, -- label for the shell
         shell = string, -- shell object/prop
         offsets = {
             entrance = vector4(0, 0, 0, 0), -- required
@@ -221,9 +231,10 @@ Config.Shells = {
     } ]]
 }
 
----@type { [string]: { ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }}, styles: table } }
+---@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }}, style: table } }
 Config.GarageIPLs = {
-    ["Low End"] = {
+    low_end = {
+        label = "Low End",
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -233,39 +244,42 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Medium"] = {
+    medium = {
+        label = "Medium",
         ipl = false,
         coords = {
-            entrance = vector4(265.95, -1007.41, -101.01, 2.71),
+            entrance = vector4(0, 0, 0, 0),
             slots = {
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
             }
         }
     },
-    ["High End"] = {
+    high_end = {
+        label = "High End",
         ipl = false,
         coords = {
-            entrance = vector4(265.95, -1007.41, -101.01, 2.71),
+            entrance = vector4(0, 0, 0, 0),
             slots = {
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
             }
         }
     },
-    ["Fixer Office Garage"] = {
+    fixer_garage = {
+        label = "Fixer Office Garage",
         ipl = false,
         coords = {
             entrance = vector4(-1067.1, -88.2, -90.2, 2.27),
@@ -283,7 +297,8 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Office Garage"] = {
+    office_garage = {
+        label = "Office Garage",
         ipl = false,
         coords = {
             entrance = vector4(-91.35, -821.23, 222.0, 249.63),
@@ -311,24 +326,25 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Eclipse Boulevard"] = { -- 10 slots garages of the Acid DLC
+    eclipse_boulevard = { -- 10 slots garages of the Acid DLC
+        label = "Eclipse Boulevard",
         ipl = false,
         coords = {
             entrance = vector4(531.65, -2637.61, -49.0, 89.55),
             slots = {
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
-                vec4(265.95, -1007.41, -101.01, 2.71),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
+                vec4(0, 0, 0, 0),
             }
         },
-        styles = {
+        style = {
             Walls = {
                 ["White"] = "entity_set_shell_01",
                 ["Industrial"] = "entity_set_shell_02",
@@ -342,26 +358,26 @@ Config.GarageIPLs = {
                 ["5"] = "entity_set_numbers_05",
             },
             Tint = {
-                color = true,
                 entityset = "entity_set_tint_01",
                 colors = {
-                    ["White"] = 1,
-                    ["Gray"] = 2,
-                    ["Black"] = 3,
-                    ["Purple"] = 4,
-                    ["Orange"] = 5,
-                    ["Yellow"] = 6,
-                    ["Blue"] = 7,
-                    ["Red"] = 8,
-                    ["Green"] = 9,
-                    ["Vintage Blue"] = 10,
-                    ["Vintage Red"] = 11,
-                    ["Vintage green"] = 12
+                    White = 1,
+                    Gray = 2,
+                    Black = 3,
+                    Purple = 4,
+                    Orange = 5,
+                    Yellow = 6,
+                    Blue = 7,
+                    Red = 8,
+                    Green = 9,
+                    Vintage_Blue = 10,
+                    Vintage_Red = 11,
+                    Vintage_green = 12
                 }
             },
         }
     },
-    ["Casino"] = {
+    casino = {
+        label = "Casino",
         ipl = false,
         coords = {
             entrance = vector4(1295, 230, -50, 0),
@@ -381,7 +397,8 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Casino Large"] = {
+    casino_large = {
+        label = "Casino Large",
         ipl = false,
         coords = {
             entrance = vector4(1380, 200, -50, 0),
@@ -401,7 +418,8 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Nightclub Garage"] = {
+    nightclub_garage = {
+        label = "Nightclub Garage",
         ipl = false,
         coords = {
             entrance = vector4(-1521.01, -2978.57, -80.44, 272.48),
@@ -421,7 +439,8 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["Autoshop"] = {
+    autoshop = {
+        label = "Autoshop",
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -439,13 +458,14 @@ Config.GarageIPLs = {
             }
         }
     },
-    ["VineWood Car Club"] = {
+    vineWood_car_club = {
+        label = "VineWood Car Club",
         ipl = 'm23_1_dlc_int_02_m23_1',
         coords = {
             entrance = vector4(1200, -3250, -50, 0.0),
             slots = {},
         },
-        styles = {
+        style = {
             Props = {
                 ["Signs"] = "entity_set_signs",
                 ["Plus"] = "entity_set_plus",
@@ -455,7 +475,8 @@ Config.GarageIPLs = {
         }
     },
     --[[ Can the garage be isolated from the rest of the interior ? :hmm:
-    ["Arcade"] = {
+    arcade = {
+        label = "Arcade",
         ipl = false,
         coords = {
             entrance = vector4(265.95, -1007.41, -101.01, 2.71),
@@ -468,7 +489,8 @@ Config.GarageIPLs = {
             }
         }
     }, ]]
-    ["Freak Shop"] = {
+    freak_shop = {
+        label = "Freak Shop",
         ipl = false,
         coords = {
             entrance = vector4(570.0, -415.0, -70.0, 0),

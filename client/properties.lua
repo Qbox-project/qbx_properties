@@ -37,7 +37,7 @@ local function createInteriorsList(Garage, Furnished)
     local options = {}
     for k,v in pairs((Garage and Config.GarageIPLs) or (Furnished and Config.IPLS) or Config.Shells) do
         options[#options+1] = {}
-        options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = k, slots = #v.coords?.slots}) or Lang:t('create_property_menu.interior_label', {interior = k})
+        options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = v.label, slots = #v.coords?.slots}) or v.label
         options[#options].value = k
     end
     return options
@@ -614,6 +614,32 @@ local function setupInteriors()
         RefreshInterior(k)
     end
 end
+
+--- Setup the IPL style
+---@param interior number
+---@param style table
+---@param options table
+local function setupIPL(interior, style, options)
+    if not interior or not style or not next(options) then return end
+
+    -- Deactivate all entitysets
+    for _, v in pairs(style) do
+        for _, entityset in pairs(v) do
+            DeactivateInteriorEntitySet(interior, entityset)
+        end
+    end
+
+    -- Activate the selected entitysets
+    for styleType, entityset in pairs(options.style) do
+        ActivateInteriorEntitySet(interior, style[styleType][entityset])
+    end
+
+    -- Set the interior color
+    if options.color then
+        SetInteriorEntitySetColor(interior, style.Tint.entityset, style.Tint.colors[options.color])
+    end
+    RefreshInterior(interior)
+end
 --#endregion Functions
 
 --#region Events
@@ -679,12 +705,16 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function(coords, proper
     createProperty(inputResult)
 end)
 
-RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, propertyId, isVisit)
+RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, propertyId, isVisit, propertyOptions)
     local coords = Config.IPLS[interior].coords
     DoScreenFadeOut(1500)
     Wait(250)
+
     SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
     SetEntityHeading(cache.ped, coords.entrance.w)
+    if propertyOptions then
+        setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped)), Config.IPLS[interior].style, propertyOptions)
+    end
     DoScreenFadeIn(1500)
     CreatePropertyInteriorZones(coords, propertyId, isVisit)
 end)

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`maxweight` INT,
 	`slots` INT,
 	`garage_slots` JSON,
+	`options` JSON,
 	PRIMARY KEY (id)
 );
 
