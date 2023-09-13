@@ -21,8 +21,8 @@ local function createProperty(data)
         ['@appliedtaxes'] = json.encode(data.appliedtaxes or {}),
         ['@maxweight'] = data.maxweight or 10000,
         ['@slots'] = data.slots or 10
-    }, function(result)
-        if not result then return false end
+    }, function(dbResult)
+        if not dbResult then return false end
     end)
     if not data.garage then
         exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
@@ -242,7 +242,7 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
     if not Player then return end
 
     local PlayerData = Player.PlayerData
-    if not PlayerData.job.type == 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     local propertyId = createProperty(propertyData)
     if not propertyId then
@@ -305,7 +305,7 @@ RegisterNetEvent('qbx-property:server:sellProperty', function(targetId, property
     local source = source
     local Player = QBCore.Functions.GetPlayer(source)
     local PlayerData = Player.PlayerData
-    if not PlayerData.job.type == 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return QBCore.Functions.Notify(source, Lang:t('error.problem'), 'error') end
@@ -356,7 +356,7 @@ RegisterNetEvent('qbx-property:server:rentProperty', function(targetId, property
     local source = source
     local Player = QBCore.Functions.GetPlayer(source)
     local PlayerData = Player.PlayerData
-    if not PlayerData.job.type == 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return QBCore.Functions.Notify(source, Lang:t('error.problem'), 'error') end
@@ -377,7 +377,7 @@ end)
 RegisterNetEvent('qbx-property:server:AddProperty', function()
     local source = source
     local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
-    if not PlayerData.job.type == 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
 end)
@@ -408,7 +408,8 @@ RegisterNetEvent('qbx-property:server:leaveProperty', function(propertyId, isInV
         Player(source).state:set('inProperty', false, true)
         TriggerClientEvent('qbx-property:client:leaveProperty', source, exitcoords)
     else
-
+        Player(source).state:set('inProperty', false, true)
+        TriggerClientEvent('qbx-property:client:leaveGarage', source, exitcoords)
     end
 end)
 
@@ -462,14 +463,14 @@ lib.callback.register('qbx-property:server:GetProperties', function()
     return propertiesGroups or false
 end)
 
-lib.callback.register('qbx-property:server:GetPropertyData', function(source, propertyId)
+lib.callback.register('qbx-property:server:GetPropertyData', function(_, propertyId)
     local data = properties[propertyId]
     if not data then return false end
     data.id = propertyId
     return data
 end)
 
-lib.callback.register('qbx-property:server:GetCustomZones', function(source, propertyId)
+lib.callback.register('qbx-property:server:GetCustomZones', function(_, propertyId)
     local property = properties[propertyId]
     if not property then return false end
     local zones = {
@@ -486,7 +487,7 @@ lib.addCommand('createproperty', {
     restricted = false,
 }, function(source)
     local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
-    if not PlayerData.job.type == 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
     TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
 end)
 

@@ -216,7 +216,7 @@ local function modifyProperty(propertyData)
         title = Lang:t('modify_property_menu.title'),
         position = 'top-left',
         options = options,
-    }, function(selected, scrollIndex, args)
+    }, function(_, _, args)
         if not args then return end
         if args.action == "name" then
             local propertyString = string.split(propertyData.name, ' ')
@@ -417,7 +417,7 @@ local function populatePropertyMenu(propertyData, propertyType)
                 lib.showMenu('properties_menu')
             end
         end,
-    }, function(selected, scrollIndex, args)
+    }, function(_, _, args)
         if args.action == 'enter' or args.action == "visit" then
             if args.propertyType == 'garage' then
                 TriggerServerEvent('qbx-property:server:enterGarage', args.propertyData.id, args.action == "visit")
@@ -481,7 +481,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
         title = 'Property List',
         position = 'top-left',
         options = options
-    }, function(selected, scrollIndex, args)
+    }, function(_, _, args)
         if args.action == "create" then
             TriggerEvent("qbx-property:client:OpenCreationMenu", args.coords, args.propertyType)
             return
@@ -505,7 +505,7 @@ local function createPropertiesZones()
     local ownedOrRentedProperties = lib.callback.await('qbx-property:server:GetOwnedOrRentedProperties', false)
 
     for k, v in pairs(propertiesGroups) do
-        print(string.format('ID: %s, Coords: %s, Type: %s', tostring(v.properties[1]), tostring(v.coords), tostring(v.propertyType)))
+        --print(string.format('ID: %s, Coords: %s, Type: %s', tostring(v.properties[1]), tostring(v.coords), tostring(v.propertyType)))
         local zone = lib.points.new({
             coords = v.coords.xyz,
             heading = v.coords.h,
@@ -548,6 +548,7 @@ local function createPropertiesZones()
             end
         end
     end
+    print(string.format('Created %s property zones in %s ms', tostring(#propertiesGroups), tostring(GetGameTimer() - starttime)))
 end
 
 --- removes the lib.points objects and clears the propertyZones table
@@ -730,6 +731,9 @@ RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
     SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
     SetEntityHeading(cache.ped, coords.w)
     DoScreenFadeIn(500)
+end)
+
+RegisterNetEvent("qbx-property:client:leaveGarage", function(coords)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
