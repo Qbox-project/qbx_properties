@@ -188,15 +188,16 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVis
         end
     end
 
+    if property.property_type == 'ipl' then
+        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
+    else
+        return -- do nothing for now
+        -- TODO: shell stuff (have fun with that)
+    end
     TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
     TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
         TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
-    end
-    if property.property_type == 'ipl' then
-        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
-    else
-        -- TODO: shell stuff (have fun with that)
     end
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
@@ -231,6 +232,7 @@ RegisterNetEvent('qbx-property:server:enterGarage', function(propertyId, isVisit
     end
 
     if isInVehicle then
+        return -- Do nothing for now
         -- get the vehicle, add it to the garage and remove it from the world
         -- add it to the first available slot
     end
@@ -425,7 +427,7 @@ RegisterNetEvent('qbx-property:server:RingDoor', function(propertyId)
     -- trigger a phone notification (system) on the property owners
     -- if they accept the source gets to enter the property
     -- might be complicated with the current npwd notification system :headscratch:
-    QBCore.Functions.Notify(source, "Feature incoming soon :tm:", "error", 5000)
+    QBCore.Functions.Notify(source, "Feature incoming soon :tm:. Property: "..propertyId, "error", 5000)
 end)
 
 RegisterNetEvent('qbx-property:server:leaveProperty', function(propertyId, isInVehicle)
