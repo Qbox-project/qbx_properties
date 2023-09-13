@@ -420,7 +420,7 @@ local function populatePropertyMenu(propertyData, propertyType)
     }, function(_, _, args)
         if args.action == 'enter' or args.action == "visit" then
             if args.propertyType == 'garage' then
-                TriggerServerEvent('qbx-property:server:enterGarage', args.propertyData.id, args.action == "visit")
+                TriggerServerEvent('qbx-property:server:enterGarage', args.propertyData.id, args.action == "visit", cache.vehicle or false)
             else
                 TriggerServerEvent('qbx-property:server:enterProperty', args.propertyData.id, args.action == "visit")
             end
@@ -497,6 +497,7 @@ local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
 end
 
 local function createPropertiesZones()
+    local starttime = GetGameTimer()
     local propertiesGroups = lib.callback.await('qbx-property:server:GetProperties', false)
     if not propertiesGroups then return end
 
@@ -734,6 +735,16 @@ RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
 end)
 
 RegisterNetEvent("qbx-property:client:leaveGarage", function(coords)
+    if not coords then return end
+    for _, v in pairs(InteriorZones) do
+        v:remove()
+    end
+    InteriorZones = {}
+    DoScreenFadeOut(500)
+    Wait(250)
+    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
+    SetEntityHeading(cache.ped, coords.w)
+    DoScreenFadeIn(500)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()

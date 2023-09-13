@@ -11,6 +11,7 @@ local Translations = {
         problem = 'There was a problem',
         offerDenied = 'Offer denied',
         notenoughmoney = 'The person does not have enough money',
+        inVehicle = 'You can\'t enter while in a vehicle',
     },
     general = {
         accept = 'Accept',
