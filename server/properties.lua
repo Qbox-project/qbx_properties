@@ -279,11 +279,10 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
     if not propertyData then return end
     local source = source
 
-    local Player = QBCore.Functions.GetPlayer(source)
-    if not Player then return end
+    local player = QBCore.Functions.GetPlayer(source)
+    if not player then return end
 
-    local PlayerData = Player.PlayerData
-    if PlayerData.job.type ~= 'realestate' then return end
+    if player.PlayerData.job.type ~= 'realestate' then return end
 
     local propertyId = createProperty(propertyData)
     if not propertyId then
@@ -296,12 +295,12 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
     TriggerClientEvent('qbx-property:client:refreshProperties', -1)
 end)
 
-local function HasMoney(Player, amount)
-    if not Player then return false end
-    if Player.Functions.GetMoney('cash') >= amount then
+local function hasMoney(player, amount)
+    if not player then return false end
+    if player.Functions.GetMoney('cash') >= amount then
         return 'cash'
     end
-    if Player.Functions.GetMoney('bank') >= amount then
+    if player.Functions.GetMoney('bank') >= amount then
         return 'bank'
     end
     return false
@@ -314,10 +313,10 @@ end
 --- @return boolean
 local function setRole(playerId, propertyId, role)
     if not playerId or not role or not propertyId then return false end
-    local Player = QBCore.Functions.GetPlayer(playerId)
-    if not Player then return false end
+    local player = QBCore.Functions.GetPlayer(playerId)
+    if not player then return false end
     local result = MySQL.insert.await('INSERT INTO property_owners (`property_id`, `citizenid`, `role`) VALUES (?, ?, ?)', {
-        propertyId, Player.PlayerData.citizenid, role
+        propertyId, player.PlayerData.citizenid, role
     })
     return result and true or false
 end
@@ -328,24 +327,24 @@ end
 ---@param price integer
 ---@return boolean | string
 local function buyProperty(propertyId, playerId, price)
-    local Player = QBCore.Functions.GetPlayer(playerId)
-    if not Player then return 'error' end
-    local moneyType = HasMoney(Player, price)
+    local player = QBCore.Functions.GetPlayer(playerId)
+    if not player then return 'error' end
+    local moneyType = hasMoney(player, price)
     if not moneyType then
         QBCore.Functions.Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
         return false
     end
 
-    if not Player.Functions.RemoveMoney(moneyType, price, 'Bought property') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
     if not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
-    properties[propertyId].owners[Player.PlayerData.citizenid] = 'owner'
+    properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     return true
 end
 
 RegisterNetEvent('qbx-property:server:sellProperty', function(targetId, propertyId, comission)
     local source = source
-    local Player = QBCore.Functions.GetPlayer(source)
-    local PlayerData = Player.PlayerData
+    local player = QBCore.Functions.GetPlayer(source)
+    local PlayerData = player.PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
@@ -361,7 +360,7 @@ RegisterNetEvent('qbx-property:server:sellProperty', function(targetId, property
     if not hasBought then
         return QBCore.Functions.Notify(source, Lang:t("error.problem"), 'error', 7500)
     end
-    Player.Functions.AddMoney('bank', propertyPrice*(comission/100), 'Sold property')
+    player.Functions.AddMoney('bank', propertyPrice*(comission/100), 'Sold property')
     QBCore.Functions.Notify(targetId, Lang:t('success.boughtProperty', {price = priceToPay}), 'success')
     QBCore.Functions.Notify(source, Lang:t('success.soldProperty', {price = propertyPrice}), 'success')
 end)
@@ -376,27 +375,27 @@ local function extendRent(propertyId, playerId, time)
 end
 
 local function rentProperty(propertyId, playerId, price, isExtend)
-    local Player = QBCore.Functions.GetPlayer(playerId)
-    if not Player then return false end
-    local moneyType = HasMoney(Player, price)
+    local player = QBCore.Functions.GetPlayer(playerId)
+    if not player then return false end
+    local moneyType = hasMoney(player, price)
     if not moneyType then
         QBCore.Functions.Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
         return false
     end
 
-    if not Player.Functions.RemoveMoney(moneyType, price, 'Property rent') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Property rent') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
     extendRent(propertyId, playerId, Config.Properties.rentTime)
     if not isExtend then
         if not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
-        properties[propertyId].owners[Player.PlayerData.citizenid] = 'owner'
+        properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     end
     return true
 end
 
 RegisterNetEvent('qbx-property:server:rentProperty', function(targetId, propertyId, isExtend)
     local source = source
-    local Player = QBCore.Functions.GetPlayer(source)
-    local PlayerData = Player.PlayerData
+    local player = QBCore.Functions.GetPlayer(source)
+    local PlayerData = player.PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
@@ -410,7 +409,7 @@ RegisterNetEvent('qbx-property:server:rentProperty', function(targetId, property
     if not hasBought then
         return QBCore.Functions.Notify(source, Lang:t("error.problem"), 'error', 7500)
     end
-    Player.Functions.AddMoney('bank', rentAmount*(Config.Properties.realtorCommission.rent), 'Rent Commission')
+    player.Functions.AddMoney('bank', rentAmount*(Config.Properties.realtorCommission.rent), 'Rent Commission')
     QBCore.Functions.Notify(targetId, Lang:t('success.boughtProperty', {price = rentAmount}), 'success')
     QBCore.Functions.Notify(source, Lang:t('success.soldProperty', {price = rentAmount}), 'success')
 end)
