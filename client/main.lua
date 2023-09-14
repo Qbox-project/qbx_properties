@@ -13,7 +13,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
         end
         InteriorZones = {}
     end
-    local customZones = propertyId and lib.callback.await('qbx-property:server:GetCustomZones', false, propertyId) or {}
+    local customZones = propertyId and lib.callback.await('qbx-properties:server:GetCustomZones', false, propertyId) or {}
 
     InteriorZones.entrance = lib.points.new({
         coords = customZones?.entrance?.xyz or coords.entrance.xyz,
@@ -38,7 +38,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             AddTextComponentString(Lang:t('interiorZones.leave'))
             DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
             if IsControlJustPressed(0, 38) then
-                TriggerServerEvent('qbx-property:server:leaveProperty', propertyId, cache.vehicle or false)
+                TriggerServerEvent('qbx-properties:server:leaveProperty', propertyId, cache.vehicle or false)
             end
         end
     end
@@ -203,5 +203,5 @@ local function concealVehicles(netids, conceal)
     end
 end
 
-RegisterNetEvent('qbx-property:client:concealPlayers', concealPlayers)
-RegisterNetEvent('qbx-property:client:concealEntities', concealVehicles)
+RegisterNetEvent('qbx-properties:client:concealPlayers', concealPlayers)
+RegisterNetEvent('qbx-properties:client:concealEntities', concealVehicles)

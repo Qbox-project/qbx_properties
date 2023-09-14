@@ -139,7 +139,7 @@ local function sellToPlayer(propertyData)
     end
 
     selectPlayer(players, "Sell", function(player)
-        TriggerServerEvent('qbx-property:server:sellProperty', GetPlayerServerId(player.id), propertyData.id, comission)
+        TriggerServerEvent('qbx-properties:server:sellProperty', GetPlayerServerId(player.id), propertyData.id, comission)
     end)
 end
 
@@ -154,7 +154,7 @@ local function rentToPlayer(propertyData, isExtend)
     end
 
     selectPlayer(players, "Rent", function(player)
-        TriggerServerEvent('qbx-property:server:rentProperty', GetPlayerServerId(player.id), propertyData.id, isExtend)
+        TriggerServerEvent('qbx-properties:server:rentProperty', GetPlayerServerId(player.id), propertyData.id, isExtend)
     end)
 end
 
@@ -292,7 +292,7 @@ local function modifyProperty(propertyData)
         if args.action == 'done' then
             point:remove()
             if not next(newData) then return end
-            TriggerServerEvent('qbx-property:server:modifyProperty', propertyData.id, newData)
+            TriggerServerEvent('qbx-properties:server:modifyProperty', propertyData.id, newData)
         else
             lib.showMenu('modify_property_menu')
         end
@@ -420,12 +420,12 @@ local function populatePropertyMenu(propertyData, propertyType)
     }, function(_, _, args)
         if args.action == 'enter' or args.action == "visit" then
             if args.propertyType == 'garage' then
-                TriggerServerEvent('qbx-property:server:enterGarage', args.propertyData.id, args.action == "visit", cache.vehicle or false)
+                TriggerServerEvent('qbx-properties:server:enterGarage', args.propertyData.id, args.action == "visit", cache.vehicle or false)
             else
-                TriggerServerEvent('qbx-property:server:enterProperty', args.propertyData.id, args.action == "visit")
+                TriggerServerEvent('qbx-properties:server:enterProperty', args.propertyData.id, args.action == "visit")
             end
         elseif args.action == 'ring' then
-            TriggerServerEvent('qbx-property:server:RingDoor', args.propertyData.id)
+            TriggerServerEvent('qbx-properties:server:RingDoor', args.propertyData.id)
         elseif args.action == 'extend_rent' then
             rentToPlayer(args.propertyData, true)
         elseif args.action == 'sell' then
@@ -449,7 +449,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
     local options = {}
 
     for propertyId, name in pairs(ids) do
-        local propertyData = lib.callback.await('qbx-property:server:GetPropertyData', false, propertyId)
+        local propertyData = lib.callback.await('qbx-properties:server:GetPropertyData', false, propertyId)
         if not propertyData then goto continue end
         options[#options+1] = {
             label = name,
@@ -483,7 +483,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
         options = options
     }, function(_, _, args)
         if args.action == "create" then
-            TriggerEvent("qbx-property:client:OpenCreationMenu", args.coords, args.propertyType)
+            TriggerEvent("qbx-properties:client:OpenCreationMenu", args.coords, args.propertyType)
             return
         end
         populatePropertyMenu(args.propertyData, args.propertyType)
@@ -498,12 +498,12 @@ end
 
 local function createPropertiesZones()
     local starttime = GetGameTimer()
-    local propertiesGroups = lib.callback.await('qbx-property:server:GetProperties', false)
+    local propertiesGroups = lib.callback.await('qbx-properties:server:GetProperties', false)
     if not propertiesGroups then return end
 
     local markerColor = Config.Properties.marker.color
     local markerScale = Config.Properties.marker.scale
-    local ownedOrRentedProperties = lib.callback.await('qbx-property:server:GetOwnedOrRentedProperties', false)
+    local ownedOrRentedProperties = lib.callback.await('qbx-properties:server:GetOwnedOrRentedProperties', false)
 
     for k, v in pairs(propertiesGroups) do
         --print(string.format('ID: %s, Coords: %s, Type: %s', tostring(v.properties[1]), tostring(v.coords), tostring(v.propertyType)))
@@ -532,7 +532,7 @@ local function createPropertiesZones()
             if self.currentDistance < 1 and not lib.getOpenMenu() and not inSelection then
                 SetTextComponentFormat("STRING")
                 AddTextComponentString(Lang:t('properties_menu.showmenuhelp', {propertyType = Lang:t('properties_menu.'..self.propertyType)}))
-                DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
+                DisplayHelpTextFromStringLabel(0, false, true, 20000)
                 isInZone = true
                 if IsControlJustPressed(0, 38) then
                     populatePropertiesMenu(self.propertyIds, self.propertyType, self.coords)
@@ -571,7 +571,7 @@ end
 ---@param propertyData table
 local function createProperty(propertyData)
     propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000 or false
-    TriggerServerEvent('qbx-property:server:CreateProperty', propertyData)
+    TriggerServerEvent('qbx-properties:server:CreateProperty', propertyData)
 end
 
 local interiors = {
@@ -598,6 +598,24 @@ local interiors = {
         entitysets = {
             "entity_set_roller_door_closed"
         }
+    },
+    [271873] = {
+        entitysets = {
+            "Int02_ba_garage_blocker",
+            "Int02_ba_sec_upgrade_desk",
+            "Int02_ba_sec_desks_L2345",
+            "Int02_ba_sec_upgrade_desk02",
+            "Int02_ba_FanBlocker01",
+            "Int02_ba_DeskPC",
+            "Int02_ba_storage_blocker",
+            "Int02_ba_floor01"
+        }
+    },
+    [286721] = {
+        entitysets = {
+            "Entity_Set_Workshop_Wall",
+            "Entity_Set_Wallpaper_01"
+        },
     }
 }
 
@@ -645,12 +663,12 @@ end
 --#endregion Functions
 
 --#region Events
-RegisterNetEvent('qbx-property:client:refreshProperties', refreshProperties)
+RegisterNetEvent('qbx-properties:client:refreshProperties', refreshProperties)
 
 --- Create a property
 --- @param coords vector4 | nil
 --- @param propertyType string | nil
-RegisterNetEvent('qbx-property:client:OpenCreationMenu', function(coords, propertyType)
+RegisterNetEvent('qbx-properties:client:OpenCreationMenu', function(coords, propertyType)
     if not coords and isInZone then
         QBCore.Functions.Notify('A property already exists there!', 'error', 5000)
         return
@@ -707,7 +725,7 @@ RegisterNetEvent('qbx-property:client:OpenCreationMenu', function(coords, proper
     createProperty(inputResult)
 end)
 
-RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, propertyId, isVisit, propertyOptions)
+RegisterNetEvent('qbx-properties:client:enterIplProperty', function(interior, propertyId, isVisit, propertyOptions)
     local coords = Config.IPLS[interior].coords
     DoScreenFadeOut(1500)
     Wait(250)
@@ -721,7 +739,22 @@ RegisterNetEvent('qbx-property:client:enterIplProperty', function(interior, prop
     CreatePropertyInteriorZones(coords, propertyId, isVisit)
 end)
 
-RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
+RegisterNetEvent('qbx-properties:client:enterGarage', function(interior, propertyId, isVisit, propertyOptions)
+    print(interior)
+    local coords = Config.GarageIPLs[interior].coords
+    DoScreenFadeOut(1500)
+    Wait(250)
+
+    SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
+    SetEntityHeading(cache.ped, coords.entrance.w)
+    if propertyOptions then
+        setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped)), Config.GarageIPLs[interior].style, propertyOptions)
+    end
+    DoScreenFadeIn(1500)
+    CreatePropertyInteriorZones(coords, propertyId, isVisit)
+end)
+
+RegisterNetEvent('qbx-properties:client:leaveProperty', function(coords)
     if not coords then return end
     for _, v in pairs(InteriorZones) do
         v:remove()
@@ -734,7 +767,7 @@ RegisterNetEvent('qbx-property:client:leaveProperty', function(coords)
     DoScreenFadeIn(500)
 end)
 
-RegisterNetEvent("qbx-property:client:leaveGarage", function(coords)
+RegisterNetEvent("qbx-properties:client:leaveGarage", function(coords)
     if not coords then return end
     for _, v in pairs(InteriorZones) do
         v:remove()

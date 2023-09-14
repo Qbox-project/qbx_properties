@@ -164,11 +164,11 @@ local function RefreshProperties()
     updatePropertiesGroups()
     findPlayersInsideProperties()
 
-    TriggerClientEvent('qbx-property:client:refreshProperties', -1)
+    TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
 end
 
 -- Enter furnished property
-RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVisit)
+RegisterNetEvent('qbx-properties:server:enterProperty', function(propertyId, isVisit)
     local source = source
     local playersToConceal = {}
     local playersInsideProperty = {}
@@ -189,29 +189,29 @@ RegisterNetEvent('qbx-property:server:enterProperty', function(propertyId, isVis
     end
 
     if property.property_type == 'ipl' then
-        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
+        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
     else
         return -- do nothing for now
         -- TODO: shell stuff (have fun with that)
     end
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, true)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
-        TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
+        TriggerClientEvent('qbx-properties:client:concealPlayers', v, {source}, false)
     end
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
 
 -- Enter garage
 ---WIP
-RegisterNetEvent('qbx-property:server:enterGarage', function(propertyId, isVisit, isInVehicle)
+RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVisit, isInVehicle)
     if not propertyId then return end
     local property = properties[propertyId]
     if isVisit then
         if isInVehicle then
             return TriggerClientEvent('QBCore:Notify', source, Lang:t('error.inVehicle'), 'error')
         end
-        TriggerClientEvent('qbx-property:client:enterIplProperty', source, property.interior, propertyId, true, property.options or false)
+        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, true, property.options or false)
         return
     end
 
@@ -237,12 +237,12 @@ RegisterNetEvent('qbx-property:server:enterGarage', function(propertyId, isVisit
         -- add it to the first available slot
     end
 
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, true)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
-        TriggerClientEvent('qbx-property:client:concealPlayers', v, {source}, false)
+        TriggerClientEvent('qbx-properties:client:concealPlayers', v, {source}, false)
     end
-    TriggerClientEvent('qbx-property:client:enterGarage', source, propertyId, property.garage_slots, property.options or false)
+    TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, true, property.options or false)
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
 
@@ -275,7 +275,7 @@ local function addPropertyToList(propertyData, propertyId)
     updatePropertiesGroups()
 end
 
-RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
+RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
     if not propertyData then return end
     local source = source
 
@@ -292,7 +292,7 @@ RegisterNetEvent('qbx-property:server:CreateProperty', function(propertyData)
 
     propertyData.name = propertyId .. ' ' .. propertyData.name
     addPropertyToList(propertyData, propertyId)
-    TriggerClientEvent('qbx-property:client:refreshProperties', -1)
+    TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
 end)
 
 local function hasMoney(player, amount)
@@ -341,7 +341,7 @@ local function buyProperty(propertyId, playerId, price)
     return true
 end
 
-RegisterNetEvent('qbx-property:server:sellProperty', function(targetId, propertyId, comission)
+RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, propertyId, comission)
     local source = source
     local player = QBCore.Functions.GetPlayer(source)
     local PlayerData = player.PlayerData
@@ -392,7 +392,7 @@ local function rentProperty(propertyId, playerId, price, isExtend)
     return true
 end
 
-RegisterNetEvent('qbx-property:server:rentProperty', function(targetId, propertyId, isExtend)
+RegisterNetEvent('qbx-properties:server:rentProperty', function(targetId, propertyId, isExtend)
     local source = source
     local player = QBCore.Functions.GetPlayer(source)
     local PlayerData = player.PlayerData
@@ -414,22 +414,22 @@ RegisterNetEvent('qbx-property:server:rentProperty', function(targetId, property
     QBCore.Functions.Notify(source, Lang:t('success.soldProperty', {price = rentAmount}), 'success')
 end)
 
-RegisterNetEvent('qbx-property:server:AddProperty', function()
+RegisterNetEvent('qbx-properties:server:AddProperty', function()
     local source = source
     local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
-    TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
+    TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
 end)
 
-RegisterNetEvent('qbx-property:server:RingDoor', function(propertyId)
+RegisterNetEvent('qbx-properties:server:RingDoor', function(propertyId)
     -- trigger a phone notification (system) on the property owners
     -- if they accept the source gets to enter the property
     -- might be complicated with the current npwd notification system :headscratch:
     QBCore.Functions.Notify(source, "Feature incoming soon :tm:. Property: "..propertyId, "error", 5000)
 end)
 
-RegisterNetEvent('qbx-property:server:leaveProperty', function(propertyId, isInVehicle)
+RegisterNetEvent('qbx-properties:server:leaveProperty', function(propertyId, isInVehicle)
     local source = source
     local property = properties[propertyId]
     local playersToConceal = {}
@@ -441,15 +441,15 @@ RegisterNetEvent('qbx-property:server:leaveProperty', function(propertyId, isInV
         end
     end
 
-    TriggerClientEvent('qbx-property:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-property:client:concealPlayers', -1, {source}, false)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, false)
 
     if not isInVehicle then
         Player(source).state:set('inProperty', false, true)
-        TriggerClientEvent('qbx-property:client:leaveProperty', source, exitcoords)
+        TriggerClientEvent('qbx-properties:client:leaveProperty', source, exitcoords)
     else
         Player(source).state:set('inProperty', false, true)
-        TriggerClientEvent('qbx-property:client:leaveGarage', source, exitcoords)
+        TriggerClientEvent('qbx-properties:client:leaveGarage', source, exitcoords)
     end
 end)
 
@@ -478,7 +478,7 @@ end
 --- Modifies the property's data
 ---@param propertyId integer
 ---@param newData table
-RegisterNetEvent('qbx-property:server:modifyProperty', function(propertyId, newData)
+RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, newData)
     if not propertyId or not newData then return end
     for k, v in pairs(newData) do
         properties[propertyId][k] = v
@@ -486,7 +486,7 @@ RegisterNetEvent('qbx-property:server:modifyProperty', function(propertyId, newD
     modifyProperty(propertyId)
 end)
 
-lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function(source)
+lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', function(source)
     local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
     local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
     if not hasKeys or not properties then return end
@@ -499,18 +499,18 @@ lib.callback.register('qbx-property:server:GetOwnedOrRentedProperties', function
     return propertyList
 end)
 
-lib.callback.register('qbx-property:server:GetProperties', function()
+lib.callback.register('qbx-properties:server:GetProperties', function()
     return propertiesGroups or false
 end)
 
-lib.callback.register('qbx-property:server:GetPropertyData', function(_, propertyId)
+lib.callback.register('qbx-properties:server:GetPropertyData', function(_, propertyId)
     local data = properties[propertyId]
     if not data then return false end
     data.id = propertyId
     return data
 end)
 
-lib.callback.register('qbx-property:server:GetCustomZones', function(_, propertyId)
+lib.callback.register('qbx-properties:server:GetCustomZones', function(_, propertyId)
     local property = properties[propertyId]
     if not property then return false end
     local zones = {
@@ -528,7 +528,7 @@ lib.addCommand('createproperty', {
 }, function(source)
     local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
-    TriggerClientEvent('qbx-property:client:OpenCreationMenu', source)
+    TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
 end)
 
 AddEventHandler('onServerResourceStart', function(resource)
