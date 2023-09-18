@@ -10,11 +10,11 @@ local function calcPrice(price, taxes)
     if taxes then
         for taxname, tax in pairs(Config.Properties.taxes) do
             if taxes[taxname] then
-                totaltax = totaltax + tax
+                totaltax += tax
             end
         end
     end
-    return math.floor(price + (price * (totaltax/100)))
+    return math.floor(price + (price * (totaltax / 100)))
 end
 
 --- Get the list of applied taxes if any
@@ -47,7 +47,7 @@ end
 --- return table
 local function getTaxesList()
     local taxes = {}
-    for k, _ in pairs(Config.Properties.taxes) do
+    for k in pairs(Config.Properties.taxes) do
         if k ~= 'general' then
             taxes[#taxes + 1] = {
                 label = k,
@@ -62,11 +62,13 @@ local function showSelectionScaleform(scaleform, action)
     PushScaleformMovieFunction(scaleform, "CLEAR_ALL")
     PopScaleformMovieFunctionVoid()
 
-    for i, data in ipairs({
+    local scaleformButtons = {
         {GetControlInstructionalButton(0, 38, true), Lang:t("selection.action", {action = action})},
         {GetControlInstructionalButton(0, 120, true), Lang:t("selection.cancel")},
         {GetControlInstructionalButton(0, 44, true), Lang:t("selection.nextPlayer")}
-    }) do
+    }
+
+    for i, data in ipairs(scaleformButtons) do
         PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
         PushScaleformMovieFunctionParameterInt(i - 1)
         PushScaleformMovieFunctionParameterString(data[1])
@@ -107,7 +109,7 @@ local function selectPlayer(players, action, callback)
                 if playerNumber >= #players then
                     playerNumber = 1
                 else
-                    playerNumber = playerNumber + 1
+                    playerNumber += 1
                 end
             end
         end
@@ -147,7 +149,7 @@ end
 --- @param propertyData table
 --- @param isExtend boolean
 local function rentToPlayer(propertyData, isExtend)
-    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves or false)
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves)
     if not players then
         QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
@@ -164,7 +166,7 @@ end
 local function getTaxesString(taxes)
     if not taxes or not next(taxes) then return Lang:t('general.none') end
     local str = ""
-    for k, _ in pairs(taxes) do
+    for k in pairs(taxes) do
         str = str .. k .. ", "
     end
     return string.sub(str, 1, -3)
