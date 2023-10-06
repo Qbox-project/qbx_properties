@@ -21,8 +21,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
     })
 
     function InteriorZones.entrance:nearby()
-        if not self then return end
-        if not self.currentDistance then return end
+        if not self?.currentDistance then return end
         local marker = Config.InteriorZones.entrance.marker
         DrawMarker(marker.type,
             self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
