@@ -14,7 +14,7 @@ local function calcPrice(price, taxes)
             end
         end
     end
-    return math.floor(price + (price * (totaltax / 100)))
+    return math.round(price + (price * (totaltax / 100)))
 end
 
 --- Get the list of applied taxes if any
@@ -35,7 +35,7 @@ end
 --- @return table
 local function createInteriorsList(Garage, Furnished)
     local options = {}
-    for k,v in pairs((Garage and Config.GarageIPLs) or (Furnished and Config.IPLS) or Config.Shells) do
+    for k,v in pairs(Garage and Config.GarageIPLs or Furnished and Config.IPLS or Config.Shells) do
         options[#options+1] = {}
         options[#options].label = Garage and Lang:t('create_property_menu.interior_label_garage', {interior = v.label, slots = #v.coords?.slots}) or v.label
         options[#options].value = k
@@ -68,11 +68,11 @@ local function showSelectionScaleform(scaleform, action)
         {GetControlInstructionalButton(0, 44, true), Lang:t("selection.nextPlayer")}
     }
 
-    for i, data in ipairs(scaleformButtons) do
+    for i = 1, #scaleformButtons, 1 do
         PushScaleformMovieFunction(scaleform, "SET_DATA_SLOT")
         PushScaleformMovieFunctionParameterInt(i - 1)
-        PushScaleformMovieFunctionParameterString(data[1])
-        PushScaleformMovieFunctionParameterString(data[2])
+        PushScaleformMovieFunctionParameterString(scaleformButtons[i][1])
+        PushScaleformMovieFunctionParameterString(scaleformButtons[i][2])
         PopScaleformMovieFunctionVoid()
     end
 
@@ -134,7 +134,7 @@ local function sellToPlayer(propertyData)
     if not input then return end
     local comission = input[1]
 
-    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves or false)
+    local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves)
     if not players then
         QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
@@ -271,7 +271,7 @@ local function modifyProperty(propertyData)
             local index = #options - 2
             local taxes = newData.taxes or propertyData.appliedtaxes
             local default = {}
-            for k, _ in pairs(taxes) do
+            for k in pairs(taxes) do
                 default[#default+1] = k
             end
             local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
@@ -494,7 +494,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
 end
 
 local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
-    local Status = (propertyGroup.propertyType == 'garage' and 'garage') or (isRented and 'rent') or 'owned'
+    local Status = propertyGroup.propertyType == 'garage' and 'garage' or isRented and 'rent' or 'owned'
     AddBlip(propertyId, propertyGroup.properties[propertyId], propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
 end
 
@@ -508,7 +508,6 @@ local function createPropertiesZones()
     local ownedOrRentedProperties = lib.callback.await('qbx-properties:server:GetOwnedOrRentedProperties', false)
 
     for k, v in pairs(propertiesGroups) do
-        --print(string.format('ID: %s, Coords: %s, Type: %s', tostring(v.properties[1]), tostring(v.coords), tostring(v.propertyType)))
         local zone = lib.points.new({
             coords = v.coords.xyz,
             heading = v.coords.h,
@@ -545,13 +544,13 @@ local function createPropertiesZones()
             end
         end
         propertyZones[k] = zone
-        for propertyId, _ in pairs(v.properties) do
+        for propertyId in pairs(v.properties) do
             if ownedOrRentedProperties[propertyId] then
                 addPropertyGroupBlip(propertyId, v, ownedOrRentedProperties[propertyId].isRented)
             end
         end
     end
-    print(string.format('Created %s property zones in %s ms', tostring(#propertiesGroups), tostring(GetGameTimer() - starttime)))
+    lib.print.info(string.format('Created %s property zones in %s ms', tostring(#propertiesGroups), tostring(GetGameTimer() - starttime)))
 end
 
 --- removes the lib.points objects and clears the propertyZones table
@@ -564,15 +563,17 @@ local function clearProperties()
 end
 
 local function refreshProperties()
-    print('refreshProperties')
-    clearProperties()
-    createPropertiesZones()
+    Wait(1000)
+    if LocalPlayer.state.isLoggedIn then
+        clearProperties()
+        createPropertiesZones()
+    end
 end
 
 --- Create a property
 ---@param propertyData table
 local function createProperty(propertyData)
-    propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000 or false
+    propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000
     TriggerServerEvent('qbx-properties:server:CreateProperty', propertyData)
 end
 
@@ -622,7 +623,7 @@ local interiors = {
 }
 
 local function setupInteriors()
-    local Franklin = exports['bob74_ipl']:GetFranklinObject()
+    local Franklin = exports.bob74_ipl:GetFranklinObject()
     Franklin.Style.Set(Franklin.Style.settled)
     Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
 
@@ -642,7 +643,7 @@ end
 ---@param style table
 ---@param options table
 local function setupIPL(interior, style, options)
-    if not interior or not style or not next(options) then return end
+    if not interior or not style or table.type(options) == 'empty' then return end
 
     -- Deactivate all entitysets
     for _, v in pairs(style) do
@@ -742,7 +743,6 @@ RegisterNetEvent('qbx-properties:client:enterIplProperty', function(interior, pr
 end)
 
 RegisterNetEvent('qbx-properties:client:enterGarage', function(interior, propertyId, isVisit, propertyOptions)
-    print(interior)
     local coords = Config.GarageIPLs[interior].coords
     DoScreenFadeOut(1500)
     Wait(250)
@@ -791,7 +791,7 @@ AddEventHandler('onResourceStart', function(resource)
     if resource == GetCurrentResourceName() then
         setupInteriors()
         SetTimeout(2000, function()
-            if not next(propertyZones) then
+            if table.type(propertyZones) == 'empty' then
                 refreshProperties()
             end
         end)
@@ -807,6 +807,6 @@ lib.callback.register('qbx-properties:client:promptOffer', function(price, isRen
         centered = true,
         cancel = true
     })
-    return alert == 'confirm' and true or false
+    return alert == 'confirm'
 end)
 --#endregion Callbacks

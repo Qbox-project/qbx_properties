@@ -174,7 +174,6 @@ end
 
 --- Remove blips
 function RemoveBlips()
-    if table.type(blips) == 'empty' then return end
     for _, blip in pairs(blips) do
         RemoveBlip(blip)
     end
@@ -185,8 +184,7 @@ end
 ---@param players table
 ---@param conceal boolean
 local function concealPlayers(players, conceal)
-    if GetInvokingResource() ~= nil then return end
-    if not players then return end
+    if GetInvokingResource() or not players then return end
 
     for i = 1, #players do
         NetworkConcealPlayer(players[i], conceal, false)
@@ -194,8 +192,7 @@ local function concealPlayers(players, conceal)
 end
 
 local function concealVehicles(netids, conceal)
-    if GetInvokingResource() ~= nil then return end
-    if not netids then return end
+    if GetInvokingResource() or not netids then return end
 
     for i = 1, #netids do
         local entity = NetToVeh(netids[i])

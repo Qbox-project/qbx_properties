@@ -6,12 +6,12 @@ local propertiesGroups = {}
 --- @param data table {name: string, interior: number, furnished: boolean, garage: boolean, coords: vector4, price: number, rent: number}
 --- @return integer | boolean propertyId
 local function createProperty(data)
-    if not data or not data.coords then return false end
+    if not data?.coords then return false end
     local result = MySQL.Sync.fetchAll('SELECT id FROM properties ORDER BY id DESC LIMIT 1', {})
     local id = (result?[1]?.id or 0) + 1
 
     local name = id .. ' ' .. data.name
-    exports.oxmysql:insert('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
+    local dbResult = MySQL.Sync.insert('INSERT INTO properties (name, interior, property_type, coords, price, rent, appliedtaxes, maxweight, slots) VALUES (@name, @interior, @property_type, @coords, @price, @rent, @appliedtaxes, @maxweight, @slots)', {
         ['@name'] = name,
         ['@interior'] = data.interior,
         ['@property_type'] = data.garage and 'garage' or data.furnished and 'ipl' or 'shell',
@@ -21,9 +21,8 @@ local function createProperty(data)
         ['@appliedtaxes'] = json.encode(data.appliedtaxes or {}),
         ['@maxweight'] = data.maxweight or 10000,
         ['@slots'] = data.slots or 10
-    }, function(dbResult)
+    })
         if not dbResult then return false end
-    end)
     if not data.garage then
         exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
     end
@@ -33,7 +32,7 @@ end
 local function RefreshStashes()
     for propertyId, v in pairs(properties) do
         if v.property_type ~= 'garage' then
-            exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, v.slots, v.maxweight, false, false, v.stash or Config.IPLS[v.interior].coords.stash.xyz)
+            exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, v.slots, v.maxweight, false, false, v?.stash?.xyz or Config.IPLS[v.interior].coords.stash.xyz)
         end
     end
 end
@@ -51,18 +50,19 @@ local function calcPrice(price, taxes)
             end
         end
     end
-    return math.floor(price + (price * (totaltax/100)))
+    return math.round(price + (price * (totaltax/100)))
 end
 
 --- Finds the players inside properties and adds them to the playersInside table
 local function findPlayersInsideProperties()
-    for _, v in pairs(QBCore.Functions.GetPlayers()) do
-        local inProperty = Player(v).state.inProperty
+    local Players = GetPlayers()
+    for i = 1, #Players do
+            local inProperty = Player(Players[i]).state.inProperty
         if not inProperty then goto continue end
 
         local property = properties[inProperty.propertyid]
         if property then
-            property.playersInside[#property.playersInside + 1] = v
+            property.playersInside[#property.playersInside + 1] = Players[i]
         end
 
         ::continue::
@@ -79,7 +79,7 @@ local function getPropertyOwners(propertyId)
 
     if propertyowners then
         for _, owner in pairs(propertyowners) do
-            owners[owner.citizenid] = owner.role or false
+            owners[owner.citizenid] = owner.role
         end
     end
 
@@ -87,8 +87,7 @@ local function getPropertyOwners(propertyId)
 end
 
 local function calcDaysLeft(time)
-    --[[ calc days left ]]
-    return time and time > 0 and math.floor((time/1000 - os.time()) / 86400) or false
+    return time and time > 0 and math.round((time/1000 - os.time()) / 86400)
 end
 
 --- Formats the property data
@@ -155,10 +154,10 @@ local function RefreshProperties()
     local result = MySQL.query.await('SELECT * FROM properties', {})
     if not result then return end
 
-    for _, v in pairs(result) do
-        local owners = getPropertyOwners(v.id)
-        local property = formatPropertyData(v, owners)
-        properties[v.id] = property
+    for i = 1, #result do
+        local owners = getPropertyOwners(result[i].id)
+        local property = formatPropertyData(result[i], owners)
+        properties[result[i].id] = property
     end
 
     updatePropertiesGroups()
@@ -250,19 +249,18 @@ end)
 local function PropertiesRentCheck()
     local rentedproperties = MySQL.query.await('SELECT * FROM properties WHERE NOT rent_expiration = false', {})
     if not rentedproperties then return end
+    for i = 1, #rentedproperties do
+        if rentedproperties[i].rent_expiration / 1000 > os.time() or os.date("%x", rentedproperties[i].rent_expiration / 1000) == os.date("%x", os.time()) then goto continue end
+        MySQL.update.await('UPDATE properties SET rent_expiration = NULL, garage_slots = NULL WHERE id = ?', { rentedproperties[i].id })
+        MySQL.query.await('DELETE FROM property_owners WHERE property_id = ?', { rentedproperties[i].id })
 
-    for _, v in pairs(rentedproperties) do
-        if v.rent_expiration / 1000 > os.time() or os.date("%x", v.rent_expiration / 1000) == os.date("%x", os.time()) then goto continue end
-        MySQL.Async.execute('UPDATE properties SET rent_expiration = NULL, garage_slots = NULL WHERE id = ?', { v.id })
-        MySQL.Async.execute('DELETE FROM property_owners WHERE property_id = ?', { v.id })
-
-        local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND role = 1', { v.id })
+        local renters = MySQL.query.await('SELECT citizenid FROM property_owners WHERE property_id = ? AND role = 1', { rentedproperties[i].id })
         if not renters then goto continue end
-        for _, owner in pairs(renters) do
-            TriggerEvent('qb-phone:server:sendNewMailToOffline', owner.citizenid, {
+        for index = 1, #renters do
+            TriggerEvent('qb-phone:server:sendNewMailToOffline', renters[index].citizenid, {
                 sender = 'Real Estate Agency',
                 subject = 'Rent Expired',
-                message = 'The rent of '.. v.name ..' expired.',
+                message = 'The rent of '.. rentedproperties[i].name ..' expired.',
             })
         end
         ::continue::
@@ -296,14 +294,7 @@ RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
 end)
 
 local function hasMoney(player, amount)
-    if not player then return false end
-    if player.Functions.GetMoney('cash') >= amount then
-        return 'cash'
-    end
-    if player.Functions.GetMoney('bank') >= amount then
-        return 'bank'
-    end
-    return false
+    return player and (player.Functions.GetMoney('cash') >= amount and 'cash' or player.Functions.GetMoney('bank') >= amount and 'bank')
 end
 
 --- Sets the role of a player for a property
@@ -318,7 +309,7 @@ local function setRole(playerId, propertyId, role)
     local result = MySQL.insert.await('INSERT INTO property_owners (`property_id`, `citizenid`, `role`) VALUES (?, ?, ?)', {
         propertyId, player.PlayerData.citizenid, role
     })
-    return result and true or false
+    return not not result
 end
 
 --- Buys the property
@@ -335,8 +326,7 @@ local function buyProperty(propertyId, playerId, price)
         return false
     end
 
-    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
-    if not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') or not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
     properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     return true
 end
@@ -351,7 +341,7 @@ RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, proper
     if not property then return QBCore.Functions.Notify(source, Lang:t('error.problem'), 'error') end
 
     local propertyPrice = calcPrice(property.price, property.appliedtaxes)
-    local priceToPay = math.floor((propertyPrice * (1+(comission/100))))
+    local priceToPay = math.round((propertyPrice * (1+(comission/100))))
 
     local isAccepted = lib.callback.await("qbx-properties:client:promptOffer", targetId, priceToPay, false)
     if not isAccepted then return QBCore.Functions.Notify(source, Lang:t('error.offerDenied'), 'error') end
@@ -366,7 +356,7 @@ RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, proper
 end)
 
 local function extendRent(propertyId, playerId, time)
-    if not MySQL.Async.execute.await('UPDATE `properties` SET `rent_expiration` = IF(`rent_expiration` IS NULL, DATE_ADD(NOW(), INTERVAL @time DAY), DATE_ADD(`rent_expiration`, INTERVAL @time DAY)) WHERE `id` = @propertyId', { time = time, propertyId = propertyId }) then
+    if not MySQL.update.await('UPDATE `properties` SET `rent_expiration` = IF(`rent_expiration` IS NULL, DATE_ADD(NOW(), INTERVAL @time DAY), DATE_ADD(`rent_expiration`, INTERVAL @time DAY)) WHERE `id` = @propertyId', { time = time, propertyId = propertyId }) then
         QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error')
         return false
     end
@@ -491,16 +481,16 @@ lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', functi
     local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
     if not hasKeys or not properties then return end
     local propertyList = {}
-    for _, v in pairs(hasKeys) do
-        propertyList[v.property_id] = {
-            isRented = properties[v.property_id]?.rent_expiration and true or false,
+    for i = 1, #hasKeys do
+        propertyList[hasKeys[i].property_id] = {
+            isRented = not not properties[hasKeys[i].property_id]?.rent_expiration,
         }
     end
     return propertyList
 end)
 
 lib.callback.register('qbx-properties:server:GetProperties', function()
-    return propertiesGroups or false
+    return propertiesGroups
 end)
 
 lib.callback.register('qbx-properties:server:GetPropertyData', function(_, propertyId)
