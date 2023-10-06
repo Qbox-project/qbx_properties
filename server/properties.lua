@@ -22,7 +22,7 @@ local function createProperty(data)
         ['@maxweight'] = data.maxweight or 10000,
         ['@slots'] = data.slots or 10
     })
-        if not dbResult then return false end
+    if not dbResult then return false end
     if not data.garage then
         exports.ox_inventory:RegisterStash("property_"..id, "property_"..id, data.slots, data.maxweight, false, false, Config.IPLS[data.interior].coords.stash.xyz)
     end
@@ -231,6 +231,9 @@ RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVis
     end
 
     if isInVehicle then
+        if isVisit then
+            return exports.qbx_core:Notify(source, Lang:t('error.inVehicle'), 'error')
+        end
         return -- Do nothing for now
         -- get the vehicle, add it to the garage and remove it from the world
         -- add it to the first available slot
@@ -277,14 +280,14 @@ RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
     if not propertyData then return end
     local source = source
 
-    local player = QBCore.Functions.GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
 
     if player.PlayerData.job.type ~= 'realestate' then return end
 
     local propertyId = createProperty(propertyData)
     if not propertyId then
-        QBCore.Functions.Notify(source, Lang:t('error.failed_createproperty'), 'error')
+        exports.qbx_core:Notify(source, Lang:t('error.failed_createproperty'), 'error')
         return
     end
 
@@ -304,7 +307,7 @@ end
 --- @return boolean
 local function setRole(playerId, propertyId, role)
     if not playerId or not role or not propertyId then return false end
-    local player = QBCore.Functions.GetPlayer(playerId)
+    local player = exports.qbx_core:GetPlayer(playerId)
     if not player then return false end
     local result = MySQL.insert.await('INSERT INTO property_owners (`property_id`, `citizenid`, `role`) VALUES (?, ?, ?)', {
         propertyId, player.PlayerData.citizenid, role
@@ -318,46 +321,46 @@ end
 ---@param price integer
 ---@return boolean | string
 local function buyProperty(propertyId, playerId, price)
-    local player = QBCore.Functions.GetPlayer(playerId)
+    local player = exports.qbx_core:GetPlayer(playerId)
     if not player then return 'error' end
     local moneyType = hasMoney(player, price)
     if not moneyType then
-        QBCore.Functions.Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
+        exports.qbx_core:Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
         return false
     end
 
-    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') or not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') or not setRole(playerId, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
     properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     return true
 end
 
 RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, propertyId, comission)
     local source = source
-    local player = QBCore.Functions.GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
-    if not property then return QBCore.Functions.Notify(source, Lang:t('error.problem'), 'error') end
+    if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
 
     local propertyPrice = calcPrice(property.price, property.appliedtaxes)
     local priceToPay = math.round((propertyPrice * (1+(comission/100))))
 
     local isAccepted = lib.callback.await("qbx-properties:client:promptOffer", targetId, priceToPay, false)
-    if not isAccepted then return QBCore.Functions.Notify(source, Lang:t('error.offerDenied'), 'error') end
+    if not isAccepted then return exports.qbx_core:Notify(source, Lang:t('error.offerDenied'), 'error') end
 
     local hasBought = buyProperty(propertyId, targetId, priceToPay)
     if not hasBought then
-        return QBCore.Functions.Notify(source, Lang:t("error.problem"), 'error', 7500)
+        return exports.qbx_core:Notify(source, Lang:t("error.problem"), 'error', 7500)
     end
     player.Functions.AddMoney('bank', propertyPrice*(comission/100), 'Sold property')
-    QBCore.Functions.Notify(targetId, Lang:t('success.boughtProperty', {price = priceToPay}), 'success')
-    QBCore.Functions.Notify(source, Lang:t('success.soldProperty', {price = propertyPrice}), 'success')
+    exports.qbx_core:Notify(targetId, Lang:t('success.boughtProperty', {price = priceToPay}), 'success')
+    exports.qbx_core:Notify(source, Lang:t('success.soldProperty', {price = propertyPrice}), 'success')
 end)
 
 local function extendRent(propertyId, playerId, time)
     if not MySQL.update.await('UPDATE `properties` SET `rent_expiration` = IF(`rent_expiration` IS NULL, DATE_ADD(NOW(), INTERVAL @time DAY), DATE_ADD(`rent_expiration`, INTERVAL @time DAY)) WHERE `id` = @propertyId', { time = time, propertyId = propertyId }) then
-        QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error')
+        exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error')
         return false
     end
     properties[propertyId].rent_expiration = (properties[propertyId].rent_expiration or -1) + Config.Properties.rentTime
@@ -365,18 +368,18 @@ local function extendRent(propertyId, playerId, time)
 end
 
 local function rentProperty(propertyId, playerId, price, isExtend)
-    local player = QBCore.Functions.GetPlayer(playerId)
+    local player = exports.qbx_core:GetPlayer(playerId)
     if not player then return false end
     local moneyType = hasMoney(player, price)
     if not moneyType then
-        QBCore.Functions.Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
+        exports.qbx_core:Notify(playerId, Lang:t('error.notenoughmoney'), 'error')
         return false
     end
 
-    if not player.Functions.RemoveMoney(moneyType, price, 'Property rent') then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Property rent') then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
     extendRent(propertyId, playerId, Config.Properties.rentTime)
     if not isExtend then
-        if not setRole(playerId, propertyId, "owner") then QBCore.Functions.Notify(playerId, Lang:t('error.problem'), 'error') return false end
+        if not setRole(playerId, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
         properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     end
     return true
@@ -384,29 +387,29 @@ end
 
 RegisterNetEvent('qbx-properties:server:rentProperty', function(targetId, propertyId, isExtend)
     local source = source
-    local player = QBCore.Functions.GetPlayer(source)
+    local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
-    if not property then return QBCore.Functions.Notify(source, Lang:t('error.problem'), 'error') end
+    if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
 
     local rentAmount = calcPrice(property.rent, property.appliedtaxes) * Config.Properties.rentTime
     local isAccepted = lib.callback.await("qbx-properties:client:promptOffer", targetId, rentAmount, true)
-    if not isAccepted then return QBCore.Functions.Notify(source, Lang:t('error.offerDenied'), 'error') end
+    if not isAccepted then return exports.qbx_core:Notify(source, Lang:t('error.offerDenied'), 'error') end
 
     local hasBought = rentProperty(propertyId, targetId, rentAmount, isExtend)
     if not hasBought then
-        return QBCore.Functions.Notify(source, Lang:t("error.problem"), 'error', 7500)
+        return exports.qbx_core:Notify(source, Lang:t("error.problem"), 'error', 7500)
     end
     player.Functions.AddMoney('bank', rentAmount*(Config.Properties.realtorCommission.rent), 'Rent Commission')
-    QBCore.Functions.Notify(targetId, Lang:t('success.boughtProperty', {price = rentAmount}), 'success')
-    QBCore.Functions.Notify(source, Lang:t('success.soldProperty', {price = rentAmount}), 'success')
+    exports.qbx_core:Notify(targetId, Lang:t('success.boughtProperty', {price = rentAmount}), 'success')
+    exports.qbx_core:Notify(source, Lang:t('success.soldProperty', {price = rentAmount}), 'success')
 end)
 
 RegisterNetEvent('qbx-properties:server:AddProperty', function()
     local source = source
-    local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
+    local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
     TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
@@ -416,7 +419,7 @@ RegisterNetEvent('qbx-properties:server:RingDoor', function(propertyId)
     -- trigger a phone notification (system) on the property owners
     -- if they accept the source gets to enter the property
     -- might be complicated with the current npwd notification system :headscratch:
-    QBCore.Functions.Notify(source, "Feature incoming soon :tm:. Property: "..propertyId, "error", 5000)
+    exports.qbx_core:Notify(source, "Feature incoming soon :tm:. Property: "..propertyId, "error", 5000)
 end)
 
 RegisterNetEvent('qbx-properties:server:leaveProperty', function(propertyId, isInVehicle)
@@ -477,7 +480,7 @@ RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, ne
 end)
 
 lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', function(source)
-    local citizenid = QBCore.Functions.GetPlayer(source).PlayerData.citizenid
+    local citizenid = exports.qbx_core:GetPlayer(source).PlayerData.citizenid
     local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
     if not hasKeys or not properties then return end
     local propertyList = {}
@@ -516,7 +519,7 @@ lib.addCommand('createproperty', {
     params = {},
     restricted = false,
 }, function(source)
-    local PlayerData = QBCore.Functions.GetPlayer(source).PlayerData
+    local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
     TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
 end)

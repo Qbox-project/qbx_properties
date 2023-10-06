@@ -103,7 +103,7 @@ local function selectPlayer(players, action, callback)
                 break
             elseif IsControlJustPressed(0, 120) then -- X
                 inSelection = false
-                QBCore.Functions.Notify(Lang:t("error.cancelled"), 'error', 7500)
+                exports.qbx_core:Notify(Lang:t("error.cancelled"), 'error', 7500)
                 break
             elseif IsControlJustPressed(0, 44) then -- Q (A on AZERTY)
                 if playerNumber >= #players then
@@ -136,7 +136,7 @@ local function sellToPlayer(propertyData)
 
     local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves)
     if not players then
-        QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
+        exports.qbx_core:Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
     end
 
@@ -151,7 +151,7 @@ end
 local function rentToPlayer(propertyData, isExtend)
     local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves)
     if not players then
-        QBCore.Functions.Notify(Lang:t('error.players_nearby'), 'error', 7500)
+        exports.qbx_core:Notify(Lang:t('error.players_nearby'), 'error', 7500)
         return
     end
 
@@ -307,7 +307,6 @@ end
 ---@param propertyType string
 local function populatePropertyMenu(propertyData, propertyType)
     if not propertyData then return end
-    local PlayerData = QBCore.Functions.GetPlayerData()
     if not PlayerData then return end
     local isRealEstateAgent = PlayerData.job.type == 'realestate'
     local isBought, isRented, hasKeys = next(propertyData.owners) ~= nil and true or false, propertyData.rent_expiration and true or false, propertyData.owners[PlayerData.citizenid] and true or false
@@ -673,7 +672,7 @@ RegisterNetEvent('qbx-properties:client:refreshProperties', refreshProperties)
 --- @param propertyType string | nil
 RegisterNetEvent('qbx-properties:client:OpenCreationMenu', function(coords, propertyType)
     if not coords and isInZone then
-        QBCore.Functions.Notify('A property already exists there!', 'error', 5000)
+        exports.qbx_core:Notify('A property already exists there!', 'error', 5000)
         return
     end
     local generalOptions = lib.inputDialog('Property Creator', {
@@ -704,7 +703,7 @@ RegisterNetEvent('qbx-properties:client:OpenCreationMenu', function(coords, prop
     local propertyCreation = lib.inputDialog('Property Creator', propertyOptions, {allowCancel = true})
     if not propertyCreation then return end
     if not propertyCreation[1] then
-        QBCore.Functions.Notify('You need to select an interior!', 'error')
+        exports.qbx_core:Notify('You need to select an interior!', 'error')
         return
     end
     if not coords then
