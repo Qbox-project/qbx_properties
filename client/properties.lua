@@ -23,8 +23,8 @@ end
 local function getAppliedTaxesList(taxes)
     if not taxes then return nil end
     local appliedTaxes = {}
-    for _, v in pairs(taxes) do
-        appliedTaxes[v] = Config.Properties.taxes[v]
+    for i = 1, #taxes do
+        appliedTaxes[taxes[i]] = Config.Properties.taxes[taxes[i]]
     end
     return appliedTaxes
 end
@@ -201,8 +201,7 @@ local function modifyProperty(propertyData)
     })
 
     function point:nearby()
-        if not self then return end
-        if not self.currentDistance then return end
+        if not self?.currentDistance then return end
         DrawMarker(26,
             self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
             0.0, 0.0, 0.0, -- direction?
@@ -307,9 +306,9 @@ end
 ---@param propertyType string
 local function populatePropertyMenu(propertyData, propertyType)
     if not propertyData then return end
-    if not PlayerData then return end
-    local isRealEstateAgent = PlayerData.job.type == 'realestate'
-    local isBought, isRented, hasKeys = next(propertyData.owners) ~= nil and true or false, propertyData.rent_expiration and true or false, propertyData.owners[PlayerData.citizenid] and true or false
+    if not QBX.PlayerData then return end
+    local isRealEstateAgent = QBX.PlayerData.job.type == 'realestate'
+    local isBought, isRented, hasKeys = next(propertyData.owners) ~= nil and true or false, propertyData.rent_expiration and true or false, propertyData.owners[QBX.PlayerData.citizenid] and true or false
     local options = {}
     if isBought or isRented then
         if hasKeys then
@@ -464,7 +463,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
         ::continue::
     end
 
-    if PlayerData.job.type == 'realestate' then
+    if QBX.PlayerData.job.type == 'realestate' then
         options[#options+1] = {
             label = Lang:t('properties_menu.create'),
             icon = 'plus',
@@ -517,7 +516,6 @@ local function createPropertiesZones()
         })
 
         function zone:nearby()
-            if not self then return end
             if self?.reset then self:remove() return end
             if not self.currentDistance then return end
             DrawMarker(Config.Properties.marker.type,
@@ -554,8 +552,8 @@ end
 
 --- removes the lib.points objects and clears the propertyZones table
 local function clearProperties()
-    for _, v in pairs(propertyZones) do
-        v.reset = true
+    for i = 1, #propertyZones do
+        propertyZones[i].reset = true
     end
     propertyZones = {}
     RemoveBlips()
@@ -627,8 +625,8 @@ local function setupInteriors()
     Franklin.GlassDoor.Set(Franklin.GlassDoor.closed, true)
 
     for k, v in pairs(interiors) do
-        for _, entityset in pairs(v.entitysets) do
-            ActivateInteriorEntitySet(k, entityset)
+        for i = 1, #v.entitysets do
+            ActivateInteriorEntitySet(k, v.entitysets[i])
         end
         if v.color then
             SetInteriorEntitySetColor(k, v.color[1], v.color[2])
@@ -645,9 +643,9 @@ local function setupIPL(interior, style, options)
     if not interior or not style or table.type(options) == 'empty' then return end
 
     -- Deactivate all entitysets
-    for _, v in pairs(style) do
-        for _, entityset in pairs(v) do
-            DeactivateInteriorEntitySet(interior, entityset)
+    for i = 1, #style do
+        for u = 1, #style[i] do
+            DeactivateInteriorEntitySet(interior, style[i][u])
         end
     end
 
@@ -757,8 +755,8 @@ end)
 
 RegisterNetEvent('qbx-properties:client:leaveProperty', function(coords)
     if not coords then return end
-    for _, v in pairs(InteriorZones) do
-        v:remove()
+    for i = 1, #InteriorZones do
+        InteriorZones[i]:remove()
     end
     InteriorZones = {}
     DoScreenFadeOut(500)
@@ -770,8 +768,8 @@ end)
 
 RegisterNetEvent("qbx-properties:client:leaveGarage", function(coords)
     if not coords then return end
-    for _, v in pairs(InteriorZones) do
-        v:remove()
+    for i = 1, #InteriorZones do
+        InteriorZones[i]:remove()
     end
     InteriorZones = {}
     DoScreenFadeOut(500)

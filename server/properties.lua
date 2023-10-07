@@ -78,8 +78,8 @@ local function getPropertyOwners(propertyId)
     local owners = {}
 
     if propertyowners then
-        for _, owner in pairs(propertyowners) do
-            owners[owner.citizenid] = owner.role
+        for i = 1, #propertyowners do
+            owners[propertyowners[i].citizenid] = propertyowners[i].role
         end
     end
 
@@ -130,9 +130,9 @@ local function updatePropertiesGroups()
     for id, v in pairs(properties) do
         local propertyCoords = v.coords
         local found = false
-        for _, group in pairs(propertiesGroups) do
-            if #(propertyCoords.xyz - group.coords.xyz) <= 1.1 then
-                group.properties[id] = v.name
+        for i = 1, #propertiesGroups do
+            if #(propertyCoords.xyz - propertiesGroups[i].coords.xyz) <= 1.1 then
+                propertiesGroups[i].properties[id] = v.name
                 found = true
                 break
             end
@@ -166,37 +166,40 @@ local function RefreshProperties()
     TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
 end
 
--- Enter furnished property
-RegisterNetEvent('qbx-properties:server:enterProperty', function(propertyId, isVisit)
-    local source = source
+local function concealPlayers(source, propertyId)
     local playersToConceal = {}
     local playersInsideProperty = {}
-    local property = properties[propertyId]
-    if property.property_type ~= 'ipl' then return end -- remove when shells are implemented
     for k, v in pairs(properties) do
-        if v.property_type == 'ipl' then
-            if k == propertyId then
-                for _, serverid in pairs(v.playersInside) do
-                    playersInsideProperty[#playersInsideProperty + 1] = serverid
-                end
-            else
-                for _, serverid in pairs(v.playersInside) do
-                    playersToConceal[#playersToConceal + 1] = serverid
-                end
+        if k == propertyId then
+            for i = 1, #v.playersInside do
+                playersInsideProperty[#playersInsideProperty + 1] = v.playersInside[i]
+            end
+        else
+            for i = 1, #v.playersInside do
+                playersToConceal[#playersToConceal + 1] = v.playersInside[i]
             end
         end
-    end
-
-    if property.property_type == 'ipl' then
-        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options or false)
-    else
-        return -- do nothing for now
-        -- TODO: shell stuff (have fun with that)
     end
     TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
     TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
         TriggerClientEvent('qbx-properties:client:concealPlayers', v, {source}, false)
+    end
+end
+
+-- Enter property
+RegisterNetEvent('qbx-properties:server:enterProperty', function(propertyId, isVisit)
+    local source = source
+    local property = properties[propertyId]
+    if property.property_type ~= 'ipl' then return end -- remove when shells are implemented
+
+    exports.qbx_core:Save(source)
+    concealPlayers(source, propertyId)
+    if property.property_type == 'ipl' then
+        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options)
+    else
+        return -- do nothing for now
+        -- TODO: shell stuff (have fun with that)
     end
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
@@ -206,29 +209,6 @@ end)
 RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVisit, isInVehicle)
     if not propertyId then return end
     local property = properties[propertyId]
-    if isVisit then
-        if isInVehicle then
-            return TriggerClientEvent('QBCore:Notify', source, Lang:t('error.inVehicle'), 'error')
-        end
-        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, true, property.options or false)
-        return
-    end
-
-    local playersToConceal = {}
-    local playersInsideProperty = {}
-    for k, v in pairs(properties) do
-        if v.property_type == 'garage' then
-            if k == propertyId then
-                for _, serverid in pairs(v.playersInside) do
-                    playersInsideProperty[#playersInsideProperty + 1] = serverid
-                end
-            else
-                for _, serverid in pairs(v.playersInside) do
-                    playersToConceal[#playersToConceal + 1] = serverid
-                end
-            end
-        end
-    end
 
     if isInVehicle then
         if isVisit then
@@ -239,12 +219,13 @@ RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVis
         -- add it to the first available slot
     end
 
-    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, true)
-    for _, v in pairs(playersInsideProperty) do
-        TriggerClientEvent('qbx-properties:client:concealPlayers', v, {source}, false)
+    exports.qbx_core:GetPlayer(source).Functions.Save()
+    concealPlayers(source, propertyId)
+    if isVisit then
+        TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, true, property.options)
+    else
+        TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, false, property.options)
     end
-    TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, true, property.options or false)
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
 
@@ -434,14 +415,14 @@ RegisterNetEvent('qbx-properties:server:leaveProperty', function(propertyId, isI
         end
     end
 
+    TriggerClientEvent('qbx-properties:client:concealPlayers', source, GetPlayers(), false)
     TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
     TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, false)
 
+    Player(source).state:set('inProperty', false, true)
     if not isInVehicle then
-        Player(source).state:set('inProperty', false, true)
         TriggerClientEvent('qbx-properties:client:leaveProperty', source, exitcoords)
     else
-        Player(source).state:set('inProperty', false, true)
         TriggerClientEvent('qbx-properties:client:leaveGarage', source, exitcoords)
     end
 end)

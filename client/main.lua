@@ -21,8 +21,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
     })
 
     function InteriorZones.entrance:nearby()
-        if not self then return end
-        if not self.currentDistance then return end
+        if not self?.currentDistance then return end
         local marker = Config.InteriorZones.entrance.marker
         DrawMarker(marker.type,
             self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
@@ -51,8 +50,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
             })
 
             function InteriorZones.wardrobe:nearby()
-                if not self then return end
-                if not self.currentDistance then return end
+                if not self?.currentDistance then return end
                 local marker = Config.InteriorZones.wardrobe.marker
                 DrawMarker(marker.type,
                     self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
@@ -80,8 +78,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
                 distance = 7.5,
             })
             function InteriorZones.stash:nearby()
-                if not self then return end
-                if not self.currentDistance then return end
+                if not self?.currentDistance then return end
                 local marker = Config.InteriorZones.stash.marker
                 DrawMarker(marker.type,
                 self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
@@ -97,7 +94,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
                     AddTextComponentString(Lang:t('interiorZones.stash'))
                     DisplayHelpTextFromStringLabel(0, 0, 1, 20000)
                     if IsControlJustPressed(0, 38) then
-                        exports.ox_inventory:openInventory("stash", propertyId and "property_"..propertyId or "apartment_"..PlayerData.citizenid)
+                        exports.ox_inventory:openInventory("stash", propertyId and "property_"..propertyId or "apartment_"..QBX.PlayerData.citizenid)
                     end
                 end
             end
@@ -109,8 +106,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
                 distance = 7.5,
             })
             function InteriorZones.logout:nearby()
-                if not self then return end
-                if not self.currentDistance then return end
+                if not self?.currentDistance then return end
                 local marker = Config.InteriorZones.logout.marker
                 DrawMarker(marker.type,
                 self.coords.x, self.coords.y, self.coords.z + marker.offsetZ, -- coords
