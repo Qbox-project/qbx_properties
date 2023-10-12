@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 version '0.0.1'
-repository 'https://github.com/Qbox-project/qbx-properties'
+repository 'https://github.com/Qbox-project/qbx_properties'
 description 'Hopefully one day a feature rich property system'
 
 shared_scripts {
