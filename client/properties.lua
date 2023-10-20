@@ -660,6 +660,22 @@ local function setupIPL(interior, style, options)
     end
     RefreshInterior(interior)
 end
+
+local function LoadAndTeleportToIPL(coords, isGarage, interior, propertyOptions)
+    if propertyOptions then
+        setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped, false)), isGarage and Config.GarageIPLs[interior].style or Config.IPLS[interior].style, propertyOptions)
+    end
+    SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
+    SetEntityHeading(cache.ped, coords.entrance.w)
+end
+
+local function TeleportOutside(coords)
+    DoScreenFadeOut(500)
+    Wait(250)
+    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
+    SetEntityHeading(cache.ped, coords.w)
+    DoScreenFadeIn(500)
+end
 --#endregion Functions
 
 --#region Events
@@ -729,12 +745,7 @@ RegisterNetEvent('qbx-properties:client:enterIplProperty', function(interior, pr
     local coords = Config.IPLS[interior].coords
     DoScreenFadeOut(1500)
     Wait(250)
-
-    SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
-    SetEntityHeading(cache.ped, coords.entrance.w)
-    if propertyOptions then
-        setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped)), Config.IPLS[interior].style, propertyOptions)
-    end
+    LoadAndTeleportToIPL(coords, false, interior, propertyOptions)
     DoScreenFadeIn(1500)
     CreatePropertyInteriorZones(coords, propertyId, isVisit)
 end)
@@ -743,12 +754,7 @@ RegisterNetEvent('qbx-properties:client:enterGarage', function(interior, propert
     local coords = Config.GarageIPLs[interior].coords
     DoScreenFadeOut(1500)
     Wait(250)
-
-    SetEntityCoords(cache.ped, coords.entrance.x, coords.entrance.y, coords.entrance.z, true, false, false, false)
-    SetEntityHeading(cache.ped, coords.entrance.w)
-    if propertyOptions then
-        setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped)), Config.GarageIPLs[interior].style, propertyOptions)
-    end
+    LoadAndTeleportToIPL(coords, true, interior, propertyOptions)
     DoScreenFadeIn(1500)
     CreatePropertyInteriorZones(coords, propertyId, isVisit)
 end)
@@ -759,11 +765,7 @@ RegisterNetEvent('qbx-properties:client:leaveProperty', function(coords)
         InteriorZones[i]:remove()
     end
     InteriorZones = {}
-    DoScreenFadeOut(500)
-    Wait(250)
-    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
-    SetEntityHeading(cache.ped, coords.w)
-    DoScreenFadeIn(500)
+    TeleportOutside(coords)
 end)
 
 RegisterNetEvent("qbx-properties:client:leaveGarage", function(coords)
@@ -772,11 +774,7 @@ RegisterNetEvent("qbx-properties:client:leaveGarage", function(coords)
         InteriorZones[i]:remove()
     end
     InteriorZones = {}
-    DoScreenFadeOut(500)
-    Wait(250)
-    SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, true, false, false, false)
-    SetEntityHeading(cache.ped, coords.w)
-    DoScreenFadeIn(500)
+    TeleportOutside(coords)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
