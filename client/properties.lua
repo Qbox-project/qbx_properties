@@ -496,6 +496,7 @@ local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
     AddBlip(propertyId, propertyGroup.properties[propertyId], propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
 end
 
+--- Create the properties lib points
 local function createPropertiesZones()
     local starttime = GetGameTimer()
     local propertiesGroups = lib.callback.await('qbx-properties:server:GetProperties', false)
@@ -559,6 +560,7 @@ local function clearProperties()
     RemoveBlips()
 end
 
+--- Refresh the properties lib points
 local function refreshProperties()
     Wait(1000)
     if LocalPlayer.state.isLoggedIn then
@@ -567,7 +569,7 @@ local function refreshProperties()
     end
 end
 
---- Create a property
+--- Send property Data to the server for creation
 ---@param propertyData table
 local function createProperty(propertyData)
     propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000
@@ -619,6 +621,7 @@ local interiors = {
     }
 }
 
+--- Setup the IPLs
 local function setupInteriors()
     local Franklin = exports.bob74_ipl:GetFranklinObject()
     Franklin.Style.Set(Franklin.Style.settled)
@@ -661,6 +664,11 @@ local function setupIPL(interior, style, options)
     RefreshInterior(interior)
 end
 
+--- Load the IPL with the selected style and teleport the player to the entrance
+---@param coords table
+---@param isGarage boolean
+---@param interior number
+---@param propertyOptions table
 local function LoadAndTeleportToIPL(coords, isGarage, interior, propertyOptions)
     if propertyOptions then
         setupIPL(GetInteriorAtCoords(GetEntityCoords(cache.ped, false)), isGarage and Config.GarageIPLs[interior].style or Config.IPLS[interior].style, propertyOptions)
@@ -669,6 +677,8 @@ local function LoadAndTeleportToIPL(coords, isGarage, interior, propertyOptions)
     SetEntityHeading(cache.ped, coords.entrance.w)
 end
 
+--- Teleport the player outside the property
+---@param coords table
 local function TeleportOutside(coords)
     DoScreenFadeOut(500)
     Wait(250)
