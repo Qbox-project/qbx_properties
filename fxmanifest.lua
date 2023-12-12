@@ -6,8 +6,8 @@ repository 'https://github.com/Qbox-project/qbx_properties'
 description 'Hopefully one day a feature rich property system'
 
 shared_scripts {
-    '@qbx-core/import.lua',
-    '@qbx-core/shared/locale.lua',
+    '@qbx_core/import.lua',
+    '@qbx_core/shared/locale.lua',
     '@ox_lib/init.lua',
     'locales/en.lua',
     'locales/*.lua',
@@ -24,8 +24,8 @@ server_scripts {
 }
 
 modules {
-    'qbx-core:core',
-    'qbx-core:utils'
+    'qbx_core:utils',
+    'qbx_core:client:playerdata',
 }
 
 lua54 'yes'
