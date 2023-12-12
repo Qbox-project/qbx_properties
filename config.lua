@@ -36,6 +36,14 @@ Config.InteriorZones = {
             scale = {x = 0.8, y = 0.8, z = 0.8},
         },
     },
+    manage = {
+        marker = {
+            type = 25,
+            offsetZ = -0.95,
+            color = {r = 82, g = 145, b = 170, a = 155},
+            scale = {x = 0.8, y = 0.8, z = 0.8},
+        },
+    },
 }
 
 Config.Properties = {
@@ -123,7 +131,7 @@ Config.apartmentlocations = {
     },
 }
 
----@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, wardrobe: vector4 | boolean, stash: vector4, logout: vector3 | boolean }, style: table | nil } }
+---@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, wardrobe: vector4 | boolean, stash: vector4, manage: vector3, logout: vector3 | boolean }, style: table | nil } }
 Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are still interiors
     alta_street = {
         label = "Alta Street",
@@ -140,6 +148,7 @@ Config.IPLS = { -- 'Ipls' can just be interiors that aren't proper IPLs, but are
         ipl = "apa_v_mp_h_01_a",
         coords = {
             entrance = vec4(-786.866, 315.764, 217.638, 160),
+            manage = vec3(-788.66, 320.83, 217.04)
             wardrobe = vec4(-797.97, 329.0, 220.44, 172.76),
             stash = vec4(-796.04, 326.82, 217.04, 348.06),
             logout = vec3(-795.9, 336.0, 220.44),
@@ -226,12 +235,13 @@ Config.Shells = {
             entrance = vec4(0, 0, 0, 0), -- required
             wardrobe = vec4(0, 0, 0, 0), -- required
             stash = vec4(0, 0, 0, 0), -- required
+            manage = vec4(0, 0, 0, 0) -- required
             logout = vec3(0, 0, 0), -- required
         }
     } ]]
 }
 
----@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }}, style: table } }
+---@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }, manage: vector4}, style: table } }
 Config.GarageIPLs = {
     low_end = {
         label = "Low End",

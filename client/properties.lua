@@ -293,7 +293,7 @@ local function modifyProperty(propertyData)
         if args.action == 'done' then
             point:remove()
             if not next(newData) then return end
-            TriggerServerEvent('qbx-properties:server:modifyProperty', propertyData.id, newData)
+            TriggerServerEvent('qbx-properties:server:modifyProperty', propertyData.id, propertyData.property_type, newData)
         else
             lib.showMenu('modify_property_menu')
         end
@@ -491,6 +491,219 @@ local function populatePropertiesMenu(ids, propertyType, coords)
     end)
 end
 
+local function populateRolesMenu(propertyId, propertyData)
+    local options = {}
+    local roles = propertyData.owners
+    local playerNames = lib.callback.await('qbx-properties:server:GetPlayerNames', false, roles)
+
+    if not playerNames then return false end
+
+    for citizenid, role in pairs(roles) do
+        options[#options+1] = {
+            label = playerNames[citizenid],
+            icon = 'user',
+            values = {Lang:t('general.owner'), Lang:t('general.co_owner'), Lang:t("general.tenant"), Lang:t('general.remove')},
+            defaultindex = role == "owner" and 1 or role == "co_owner" and 2 or 3,
+            args = {
+                action = 'role',
+                citizenid = citizenid,
+                propertyId = propertyId,
+            },
+            close = true
+        }
+    end
+
+    options[#options+1] = {
+        label = Lang:t('manage_property_menu.manage_roles.add'),
+        icon = 'plus',
+        args = {
+            action = 'add',
+            propertyId = propertyId,
+        },
+        close = true
+    }
+
+    lib.registerMenu({
+        id = 'propertyRoles_menu',
+        title = Lang:t('manage_property_menu.manage_roles.title'),
+        position = 'top-left',
+        options = options
+    }, function(_, scrollIndex, args)
+        if args.action == "role" then
+            local newRole = scrollIndex == 1 and "owner" or scrollIndex == 2 and "co_owner" or scrollIndex == 3 and "tenant" or "remove"
+            TriggerServerEvent('qbx-properties:server:modifyRole', args.propertyId, args.citizenid, newRole)
+        elseif args.action == "add" then
+            local players = lib.getNearbyPlayers(GetEntityCoords(cache.ped), 10, Config.Properties.realtorsBuyThemselves or false)
+            if not players then
+                exports.qbx_core:Notify(Lang:t('error.players_nearby'), 'error', 7500)
+                return
+            end
+
+            selectPlayer(players, "Add", function(player)
+                TriggerServerEvent('qbx-properties:server:addTenant', args.propertyId, GetPlayerServerId(player.id))
+            end)
+        end
+    end)
+    return true
+end
+
+local function populateCoordsMenu(propertyId, propertyData)
+    local configCoords = Config[propertyData.property_type == 'garage' and 'GarageIPLs' or propertyData.property_type == 'shell' and 'Shells' or 'IPLS'][propertyData.interior].coords
+    local propertyCoords = {
+        stash = propertyData.stash or configCoords.stash,
+        logout = propertyData.logout or configCoords.logout,
+        wardrobe = propertyData.wardrobe or configCoords.wardrobe,
+        manage = propertyData.manage or configCoords.manage
+    }
+    local points = {}
+    local newData = {
+        interiorCoords = {}
+    }
+    local options = {}
+
+    for k, v in pairs(propertyCoords) do
+        options[#options+1] = {
+            label = Lang:t('manage_property_menu.manage_coords.'..k),
+            icon = 'map-marker',
+            values = {Lang:t('manage_property_menu.manage_coords.set'), Lang:t('manage_property_menu.manage_coords.reset')},
+            args = {
+                action = k,
+                coord = v,
+            },
+            close = false
+        }
+    end
+
+    options[#options+1] = {
+        label = Lang:t('manage_property_menu.manage_coords.save'),
+        icon = 'check',
+        args = {
+            action = 'save',
+            propertyId = propertyId,
+        },
+        close = true
+    }
+
+    lib.registerMenu({
+        id = 'propertyCoords_menu',
+        title = Lang:t('manage_property_menu.manage_coords.title'),
+        position = 'top-left',
+        options = options,
+        onClose = function()
+            if keyPressed == "Backspace" then
+                lib.showMenu('manageProperty_menu')
+            end
+            for _, v in pairs(points) do
+                v:remove()
+            end
+        end
+    }, function(_, scrollIndex, args)
+        if args.action == "save" then
+            local isSure = lib.alertDialog({
+                content = Lang:t('general.areYouSure'),
+                centered = true,
+                cancel = true
+            })
+            if isSure then
+                TriggerServerEvent('qbx-properties:server:modifyProperty', propertyId, propertyData.property_type, newData)
+            end
+            for _, v in pairs(points) do
+                v:remove()
+            end
+            return
+        end
+        if scrollIndex == 1 then
+            local coord = GetEntityCoords(cache.ped)
+            local coords = {x = coord.x, y = coord.y, z = coord.z}
+            coords = GetRoundedCoords(coords)
+            newData.interiorCoords[args.action] = vec3(coords.x, coords.y, coords.z)
+            points[args.action].coords = newData.interiorCoords[args.action].xyz
+        else
+            newData.interiorCoords[args.action] = "reset"
+            points[args.action].coords = configCoords[args.action].xyz
+            exports.qbx_core:Notify(Lang:t("manage_property_menu.manage_coords.willBeReset"), 'primary', 7500)
+        end
+    end)
+
+    for k, v in pairs(propertyCoords) do
+        points[k] = lib.points.new({
+            coords = v.xyz,
+            heading = 0,
+            distance = 15
+        })
+
+        points[k].nearby = function(self)
+            if not self then return end
+            if not self.currentDistance then return end
+            DrawMarker(26,
+                self.coords.x, self.coords.y, self.coords.z + Config.Properties.marker.offsetZ, -- coords
+                0.0, 0.0, 0.0, -- direction?
+                0.0, 0.0, self.heading, -- rotation
+                1,1,1, -- scale
+                255, 50, 50, 255, -- color RBGA
+                false, false, 2, false, nil, nil, false
+            )
+        end
+    end
+end
+
+local function openManageMenu(propertyId)
+    local propertyData = lib.callback.await('qbx-properties:server:GetPropertyData', false, propertyId)
+    local Role = propertyData.owners[PlayerData.citizenid]
+    if not Role then return end
+    local options = {
+        {label = Lang:t('manage_property_menu.name', {name = propertyData.name}), icon = "fas fa-pen", args = { action = "name" }, close = true},
+        {label = Lang:t('manage_property_menu.roles'), icon = "fas fa-users", args = { action = "roles" }, close = true},
+        {label = Lang:t('manage_property_menu.customcoords'), icon = "fas fa-map", args = { action = "customcoords" }, close = true},
+    }
+
+    if propertyData.property_type ~= 'garage' then
+        options[#options+1] = {label = Lang:t('manage_property_menu.decorate'), icon = "fas fa-bed", args = { action = "decorate" }, close = true}
+    else
+        options[#options+1] = {label = Lang:t('manage_property_menu.vehicles'), icon = "fas fa-car", args = { action = "vehicles" }, close = true}
+    end
+
+    lib.registerMenu({
+        id = 'manageProperty_menu',
+        title = propertyData.name,
+        position = 'top-left',
+        options = options,
+    }, function(_, _, args)
+        if args.action == "name" then
+            local propertyString = string.split(propertyData.name, ' ')
+            local propertyNumber = tonumber(propertyString[1])
+            local input = lib.inputDialog(Lang:t('manage_property_menu.title'), {
+                {type = 'input', label = Lang:t('manage_property_menu.name', {name = propertyData.name}), default = table.concat(propertyString, ' ', 2), required = true},
+            }, {allowCancel = true})
+
+            if input then
+                TriggerServerEvent('qbx-properties:server:modifyProperty', propertyId, propertyData.property_type, {name = propertyNumber .. " " .. input[1]})
+            end
+        elseif args.action == "roles" then
+            if Role ~= "owner" and Role ~= "co_owner" then
+                return exports.qbx_core:Notify(Lang:t('error.not_owner'), 'error', 7500)
+            end
+            if populateRolesMenu(propertyId, propertyData) then
+                lib.showMenu('propertyRoles_menu')
+            end
+        elseif args.action == "customcoords" then
+            if Role ~= "owner" and Role ~= "co_owner" then
+                return exports.qbx_core:Notify(Lang:t('error.not_owner'), 'error', 7500)
+            end
+            populateCoordsMenu(propertyId, propertyData)
+            lib.showMenu('propertyCoords_menu')
+        elseif args.action == "decorate" then
+            if Role ~= "owner" then
+                return exports.qbx_core:Notify(Lang:t('error.not_owner'), 'error', 7500)
+            end
+            -- TODO: decoration menu
+        elseif args.action == "vehicles" then
+            -- TODO: vehicle management
+        end
+    end)
+    lib.showMenu('manageProperty_menu')
+end
+
 local function addPropertyGroupBlip(propertyId, propertyGroup, isRented)
     local Status = propertyGroup.propertyType == 'garage' and 'garage' or isRented and 'rent' or 'owned'
     AddBlip(propertyId, propertyGroup.properties[propertyId], propertyGroup.coords, Config.Properties.blip[Status].sprite, Config.Properties.blip[Status].color, Config.Properties.blip[Status].scale)
@@ -560,7 +773,6 @@ local function clearProperties()
     RemoveBlips()
 end
 
---- Refresh the properties lib points
 local function refreshProperties()
     Wait(1000)
     if LocalPlayer.state.isLoggedIn then
@@ -569,10 +781,10 @@ local function refreshProperties()
     end
 end
 
---- Send property Data to the server for creation
+--- Create a property
 ---@param propertyData table
 local function createProperty(propertyData)
-    propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000
+    propertyData.maxweight = propertyData.maxweight and propertyData.maxweight * 1000 or false
     TriggerServerEvent('qbx-properties:server:CreateProperty', propertyData)
 end
 
@@ -786,6 +998,8 @@ RegisterNetEvent("qbx-properties:client:leaveGarage", function(coords)
     InteriorZones = {}
     TeleportOutside(coords)
 end)
+
+RegisterNetEvent('qbx-properties:client:openManageMenu', openManageMenu)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     setupInteriors()

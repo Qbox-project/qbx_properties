@@ -101,6 +101,7 @@ local function formatPropertyData(PropertyData, owners)
         stash = type(PropertyData.data.stash) == "string" and json.decode(PropertyData.data.stash) or PropertyData.data.stash
         logout = type(PropertyData.data.logout) == "string" and json.decode(PropertyData.data.logout) or PropertyData.data.logout
         outfit = type(PropertyData.data.outfit) == "string" and json.decode(PropertyData.data.outfit) or PropertyData.data.outfit
+        manage = dataCoords.manage and vec3(dataCoords.manage.x, dataCoords.manage.y, dataCoords.manage.z)
     end
 
     return {
@@ -113,6 +114,7 @@ local function formatPropertyData(PropertyData, owners)
         stash = stash,
         logout = logout,
         outfit = outfit,
+        manage = manage,
         appliedtaxes = type(PropertyData.appliedtaxes) ~= "table" and json.decode(PropertyData.appliedtaxes) or PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
@@ -278,15 +280,25 @@ RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
 end)
 
 local function hasMoney(player, amount)
-    return player and (player.Functions.GetMoney('cash') >= amount and 'cash' or player.Functions.GetMoney('bank') >= amount and 'bank')
+        return player and (player.Functions.GetMoney('cash') >= amount and 'cash' or player.Functions.GetMoney('bank') >= amount and 'bank')
+end
+
+--- Removes the role of a player for a property
+--- @param citizenId string | integer
+--- @param propertyId integer
+--- @return boolean
+local function removeRole(citizenId, propertyId)
+    if not citizenId or not propertyId then return false end
+    local result = MySQL.Async.execute.await('DELETE FROM property_owners WHERE property_id = ? AND citizenid = ?', { propertyId, citizenId })
+    return result and true or false
 end
 
 --- Sets the role of a player for a property
---- @param playerId integer
+--- @param citizenId string | integer
 --- @param propertyId integer
 --- @param role string
 --- @return boolean
-local function setRole(playerId, propertyId, role)
+local function setRole(citizenId, propertyId, role)
     if not playerId or not role or not propertyId then return false end
     local player = exports.qbx_core:GetPlayer(playerId)
     if not player then return false end
@@ -314,6 +326,39 @@ local function buyProperty(propertyId, playerId, price)
     properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     return true
 end
+
+RegisterNetEvent('qbx-properties:server:modifyRole', function(propertyId, citizenid, newRole)
+    local source = source
+    if not propertyId or not citizenid or not newRole then return end
+    local player = exports.qbx_core:GetPlayer(source)
+    local PlayerData = player.PlayerData
+    local playerRole = properties[propertyId].owners[PlayerData.citizenid]
+    if playerRole ~= 'owner' and playerRole ~= "co_owner" then return end
+
+    if newRole == 'remove' then
+        if not removeRole(citizenid, propertyId) then exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') return end
+        properties[propertyId].owners[citizenid] = nil
+        TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+        return
+    else
+        if not setRole(citizenid, propertyId, newRole) then exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') return end
+        properties[propertyId].owners[citizenid] = newRole
+        TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+        return
+    end
+end)
+
+RegisterNetEvent('qbx-properties:server:addTenant', function(propertyId, playerId)
+    local source = source
+    local player = exports.qbx_core:GetPlayer(source)
+    local PlayerData = player.PlayerData
+    local playerRole = properties[propertyId].owners[PlayerData.citizenid]
+    if playerRole ~= 'owner' and playerRole ~= "co_owner" then return end
+
+    local targetPlayer = exports.qbx_core:GetPlayer(playerId)
+    if not targetPlayer then return end
+    setRole(targetPlayer.PlayerData.citizenid, propertyId, "tenant")
+end)
 
 RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, propertyId, comission)
     local source = source
@@ -429,10 +474,17 @@ end)
 
 --- Modifies the property's data in the database
 ---@param propertyId integer
-local function modifyProperty(propertyId)
+local function modifyProperty(propertyId, propertyType)
     if not propertyId then return end
     local propertyData = properties[propertyId]
-    local affectedRows = MySQL.update.await('UPDATE properties SET name = @name, interior = @interior, price = @price, rent = @rent, coords = @coords, appliedtaxes = @appliedtaxes, maxweight = @maxweight, slots = @slots, options = @options WHERE id = @propertyId', {
+    local data = {
+        stash = propertyData.stash,
+        logout = propertyData.logout,
+        outfit = propertyData.outfit,
+        manage = propertyData.manage
+    }
+
+    local affectedRows = MySQL.update.await('UPDATE properties SET name = @name, interior = @interior, price = @price, rent = @rent, coords = @coords, appliedtaxes = @appliedtaxes, maxweight = @maxweight, slots = @slots, options = @options, data = @data WHERE id = @propertyId', {
         ['@name'] = propertyData.name,
         ['@interior'] = propertyData.interior,
         ['@coords'] = json.encode(propertyData.coords),
@@ -442,22 +494,55 @@ local function modifyProperty(propertyId)
         ['@maxweight'] = propertyData.maxweight or 10000,
         ['@slots'] = propertyData.slots or 10,
         ['@options'] = json.encode(propertyData.options or {}),
+        ['@data'] = json.encode(data) or nil,
         ['@propertyId'] = propertyId
     })
     if not affectedRows then return end
     RefreshProperties()
-    exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, propertyData.slots, propertyData.maxweight, false, false, Config.IPLS[propertyData.interior].coords.stash.xyz)
+    local interiorCoords = propertyType == 'garage' and Config.GarageIPLs[propertyData.interior].coords or propertyType == 'ipl' and Config.IPLS[propertyData.interior].coords or Config.Shells[propertyData.interior].coords
+    for i = 1, #properties[propertyId].playersInside do
+        TriggerClientEvent('qbx-properties:client:refreshInteriorZones', properties[propertyId].playersInside[i], propertyId, interiorCoords)
+    end
+
+    if propertyType == 'garage' then return end
+    exports.ox_inventory:RegisterStash("property_"..propertyId, "property_"..propertyId, propertyData.slots, propertyData.maxweight, false, false, propertyData?.stash?.xyz or interiorCoords.stash.xyz)
 end
 
 --- Modifies the property's data
 ---@param propertyId integer
 ---@param newData table
-RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, newData)
+RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, propertyType, newData)
     if not propertyId or not newData then return end
-    for k, v in pairs(newData) do
-        properties[propertyId][k] = v
+    if newData.interiorCoords then
+        for k, v in pairs(newData.interiorCoords) do
+            newData[k] = v
+        end
+        newData.interiorCoords = nil
     end
-    modifyProperty(propertyId)
+    for k, v in pairs(newData) do
+        properties[propertyId][k] = (v ~= "reset" and v) or nil
+    end
+    modifyProperty(propertyId, propertyType)
+end)
+
+lib.callback.register("qbx-properties:server:GetPlayerNames", function(_, roles)
+    local names = {}
+    local keys = {}
+
+    for k, v in pairs(roles) do
+        keys[#keys + 1] = k
+    end
+    local listString = '\''..table.concat(keys, '\',\'')..'\''
+    local result = MySQL.Sync.fetchAll('SELECT citizenid, charinfo FROM players WHERE citizenid IN ('..listString..')')
+    if result then
+        for _, v in pairs(result) do
+            local charinfo = json.decode(v.charinfo)
+            names[v.citizenid] = charinfo.firstname .. ' ' .. charinfo.lastname
+        end
+    else
+        return false
+    end
+    return names
 end)
 
 lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', function(source)
@@ -491,6 +576,7 @@ lib.callback.register('qbx-properties:server:GetCustomZones', function(_, proper
         wardrobe = property.stash,
         stash = property.stash,
         logout = property.logout,
+        manage = property.manage
     }
     return zones or {}
 end)
