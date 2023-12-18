@@ -83,6 +83,7 @@ local Translations = {
     },
     manage_property_menu = {
         name = 'Property Name: %{name}',
+        manage_name = 'Change Property name',
         roles = 'Manage player roles',
         customcoords = 'Customize Coordinates',
         decorate = 'Decorate',
@@ -100,7 +101,8 @@ local Translations = {
             save = 'Save',
             set = 'Set',
             reset = 'Reset',
-            willBeReset = 'This will be reset'
+            willBeReset = 'This will be reset',
+            confirmation = 'Change the coordinates?'
         },
     },
 }

@@ -96,12 +96,13 @@ end
 ---@return table
 local function formatPropertyData(PropertyData, owners)
     local coords = type(PropertyData.coords) == "string" and json.decode(PropertyData.coords) or PropertyData.coords
-    local stash, logout, outfit = nil, nil, nil
+    local stash, logout, outfit, manage = nil, nil, nil, nil
     if PropertyData.data then
+        PropertyData.data = type(PropertyData.data) == "string" and json.decode(PropertyData.data) or PropertyData.data
         stash = type(PropertyData.data.stash) == "string" and json.decode(PropertyData.data.stash) or PropertyData.data.stash
         logout = type(PropertyData.data.logout) == "string" and json.decode(PropertyData.data.logout) or PropertyData.data.logout
         outfit = type(PropertyData.data.outfit) == "string" and json.decode(PropertyData.data.outfit) or PropertyData.data.outfit
-        manage = dataCoords.manage and vec3(dataCoords.manage.x, dataCoords.manage.y, dataCoords.manage.z)
+        manage = type(PropertyData.data.manage) == "string" and json.decode(PropertyData.data.manage) or PropertyData.manage
     end
 
     return {
@@ -111,10 +112,10 @@ local function formatPropertyData(PropertyData, owners)
         decorations = PropertyData.decorations or nil,
         garage_slots = (type(PropertyData.garage_slots) == "string" and json.decode(PropertyData.garage_slots)) or nil,
         coords = vec4(coords.x, coords.y, coords.z, coords.w or 0),
-        stash = stash,
-        logout = logout,
-        outfit = outfit,
-        manage = manage,
+        stash = stash and vector4(stash.x, stash.y, stash.z, stash.w or 0),
+        logout = logout and vector3(logout.x, logout.y, logout.z),
+        outfit = outfit and vector4(outfit.x, outfit.y, outfit.z, outfit.w or 0),
+        manage = manage and vector3(manage.x, manage.y, manage.z),
         appliedtaxes = type(PropertyData.appliedtaxes) ~= "table" and json.decode(PropertyData.appliedtaxes) or PropertyData.appliedtaxes or {},
         price = PropertyData.price,
         rent = PropertyData.rent,
@@ -165,7 +166,7 @@ local function RefreshProperties()
     updatePropertiesGroups()
     findPlayersInsideProperties()
 
-    TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+    TriggerClientEvent('qbx_properties:client:refreshProperties', -1)
 end
 
 local function concealPlayers(source, propertyId)
@@ -182,15 +183,15 @@ local function concealPlayers(source, propertyId)
             end
         end
     end
-    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, true)
+    TriggerClientEvent('qbx_properties:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx_properties:client:concealPlayers', -1, {source}, true)
     for _, v in pairs(playersInsideProperty) do
-        TriggerClientEvent('qbx-properties:client:concealPlayers', v, {source}, false)
+        TriggerClientEvent('qbx_properties:client:concealPlayers', v, {source}, false)
     end
 end
 
 -- Enter property
-RegisterNetEvent('qbx-properties:server:enterProperty', function(propertyId, isVisit)
+RegisterNetEvent('qbx_properties:server:enterProperty', function(propertyId, isVisit)
     local source = source
     local property = properties[propertyId]
     if property.property_type ~= 'ipl' then return end -- remove when shells are implemented
@@ -198,7 +199,7 @@ RegisterNetEvent('qbx-properties:server:enterProperty', function(propertyId, isV
     exports.qbx_core:Save(source)
     concealPlayers(source, propertyId)
     if property.property_type == 'ipl' then
-        TriggerClientEvent('qbx-properties:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options)
+        TriggerClientEvent('qbx_properties:client:enterIplProperty', source, property.interior, propertyId, isVisit, property.options)
     else
         return -- do nothing for now
         -- TODO: shell stuff (have fun with that)
@@ -208,7 +209,7 @@ end)
 
 -- Enter garage
 ---WIP
-RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVisit, isInVehicle)
+RegisterNetEvent('qbx_properties:server:enterGarage', function(propertyId, isVisit, isInVehicle)
     if not propertyId then return end
     local property = properties[propertyId]
 
@@ -224,9 +225,9 @@ RegisterNetEvent('qbx-properties:server:enterGarage', function(propertyId, isVis
     exports.qbx_core:GetPlayer(source).Functions.Save()
     concealPlayers(source, propertyId)
     if isVisit then
-        TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, true, property.options)
+        TriggerClientEvent('qbx_properties:client:enterGarage', source, property.interior, propertyId, true, property.options)
     else
-        TriggerClientEvent('qbx-properties:client:enterGarage', source, property.interior, propertyId, false, property.options)
+        TriggerClientEvent('qbx_properties:client:enterGarage', source, property.interior, propertyId, false, property.options)
     end
     Player(source).state:set('inProperty', {propertyid = propertyId}, true)
 end)
@@ -259,7 +260,7 @@ local function addPropertyToList(propertyData, propertyId)
     updatePropertiesGroups()
 end
 
-RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
+RegisterNetEvent('qbx_properties:server:CreateProperty', function(propertyData)
     if not propertyData then return end
     local source = source
 
@@ -276,7 +277,7 @@ RegisterNetEvent('qbx-properties:server:CreateProperty', function(propertyData)
 
     propertyData.name = propertyId .. ' ' .. propertyData.name
     addPropertyToList(propertyData, propertyId)
-    TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+    TriggerClientEvent('qbx_properties:client:refreshProperties', -1)
 end)
 
 local function hasMoney(player, amount)
@@ -327,7 +328,7 @@ local function buyProperty(propertyId, playerId, price)
     return true
 end
 
-RegisterNetEvent('qbx-properties:server:modifyRole', function(propertyId, citizenid, newRole)
+RegisterNetEvent('qbx_properties:server:modifyRole', function(propertyId, citizenid, newRole)
     local source = source
     if not propertyId or not citizenid or not newRole then return end
     local player = exports.qbx_core:GetPlayer(source)
@@ -338,17 +339,17 @@ RegisterNetEvent('qbx-properties:server:modifyRole', function(propertyId, citize
     if newRole == 'remove' then
         if not removeRole(citizenid, propertyId) then exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') return end
         properties[propertyId].owners[citizenid] = nil
-        TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+        TriggerClientEvent('qbx_properties:client:refreshProperties', -1)
         return
     else
         if not setRole(citizenid, propertyId, newRole) then exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') return end
         properties[propertyId].owners[citizenid] = newRole
-        TriggerClientEvent('qbx-properties:client:refreshProperties', -1)
+        TriggerClientEvent('qbx_properties:client:refreshProperties', -1)
         return
     end
 end)
 
-RegisterNetEvent('qbx-properties:server:addTenant', function(propertyId, playerId)
+RegisterNetEvent('qbx_properties:server:addTenant', function(propertyId, playerId)
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
@@ -360,7 +361,7 @@ RegisterNetEvent('qbx-properties:server:addTenant', function(propertyId, playerI
     setRole(targetPlayer.PlayerData.citizenid, propertyId, "tenant")
 end)
 
-RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, propertyId, comission)
+RegisterNetEvent('qbx_properties:server:sellProperty', function(targetId, propertyId, comission)
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
@@ -372,7 +373,7 @@ RegisterNetEvent('qbx-properties:server:sellProperty', function(targetId, proper
     local propertyPrice = calcPrice(property.price, property.appliedtaxes)
     local priceToPay = math.round((propertyPrice * (1+(comission/100))))
 
-    local isAccepted = lib.callback.await("qbx-properties:client:promptOffer", targetId, priceToPay, false)
+    local isAccepted = lib.callback.await("qbx_properties:client:promptOffer", targetId, priceToPay, false)
     if not isAccepted then return exports.qbx_core:Notify(source, Lang:t('error.offerDenied'), 'error') end
 
     local hasBought = buyProperty(propertyId, targetId, priceToPay)
@@ -411,7 +412,7 @@ local function rentProperty(propertyId, playerId, price, isExtend)
     return true
 end
 
-RegisterNetEvent('qbx-properties:server:rentProperty', function(targetId, propertyId, isExtend)
+RegisterNetEvent('qbx_properties:server:rentProperty', function(targetId, propertyId, isExtend)
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
@@ -421,7 +422,7 @@ RegisterNetEvent('qbx-properties:server:rentProperty', function(targetId, proper
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
 
     local rentAmount = calcPrice(property.rent, property.appliedtaxes) * Config.Properties.rentTime
-    local isAccepted = lib.callback.await("qbx-properties:client:promptOffer", targetId, rentAmount, true)
+    local isAccepted = lib.callback.await("qbx_properties:client:promptOffer", targetId, rentAmount, true)
     if not isAccepted then return exports.qbx_core:Notify(source, Lang:t('error.offerDenied'), 'error') end
 
     local hasBought = rentProperty(propertyId, targetId, rentAmount, isExtend)
@@ -433,22 +434,22 @@ RegisterNetEvent('qbx-properties:server:rentProperty', function(targetId, proper
     exports.qbx_core:Notify(source, Lang:t('success.soldProperty', {price = rentAmount}), 'success')
 end)
 
-RegisterNetEvent('qbx-properties:server:AddProperty', function()
+RegisterNetEvent('qbx_properties:server:AddProperty', function()
     local source = source
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
 
-    TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
+    TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
 
-RegisterNetEvent('qbx-properties:server:RingDoor', function(propertyId)
+RegisterNetEvent('qbx_properties:server:RingDoor', function(propertyId)
     -- trigger a phone notification (system) on the property owners
     -- if they accept the source gets to enter the property
     -- might be complicated with the current npwd notification system :headscratch:
     exports.qbx_core:Notify(source, "Feature incoming soon :tm:. Property: "..propertyId, "error", 5000)
 end)
 
-RegisterNetEvent('qbx-properties:server:leaveProperty', function(propertyId, isInVehicle)
+RegisterNetEvent('qbx_properties:server:leaveProperty', function(propertyId, isInVehicle)
     local source = source
     local property = properties[propertyId]
     local playersToConceal = {}
@@ -460,15 +461,15 @@ RegisterNetEvent('qbx-properties:server:leaveProperty', function(propertyId, isI
         end
     end
 
-    TriggerClientEvent('qbx-properties:client:concealPlayers', source, GetPlayers(), false)
-    TriggerClientEvent('qbx-properties:client:concealPlayers', source, playersToConceal, true)
-    TriggerClientEvent('qbx-properties:client:concealPlayers', -1, {source}, false)
+    TriggerClientEvent('qbx_properties:client:concealPlayers', source, GetPlayers(), false)
+    TriggerClientEvent('qbx_properties:client:concealPlayers', source, playersToConceal, true)
+    TriggerClientEvent('qbx_properties:client:concealPlayers', -1, {source}, false)
 
     Player(source).state:set('inProperty', false, true)
     if not isInVehicle then
-        TriggerClientEvent('qbx-properties:client:leaveProperty', source, exitcoords)
+        TriggerClientEvent('qbx_properties:client:leaveProperty', source, exitcoords)
     else
-        TriggerClientEvent('qbx-properties:client:leaveGarage', source, exitcoords)
+        TriggerClientEvent('qbx_properties:client:leaveGarage', source, exitcoords)
     end
 end)
 
@@ -501,7 +502,7 @@ local function modifyProperty(propertyId, propertyType)
     RefreshProperties()
     local interiorCoords = propertyType == 'garage' and Config.GarageIPLs[propertyData.interior].coords or propertyType == 'ipl' and Config.IPLS[propertyData.interior].coords or Config.Shells[propertyData.interior].coords
     for i = 1, #properties[propertyId].playersInside do
-        TriggerClientEvent('qbx-properties:client:refreshInteriorZones', properties[propertyId].playersInside[i], propertyId, interiorCoords)
+        TriggerClientEvent('qbx_properties:client:refreshInteriorZones', properties[propertyId].playersInside[i], propertyId, interiorCoords)
     end
 
     if propertyType == 'garage' then return end
@@ -511,7 +512,7 @@ end
 --- Modifies the property's data
 ---@param propertyId integer
 ---@param newData table
-RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, propertyType, newData)
+RegisterNetEvent('qbx_properties:server:modifyProperty', function(propertyId, propertyType, newData)
     if not propertyId or not newData then return end
     if newData.interiorCoords then
         for k, v in pairs(newData.interiorCoords) do
@@ -525,7 +526,7 @@ RegisterNetEvent('qbx-properties:server:modifyProperty', function(propertyId, pr
     modifyProperty(propertyId, propertyType)
 end)
 
-lib.callback.register("qbx-properties:server:GetPlayerNames", function(_, roles)
+lib.callback.register("qbx_properties:server:GetPlayerNames", function(_, roles)
     local names = {}
     local keys = {}
 
@@ -545,7 +546,7 @@ lib.callback.register("qbx-properties:server:GetPlayerNames", function(_, roles)
     return names
 end)
 
-lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', function(source)
+lib.callback.register('qbx_properties:server:GetOwnedOrRentedProperties', function(source)
     local citizenid = exports.qbx_core:GetPlayer(source).PlayerData.citizenid
     local hasKeys = MySQL.query.await('SELECT property_id FROM property_owners WHERE citizenid = ?', { citizenid })
     if not hasKeys or not properties then return end
@@ -558,18 +559,18 @@ lib.callback.register('qbx-properties:server:GetOwnedOrRentedProperties', functi
     return propertyList
 end)
 
-lib.callback.register('qbx-properties:server:GetProperties', function()
+lib.callback.register('qbx_properties:server:GetProperties', function()
     return propertiesGroups
 end)
 
-lib.callback.register('qbx-properties:server:GetPropertyData', function(_, propertyId)
+lib.callback.register('qbx_properties:server:GetPropertyData', function(_, propertyId)
     local data = properties[propertyId]
     if not data then return false end
     data.id = propertyId
     return data
 end)
 
-lib.callback.register('qbx-properties:server:GetCustomZones', function(_, propertyId)
+lib.callback.register('qbx_properties:server:GetCustomZones', function(_, propertyId)
     local property = properties[propertyId]
     if not property then return false end
     local zones = {
@@ -588,7 +589,7 @@ lib.addCommand('createproperty', {
 }, function(source)
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
     if PlayerData.job.type ~= 'realestate' then return end
-    TriggerClientEvent('qbx-properties:client:OpenCreationMenu', source)
+    TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
 
 AddEventHandler('onServerResourceStart', function(resource)
