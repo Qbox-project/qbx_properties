@@ -153,36 +153,8 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
                     AddTextComponentString(Lang:t('interiorZones.manage'))
                     DisplayHelpTextFromStringLabel(0, false, true, 20000)
                     if IsControlJustPressed(0, 38) then
-                        TriggerEvent('qbx_properties:client:openManageMenu', propertyId)
+                        TriggerEvent('qbx-properties:client:openManageMenu', propertyId)
                     end
-                end
-            end
-      end
-      
-                  if coords.manage then
-        InteriorZones.manage = lib.points.new({
-            coords = customZones?.manage?.xyz or coords.manage.xyz,
-            distance = 15,
-        })
-        function InteriorZones.manage:nearby()
-            if not self then return end
-            if not self.currentDistance then return end
-            local marker = Config.InteriorZones.manage.marker
-            DrawMarker(marker.type,
-                self.coords.x, self.coords.y, self.coords.z + marker.offsetZ,   -- coords
-                0.0, 0.0, 0.0,                                                  -- direction?
-                0.0, 0.0, 0.0,                                                  -- rotation
-                marker.scale.x, marker.scale.y, marker.scale.z,                 -- scale
-                marker.color.r, marker.color.g, marker.color.b, marker.color.a, -- color RBGA
-                false, true, 2, false, nil, nil, false
-            )
-
-            if self.currentDistance < 1 then
-                SetTextComponentFormat("STRING")
-                AddTextComponentString(Lang:t('interiorZones.manage'))
-                DisplayHelpTextFromStringLabel(0, false, true, 20000)
-                if IsControlJustPressed(0, 38) then
-                    TriggerEvent('qbx-properties:client:openManageMenu', propertyId)
                 end
             end
         end
