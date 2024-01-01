@@ -153,7 +153,7 @@ function CreatePropertyInteriorZones(coords, propertyId, isVisit)
                     AddTextComponentString(Lang:t('interiorZones.manage'))
                     DisplayHelpTextFromStringLabel(0, false, true, 20000)
                     if IsControlJustPressed(0, 38) then
-                        TriggerEvent('qbx-properties:client:openManageMenu', propertyId)
+                        TriggerEvent('qbx_properties:client:openManageMenu', propertyId)
                     end
                 end
             end
