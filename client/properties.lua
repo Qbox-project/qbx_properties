@@ -307,7 +307,7 @@ end
 local function populatePropertyMenu(propertyData, propertyType)
     if not propertyData then return end
     if not QBX.PlayerData then return end
-    local isRealEstateAgent = QBX.PlayerData.job.type == 'realestate'
+    local isRealEstateAgent = QBX.PlayerData.job.name == 'realestate'
     local isBought, isRented, hasKeys = next(propertyData.owners) ~= nil and true or false, propertyData.rent_expiration and true or false, propertyData.owners[QBX.PlayerData.citizenid] and true or false
     local options = {}
     if isBought or isRented then
@@ -463,7 +463,7 @@ local function populatePropertiesMenu(ids, propertyType, coords)
         ::continue::
     end
 
-    if QBX.PlayerData.job.type == 'realestate' then
+    if QBX.PlayerData.job.name == 'realestate' then
         options[#options+1] = {
             label = Lang:t('properties_menu.create'),
             icon = 'plus',

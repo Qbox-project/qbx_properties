@@ -267,7 +267,7 @@ RegisterNetEvent('qbx_properties:server:CreateProperty', function(propertyData)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
 
-    if player.PlayerData.job.type ~= 'realestate' then return end
+    if player.PlayerData.job.name ~= 'realestate' then return end
 
     local propertyId = createProperty(propertyData)
     if not propertyId then
@@ -365,7 +365,7 @@ RegisterNetEvent('qbx_properties:server:sellProperty', function(targetId, proper
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
-    if PlayerData.job.type ~= 'realestate' then return end
+    if PlayerData.job.name ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
@@ -416,7 +416,7 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(targetId, proper
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
-    if PlayerData.job.type ~= 'realestate' then return end
+    if PlayerData.job.name ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
@@ -437,7 +437,7 @@ end)
 RegisterNetEvent('qbx_properties:server:AddProperty', function()
     local source = source
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
-    if PlayerData.job.type ~= 'realestate' then return end
+    if PlayerData.job.name ~= 'realestate' then return end
 
     TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
@@ -588,7 +588,7 @@ lib.addCommand('createproperty', {
     restricted = false,
 }, function(source)
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
-    if PlayerData.job.type ~= 'realestate' then return end
+    if PlayerData.job.name ~= 'realestate' then return end
     TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
 
