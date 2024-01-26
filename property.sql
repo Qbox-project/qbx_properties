@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`price` INT NOT NULL,
 	`rent` INT NOT NULL,
 	`rent_expiration` TIMESTAMP DEFAULT NULL,
-	`data` JSON,
 	`decorationsid` INT,
 	`appliedtaxes` JSON,
 	`maxweight` INT,
