@@ -167,7 +167,7 @@ end
 function GetRoundedCoords(coords)
     local newcoords = {}
     for k, v in pairs(coords) do
-        newcoords[k] = math.round(v, 3)
+        newcoords[k] = qbx.math.round(v, 3)
     end
     return newcoords
 end

@@ -50,7 +50,7 @@ local function calcPrice(price, taxes)
             end
         end
     end
-    return math.round(price + (price * (totaltax/100)))
+    return qbx.math.round(price + (price * (totaltax/100)))
 end
 
 --- Finds the players inside properties and adds them to the playersInside table
@@ -87,7 +87,7 @@ local function getPropertyOwners(propertyId)
 end
 
 local function calcDaysLeft(time)
-    return time and time > 0 and math.round((time/1000 - os.time()) / 86400)
+    return time and time > 0 and qbx.math.round((time/1000 - os.time()) / 86400)
 end
 
 --- Formats the property data
@@ -371,7 +371,7 @@ RegisterNetEvent('qbx_properties:server:sellProperty', function(targetId, proper
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
 
     local propertyPrice = calcPrice(property.price, property.appliedtaxes)
-    local priceToPay = math.round((propertyPrice * (1+(comission/100))))
+    local priceToPay = qbx.math.round((propertyPrice * (1+(comission/100))))
 
     local isAccepted = lib.callback.await("qbx_properties:client:promptOffer", targetId, priceToPay, false)
     if not isAccepted then return exports.qbx_core:Notify(source, Lang:t('error.offerDenied'), 'error') end
