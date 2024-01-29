@@ -241,7 +241,7 @@ Config.Shells = {
     } ]]
 }
 
----@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }, manage: vector4}, style: table } }
+---@type { [string]: { label: string, ipl: string | false, coords: { entrance: vector4, slots: { index: vector4 }, manage: vector3}, style: table } }
 Config.GarageIPLs = {
     low_end = {
         label = "Low End",
