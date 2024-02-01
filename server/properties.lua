@@ -267,7 +267,7 @@ RegisterNetEvent('qbx_properties:server:CreateProperty', function(propertyData)
     local player = exports.qbx_core:GetPlayer(source)
     if not player then return end
 
-    if player.PlayerData.job.name ~= 'realestate' then return end
+    if player.PlayerData.job.type ~= 'realestate' then return end
 
     local propertyId = createProperty(propertyData)
     if not propertyId then
@@ -300,11 +300,9 @@ end
 --- @param role string
 --- @return boolean
 local function setRole(citizenId, propertyId, role)
-    if not playerId or not role or not propertyId then return false end
-    local player = exports.qbx_core:GetPlayer(playerId)
-    if not player then return false end
+    if not citizenId or not role or not propertyId then return false end
     local result = MySQL.insert.await('INSERT INTO property_owners (`property_id`, `citizenid`, `role`) VALUES (?, ?, ?)', {
-        propertyId, player.PlayerData.citizenid, role
+        propertyId, citizenId, role
     })
     return not not result
 end
@@ -323,7 +321,7 @@ local function buyProperty(propertyId, playerId, price)
         return false
     end
 
-    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') or not setRole(playerId, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
+    if not player.Functions.RemoveMoney(moneyType, price, 'Bought property') or not setRole(player.PlayerData.citizenid, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
     properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     return true
 end
@@ -365,7 +363,7 @@ RegisterNetEvent('qbx_properties:server:sellProperty', function(targetId, proper
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
-    if PlayerData.job.name ~= 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
@@ -406,7 +404,7 @@ local function rentProperty(propertyId, playerId, price, isExtend)
     if not player.Functions.RemoveMoney(moneyType, price, 'Property rent') then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
     extendRent(propertyId, playerId, Config.Properties.rentTime)
     if not isExtend then
-        if not setRole(playerId, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
+        if not setRole(player.PlayerData.citizenid, propertyId, "owner") then exports.qbx_core:Notify(playerId, Lang:t('error.problem'), 'error') return false end
         properties[propertyId].owners[player.PlayerData.citizenid] = 'owner'
     end
     return true
@@ -416,7 +414,7 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(targetId, proper
     local source = source
     local player = exports.qbx_core:GetPlayer(source)
     local PlayerData = player.PlayerData
-    if PlayerData.job.name ~= 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     local property = properties[propertyId]
     if not property then return exports.qbx_core:Notify(source, Lang:t('error.problem'), 'error') end
@@ -437,7 +435,7 @@ end)
 RegisterNetEvent('qbx_properties:server:AddProperty', function()
     local source = source
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
-    if PlayerData.job.name ~= 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
 
     TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
@@ -530,7 +528,7 @@ lib.callback.register("qbx_properties:server:GetPlayerNames", function(_, roles)
     local names = {}
     local keys = {}
 
-    for k, v in pairs(roles) do
+    for k in pairs(roles) do
         keys[#keys + 1] = k
     end
     local listString = '\''..table.concat(keys, '\',\'')..'\''
@@ -588,7 +586,7 @@ lib.addCommand('createproperty', {
     restricted = false,
 }, function(source)
     local PlayerData = exports.qbx_core:GetPlayer(source).PlayerData
-    if PlayerData.job.name ~= 'realestate' then return end
+    if PlayerData.job.type ~= 'realestate' then return end
     TriggerClientEvent('qbx_properties:client:OpenCreationMenu', source)
 end)
 
