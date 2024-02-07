@@ -221,13 +221,13 @@ local function modifyProperty(propertyData)
         if not args then return end
         if args.action == "name" then
             local propertyNumber, propertyString = string.strsplit(' ', propertyData.name, 2)
-            local input = lib.inputDialog(locale('modify_property_menu.title'), {
-                {type = 'input', label = locale('modify_property_menu.name', propertyData.name), default = propertyString, required = true},
+            local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
+                {type = 'input', label = Lang:t('modify_property_menu.name', {name = propertyData.name}), default = propertyString, required = true},
             }, {allowCancel = true})
 
             if input then
                 newData.name = propertyNumber .. " " .. input[1]
-                lib.setMenuOptions('modify_property_menu', {label = locale('modify_property_menu.name', newData.name)}, 1)
+                lib.setMenuOptions('modify_property_menu', {label = Lang:t('modify_property_menu.name', {name = newData.name})}, 1)
             end
         elseif args.action == "price" or args.action == "rent" then
             local price = newData[args.action] or propertyData[args.action]
@@ -671,8 +671,8 @@ local function openManageMenu(propertyId)
     }, function(_, _, args)
         if args.action == "name" then
             local propertyNumber, propertyString = string.strsplit(' ', propertyData.name, 2)
-            local input = lib.inputDialog(locale('manage_property_menu.manage_name'), {
-                {type = 'input', label = locale('manage_property_menu.name', propertyData.name), default = propertyString, required = true},
+            local input = lib.inputDialog(Lang:t('manage_property_menu.manage_name'), {
+                {type = 'input', label = Lang:t('manage_property_menu.name', {name = propertyData.name}), default = propertyString, required = true},
             }, {allowCancel = true})
 
             if input then
