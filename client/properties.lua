@@ -588,7 +588,7 @@ local function populateCoordsMenu(propertyId, propertyData)
         title = Lang:t('manage_property_menu.manage_coords.title'),
         position = 'top-left',
         options = options,
-        onClose = function()
+        onClose = function(keyPressed)
             if keyPressed == "Backspace" then
                 lib.showMenu('manageProperty_menu')
             end
