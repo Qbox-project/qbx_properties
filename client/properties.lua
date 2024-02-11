@@ -14,7 +14,7 @@ local function calcPrice(price, taxes)
             end
         end
     end
-    return math.round(price + (price * (totaltax / 100)))
+    return qbx.math.round(price + (price * (totaltax / 100)))
 end
 
 --- Get the list of applied taxes if any
@@ -220,10 +220,9 @@ local function modifyProperty(propertyData)
     }, function(_, _, args)
         if not args then return end
         if args.action == "name" then
-            local propertyString = string.split(propertyData.name, ' ')
-            local propertyNumber = tonumber(propertyString[1])
+            local propertyNumber, propertyString = string.strsplit(' ', propertyData.name, 2)
             local input = lib.inputDialog(Lang:t('modify_property_menu.title'), {
-                {type = 'input', label = Lang:t('modify_property_menu.name', {name = propertyData.name}), default = table.concat(propertyString, ' ', 2), required = true},
+                {type = 'input', label = Lang:t('modify_property_menu.name', {name = propertyData.name}), default = propertyString, required = true},
             }, {allowCancel = true})
 
             if input then
@@ -589,7 +588,7 @@ local function populateCoordsMenu(propertyId, propertyData)
         title = Lang:t('manage_property_menu.manage_coords.title'),
         position = 'top-left',
         options = options,
-        onClose = function()
+        onClose = function(keyPressed)
             if keyPressed == "Backspace" then
                 lib.showMenu('manageProperty_menu')
             end
@@ -671,10 +670,9 @@ local function openManageMenu(propertyId)
         options = options,
     }, function(_, _, args)
         if args.action == "name" then
-            local propertyString = string.split(propertyData.name, ' ')
-            local propertyNumber = tonumber(propertyString[1])
+            local propertyNumber, propertyString = string.strsplit(' ', propertyData.name, 2)
             local input = lib.inputDialog(Lang:t('manage_property_menu.manage_name'), {
-                {type = 'input', label = Lang:t('manage_property_menu.name', {name = propertyData.name}), default = table.concat(propertyString, ' ', 2), required = true},
+                {type = 'input', label = Lang:t('manage_property_menu.name', {name = propertyData.name}), default = propertyString, required = true},
             }, {allowCancel = true})
 
             if input then
