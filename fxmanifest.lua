@@ -8,20 +8,19 @@ description 'Hopefully one day a feature rich property system'
 shared_scripts {
     '@ox_lib/init.lua',
     '@qbx_core/modules/lib.lua',
-    '@qbx_core/shared/locale.lua',
-    'locales/en.lua',
-    'locales/*.lua',
-    'config.lua',
+    'config/shared.lua',
 }
 
 client_scripts {
-    '@qbx_core/modules/playerdata.lua',
-    'client/*.lua'
+    'client/apartmentselect.lua',
+    'client/property.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/*.lua',
+    'server/apartmentselect.lua',
+    'server/property.lua',
+    'config/server.lua'
 }
 
 lua54 'yes'

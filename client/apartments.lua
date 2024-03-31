@@ -1,1 +1,0 @@
-if not Config.useApartments then return end
