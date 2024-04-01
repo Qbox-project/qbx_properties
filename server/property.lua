@@ -136,7 +136,7 @@ RegisterNetEvent('qbx_properties:server:ringProperty', function(data)
         end)
     end
     if owner and enteredProperty[owner.PlayerData.source] == propertyId then
-        exports.qbx_core:Notify(owner.PlayerData.source, 'Someone is at your door!')
+        exports.qbx_core:Notify(owner.PlayerData.source, locale('notify.someone_at_door'))
     end
 end)
 
@@ -237,8 +237,8 @@ RegisterNetEvent('qbx_properties:server:addKeyholder', function(keyholderCid)
     keyholders[#keyholders + 1] = keyholderCid
     MySQL.Sync.execute('UPDATE properties SET keyholders = ? WHERE id = ?', {json.encode(keyholders), propertyId})
     local keyholder = exports.qbx_core:GetPlayerByCitizenId(keyholderCid)
-    exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. ' has been added as a keyholder.')
-    exports.qbx_core:Notify(keyholder.PlayerData.source, 'You have been added as a keyholder.')
+    exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. locale('notify.keyholder'))
+    exports.qbx_core:Notify(keyholder.PlayerData.source, locale('notify.added_as_keyholder'))
 end)
 
 RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
@@ -260,7 +260,7 @@ RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
     end
     MySQL.Sync.execute('UPDATE properties SET keyholders = ? WHERE id = ?', {json.encode(keyholders), propertyId})
     local keyholder = exports.qbx_core:GetOfflinePlayer(keyholderCid)
-    exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. ' has been removed as a keyholder.')
+    exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. locale('notify.removed_as_keyholder'))
 end)
 
 RegisterNetEvent('qbx_properties:server:logoutProperty', function()

@@ -5,6 +5,8 @@ version '0.0.1'
 repository 'https://github.com/Qbox-project/qbx_properties'
 description 'Hopefully one day a feature rich property system'
 
+ox_lib 'locale'
+
 shared_scripts {
     '@ox_lib/init.lua',
     '@qbx_core/modules/lib.lua',
@@ -21,6 +23,10 @@ server_scripts {
     'server/apartmentselect.lua',
     'server/property.lua',
     'config/server.lua'
+}
+
+files {
+    'locales/*.json'
 }
 
 lua54 'yes'

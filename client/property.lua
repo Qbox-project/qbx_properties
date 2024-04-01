@@ -7,7 +7,7 @@ local function prepareKeyMenu()
     local keyholders = lib.callback.await('qbx_properties:callback:requestKeyHolders')
     local options = {
         {
-            title = 'Add Keyholder',
+            title = locale('menu.add_keyholder'),
             icon = 'plus',
             arrow = true,
             onSelect = function()
@@ -21,7 +21,7 @@ local function prepareKeyMenu()
                         onSelect = function()
                             local alert = lib.alertDialog({
                                 header = insidePlayers[i].name,
-                                content = 'Give keys to this person?',
+                                content = locale('alert.give_keys'),
                                 centered = true,
                                 cancel = true
                             })
@@ -33,7 +33,7 @@ local function prepareKeyMenu()
                 end
                 lib.registerContext({
                     id = 'qbx_properties_insideMenu',
-                    title = 'People Inside',
+                    title = locale('menu.people_inside'),
                     menu = 'qbx_properties_keyMenu',
                     options = options
                 })
@@ -49,7 +49,7 @@ local function prepareKeyMenu()
             onSelect = function()
                 local alert = lib.alertDialog({
                     header = keyholders[i].name,
-                    content = 'Do you want to remove keys from this person?',
+                    content = locale('alert.want_remove_keys'),
                     centered = true,
                     cancel = true
                 })
@@ -61,7 +61,7 @@ local function prepareKeyMenu()
     end
     lib.registerContext({
         id = 'qbx_properties_keyMenu',
-        title = 'Keyholders',
+        title = locale('menu.keyholders'),
         menu = 'qbx_properties_manageMenu',
         options = options
     })
@@ -79,7 +79,7 @@ local function prepareDoorbellMenu()
             onSelect = function()
                 local alert = lib.alertDialog({
                     header = ringers[i].name,
-                    content = 'Want to let this person in?',
+                    content = locale('alert.want_let_person_in'),
                     centered = true,
                     cancel = true
                 })
@@ -91,7 +91,7 @@ local function prepareDoorbellMenu()
     end
     lib.registerContext({
         id = 'qbx_properties_doorbellMenu',
-        title = 'Doorbell Ringers',
+        title = locale('menu.doorbell_ringers'),
         menu = 'qbx_properties_manageMenu',
         options = options
     })
@@ -100,10 +100,10 @@ end
 
 local function prepareManageMenu()
     local hasAccess = lib.callback.await('qbx_properties:callback:checkAccess')
-    if not hasAccess then exports.qbx_core:Notify('No access', 'error') return end
+    if not hasAccess then exports.qbx_core:Notify(locale('notify.no_access'), 'error') return end
     local options = {
         {
-            title = 'Manage Keys',
+            title = locale('menu.manage_keys'),
             icon = 'key',
             arrow = true,
             onSelect = function()
@@ -111,7 +111,7 @@ local function prepareManageMenu()
             end
         },
         {
-            title = 'Doorbell',
+            title = locale('menu.doorbell'),
             icon = 'bell',
             arrow = true,
             onSelect = function()
@@ -121,7 +121,7 @@ local function prepareManageMenu()
     }
     lib.registerContext({
         id = 'qbx_properties_manageMenu',
-        title = 'Manage Property',
+        title = locale('menu.manage_property'),
         options = options
     })
     lib.showContext('qbx_properties_manageMenu')
@@ -130,13 +130,13 @@ end
 local function checkInteractions()
     local interactOptions = {
         ['stash'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = '[E] - Stash' })
+            qbx.drawText3d({ coords = coords, text = locale('drawtext.stash') })
             if IsControlJustPressed(0, 38) then
                 TriggerServerEvent('qbx_properties:server:openStash')
             end
         end,
         ['exit'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = '[E] - Exit | [G] - Manage' })
+            qbx.drawText3d({ coords = coords, text = locale('drawtext.exit') })
             if IsControlJustPressed(0, 38) then
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
@@ -147,7 +147,7 @@ local function checkInteractions()
             end
         end,
         ['clothing'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = '[E] - Clothing | [G] - Outfits' })
+            qbx.drawText3d({ coords = coords, text = locale('drawtext.clothing') })
             if IsControlJustPressed(0, 38) then
                 exports['illenium-appearance']:startPlayerCustomization(function(appearance)
                     if appearance then
@@ -164,7 +164,7 @@ local function checkInteractions()
             end
         end,
         ['logout'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = '[E] - Logout' })
+            qbx.drawText3d({ coords = coords, text = locale('drawtext.logout') })
             if IsControlJustPressed(0, 38) then
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
@@ -228,7 +228,7 @@ local function singlePropertyMenu(property)
     local options = {}
     if playerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), playerData.citizenid) then
         options[#options + 1] = {
-            title = 'Enter',
+            title = locale('menu.enter'),
             icon = 'cog',
             arrow = true,
             onSelect = function()
@@ -240,7 +240,7 @@ local function singlePropertyMenu(property)
         }
     else
         options[#options + 1] = {
-            title = 'Ring Doorbell',
+            title = locale('menu.ring_doorbell'),
             icon = 'bell',
             arrow = true,
             serverEvent = 'qbx_properties:server:ringProperty',
@@ -259,8 +259,8 @@ end
 local function propertyMenu(propertyList, owned)
     local options = {
         {
-            title = 'Retrieve Owned Properties',
-            description = 'Only show properties you own',
+            title = locale('menu.retrieve_properties'),
+            description = locale('menu.show_owned_properties'),
             icon = 'bars',
             onSelect = function()
                 propertyMenu(propertyList, true)
@@ -291,7 +291,7 @@ local function propertyMenu(propertyList, owned)
     end
     lib.registerContext({
         id = 'qbx_properties_propertiesMenu',
-        title = 'Properties',
+        title = locale('menu.properties'),
         options = options
     })
     lib.showContext('qbx_properties_propertiesMenu')
@@ -314,7 +314,7 @@ CreateThread(function()
         for i = 1, #properties do
             if #(playerCoords - properties[i].xyz) < 1.6 then
                 sleep = 0
-                qbx.drawText3d({ coords = properties[i].xyz, text = '[E] - View Property' })
+                qbx.drawText3d({ coords = properties[i].xyz, text = locale('drawtext.view_property') })
                 if IsControlJustPressed(0, 38) then
                     PreparePropertyMenu(properties[i])
                 end
