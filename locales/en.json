@@ -1,0 +1,38 @@
+{
+    "notify": {
+        "no_access": "No access.",
+        "someone_at_door": "Someone is at your door!",
+        "keyholder": " has been added as a keyholder.",
+        "added_as_keyholder": "You have been added as a keyholder.",
+        "removed_as_keyholder": " has been removed as a keyholder."
+    },
+    "alert": {
+        "give_keys": "Give keys to this person?",
+        "apartment_selection": "Apartment Selection",
+        "are_you_sure": "Are you sure you want to get %s?",
+        "want_remove_keys": "Do you want to remove keys from this person?",
+        "want_let_person_in": "Want to let this person in?"
+    },
+    "menu": {
+        "add_keyholder": "Add Keyholder",
+        "people_inside": "People Inside",
+        "keyholders": "Keyholders",
+        "doorbell_ringers": "Doorbell Ringers",
+        "manage_keys": "Manage Keys",
+        "doorbell": "Doorbell",
+        "manage_property": "Manage Property",
+        "enter": "Enter",
+        "ring_doorbell": "Ring Doorbell",
+        "properties": "Properties",
+        "retrieve_properties": "Retrieve Owned Properties",
+        "show_owned_properties": "Only show properties you own"
+
+    },
+    "drawtext": {
+        "stash": "[E] - Stash",
+        "exit": "[E] - Exit | [G] - Manage",
+        "clothing": "[E] - Clothing | [G] - Outfits",
+        "logout": "[E] - Logout",
+        "view_property": "[E] - View Property"
+    }
+}

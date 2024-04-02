@@ -135,8 +135,8 @@ local function InputHandler()
             SetupScaleform()
         elseif IsControlJustReleased(0, 191) then
             local alert = lib.alertDialog({
-                header = 'Apartment Selection',
-                content = string.format('Are you sure you want to get %s?', ApartmentOptions[currentButtonID].label),
+                header = locale('alert.apartment_selection'),
+                content = string.format(locale('alert.are_you_sure'), ApartmentOptions[currentButtonID].label),
                 centered = true,
                 cancel = true
             })
