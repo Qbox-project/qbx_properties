@@ -97,12 +97,12 @@ lib.callback.register('qbx_properties:callback:requestProperties', function(_, p
     return MySQL.query.await('SELECT property_name, owner, id, keyholders FROM properties WHERE coords = ?', {json.encode(propertyCoords)})
 end)
 
-local function hasAccess(citizenid, propertyId)
+local function hasAccess(citizenId, propertyId)
     local property = MySQL.single.await('SELECT owner, keyholders FROM properties WHERE id = ?', {propertyId})
-    if citizenid == property.owner then return true end
+    if citizenId == property.owner then return true end
     local keyholders = json.decode(property.keyholders)
     for i = 1, #keyholders do
-        if citizenid == keyholders[i] then return true end
+        if citizenId == keyholders[i] then return true end
     end
     return false
 end
