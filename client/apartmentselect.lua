@@ -143,6 +143,8 @@ local function InputHandler()
             if alert == 'confirm' then
                 DoScreenFadeOut(500)
                 while not IsScreenFadedOut() do Wait(0) end
+                TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
+                TriggerEvent('QBCore:Client:OnPlayerLoaded')
                 FreezeEntityPosition(cache.ped, false)
                 SetEntityCoords(cache.ped, ApartmentOptions[currentButtonID].enter.x, ApartmentOptions[currentButtonID].enter.y, ApartmentOptions[currentButtonID].enter.z - 2.0, false, false, false, false)
                 Wait(0)
