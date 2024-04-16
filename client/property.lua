@@ -2,6 +2,8 @@ local interiorShell
 local decorationObjects = {}
 local insideProperty = false
 local interactions
+local isConcealing = false
+local concealWhitelist = {}
 
 local function prepareKeyMenu()
     local keyholders = lib.callback.await('qbx_properties:callback:requestKeyHolders')
@@ -327,9 +329,17 @@ end)
 RegisterNetEvent('qbx_properties:client:concealPlayers', function(playerIds)
     local players = GetActivePlayers()
     for i = 1, #players do NetworkConcealPlayer(players[i], false, false) end
-    for i = 1, #players do
-        if not lib.table.contains(playerIds, GetPlayerServerId(players[i])) then
-            NetworkConcealPlayer(players[i], true, false)
+    concealWhitelist = playerIds
+    if not isConcealing then
+        isConcealing = true
+        while isConcealing do
+            players = GetActivePlayers()
+            for i = 1, #players do
+                if not lib.table.contains(concealWhitelist, GetPlayerServerId(players[i])) then
+                    NetworkConcealPlayer(players[i], true, false)
+                end
+            end
+            Wait(3000)
         end
     end
 end)
@@ -337,4 +347,5 @@ end)
 RegisterNetEvent('qbx_properties:client:revealPlayers', function()
     local players = GetActivePlayers()
     for i = 1, #players do NetworkConcealPlayer(players[i], false, false) end
+    isConcealing = false
 end)
