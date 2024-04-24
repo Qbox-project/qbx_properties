@@ -11,7 +11,13 @@
         "apartment_selection": "Apartment Selection",
         "are_you_sure": "Are you sure you want to get %s?",
         "want_remove_keys": "Do you want to remove keys from this person?",
-        "want_let_person_in": "Want to let this person in?"
+        "want_let_person_in": "Want to let this person in?",
+        "property_name": "Property Name",
+        "property_name_description": "A simple descriptive name of the property",
+        "price": "Price",
+        "price_description": "The purchasing price or the price deducted for rent",
+        "rent_interval": "Rent interval",
+        "rent_interval_description": "The interval in which the rent will be deducted in hours (makes the property rentable instead of purchasable)"
     },
     "menu": {
         "add_keyholder": "Add Keyholder",
@@ -25,7 +31,8 @@
         "ring_doorbell": "Ring Doorbell",
         "properties": "Properties",
         "retrieve_properties": "Retrieve Owned Properties",
-        "show_owned_properties": "Only show properties you own"
+        "show_owned_properties": "Only show properties you own",
+        "interior_preview": "Interior Preview"
 
     },
     "drawtext": {
