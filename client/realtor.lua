@@ -37,7 +37,7 @@ end
 
 lib.registerMenu({
     id = 'qbx_properties_realtor_menu',
-    title = 'Interior Preview',
+    title = locale('menu.interior_preview'),
     position = 'top-right',
     onSideScroll = function(_, scrollIndex, args)
         previewProperty(args[scrollIndex])
@@ -51,9 +51,9 @@ lib.registerMenu({
 }, function(_, scrollIndex, args)
     stopPreview()
     local input = lib.inputDialog('Realestate Creator', {
-        {type = 'input', label = 'Property Name', description = 'A simple descriptive name of the property', required = true, min = 4, max = 32, icon = 'home'},
-        {type = 'number', label = 'Price', description = 'The purchasing price or the price deducted for rent', icon = 'dollar-sign', required = true, min = 1},
-        {type = 'number', label = 'Rent interval', description = 'The interval in which the rent will be deducted in hours (makes the property rentable instead of purchasable)', icon = 'clock', min = 1, max = 24, step = 1},
+        {type = 'input', label = locale('alert.property_name'), description = locale('alert.property_name_description'), required = true, min = 4, max = 32, icon = 'home'},
+        {type = 'number', label = locale('alert.price'), description = locale('alert.price_description'), icon = 'dollar-sign', required = true, min = 1},
+        {type = 'number', label = locale('alert.rent_interval'), description = locale('alert.rent_interval_description'), icon = 'clock', min = 1, max = 24, step = 1},
     })
     if input then
         TriggerServerEvent('qbx_properties:server:createProperty', args[scrollIndex], input, playerCoords)
