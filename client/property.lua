@@ -247,9 +247,8 @@ RegisterNetEvent('qbx_properties:client:unloadProperty', function()
 end)
 
 local function singlePropertyMenu(property, noBackMenu)
-    local playerData = exports.qbx_core:GetPlayerData()
     local options = {}
-    if playerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), playerData.citizenid) then
+    if QBX.PlayerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), QBX.PlayerData.citizenid) then
         options[#options + 1] = {
             title = locale('menu.enter'),
             icon = 'cog',
@@ -329,9 +328,8 @@ local function propertyMenu(propertyList, owned)
             end
         }
     }
-    local playerData = exports.qbx_core:GetPlayerData()
     for i = 1, #propertyList do
-        if owned and propertyList[i].owner == playerData.citizenid or lib.table.contains(json.decode(propertyList[i].keyholders), playerData.citizenid) then
+        if owned and propertyList[i].owner == QBX.PlayerData.citizenid or lib.table.contains(json.decode(propertyList[i].keyholders), QBX.PlayerData.citizenid) then
             options[#options + 1] = {
                 title = propertyList[i].property_name,
                 icon = 'home',

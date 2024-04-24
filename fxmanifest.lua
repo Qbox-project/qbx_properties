@@ -14,6 +14,7 @@ shared_scripts {
 }
 
 client_scripts {
+    '@qbx_core/modules/playerdata.lua',
     'client/apartmentselect.lua',
     'client/property.lua',
     'client/realtor.lua'
