@@ -1,5 +1,9 @@
 ShellUndergroundOffset = 50.0
 
+function CalculateOffsetCoords(propertyCoords, offset)
+    return vector3(propertyCoords.x + offset.x, propertyCoords.y + offset.y, (propertyCoords.z - ShellUndergroundOffset) + offset.z)
+end
+
 ApartmentOptions = {
     {
         interior = 'DellPerroHeightsApt4',

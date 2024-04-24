@@ -15,13 +15,15 @@ shared_scripts {
 
 client_scripts {
     'client/apartmentselect.lua',
-    'client/property.lua'
+    'client/property.lua',
+    'client/realtor.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/apartmentselect.lua',
     'server/property.lua',
+    'server/realtor.lua',
     'config/server.lua'
 }
 

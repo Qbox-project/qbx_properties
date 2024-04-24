@@ -1,6 +1,8 @@
 local interiorShell
 local decorationObjects = {}
+local properties = {}
 local insideProperty = false
+local isPropertyRental = false
 local interactions
 local isConcealing = false
 local concealWhitelist = {}
@@ -121,6 +123,24 @@ local function prepareManageMenu()
             end
         },
     }
+    if isPropertyRental then
+        options[#options+1] = {
+            title = 'Stop Renting',
+            icon = 'file-invoice-dollar',
+            arrow = true,
+            onSelect = function()
+                local alert = lib.alertDialog({
+                    header = 'Stop Renting',
+                    content = 'Are you sure that you want to stop renting this place?',
+                    centered = true,
+                    cancel = true
+                })
+                if alert == 'confirm' then
+                    TriggerServerEvent('qbx_properties:server:stopRenting')
+                end
+            end
+        }
+    end
     lib.registerContext({
         id = 'qbx_properties_manageMenu',
         title = locale('menu.manage_property'),
@@ -189,10 +209,11 @@ local function checkInteractions()
     end)
 end
 
-RegisterNetEvent('qbx_properties:client:updateInteractions', function(interactionsData)
+RegisterNetEvent('qbx_properties:client:updateInteractions', function(interactionsData, isRental)
     DoScreenFadeIn(1000)
     interactions = interactionsData
     insideProperty = true
+    isPropertyRental = isRental
     checkInteractions()
 end)
 
@@ -225,7 +246,7 @@ RegisterNetEvent('qbx_properties:client:unloadProperty', function()
     decorationObjects = {}
 end)
 
-local function singlePropertyMenu(property)
+local function singlePropertyMenu(property, noBackMenu)
     local playerData = exports.qbx_core:GetPlayerData()
     local options = {}
     if playerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), playerData.citizenid) then
@@ -240,6 +261,42 @@ local function singlePropertyMenu(property)
             serverEvent = 'qbx_properties:server:enterProperty',
             args = { id = property.id }
         }
+    elseif property.owner == nil then
+        if property.rent_interval then
+            options[#options + 1] = {
+                title = 'Rent',
+                icon = 'dollar-sign',
+                arrow = true,
+                onSelect = function()
+                    local alert = lib.alertDialog({
+                        header = string.format('Renting - %s', property.property_name),
+                        content = string.format('Are you sure you want to rent %s for $%s which will be billed every %sh(s)?', property.property_name, property.price, property.rent_interval),
+                        centered = true,
+                        cancel = true
+                    })
+                    if alert == 'confirm' then
+                        TriggerServerEvent('qbx_properties:server:rentProperty', property.id)
+                    end
+                end,
+            }
+        else
+            options[#options + 1] = {
+                title = 'Buy',
+                icon = 'dollar-sign',
+                arrow = true,
+                onSelect = function()
+                    local alert = lib.alertDialog({
+                        header = string.format('Buying - %s', property.property_name),
+                        content = string.format('Are you sure you want to buy %s for $%s?', property.property_name, property.price),
+                        centered = true,
+                        cancel = true
+                    })
+                    if alert == 'confirm' then
+                        TriggerServerEvent('qbx_properties:server:buyProperty', property.id)
+                    end
+                end,
+            }
+        end
     else
         options[#options + 1] = {
             title = locale('menu.ring_doorbell'),
@@ -249,10 +306,13 @@ local function singlePropertyMenu(property)
             args = { id = property.id }
         }
     end
+    local menu = 'qbx_properties_propertiesMenu'
+    ---@diagnostic disable-next-line: cast-local-type
+    if noBackMenu then menu = nil end
     lib.registerContext({
         id = 'qbx_properties_propertyMenu',
         title = property.property_name,
-        menu = 'qbx_properties_propertiesMenu',
+        menu = menu,
         options = options
     })
     lib.showContext('qbx_properties_propertyMenu')
@@ -302,14 +362,14 @@ end
 function PreparePropertyMenu(propertyCoords)
     local propertyList = lib.callback.await('qbx_properties:callback:requestProperties', false, propertyCoords)
     if #propertyList == 1 then
-        singlePropertyMenu(propertyList[1])
+        singlePropertyMenu(propertyList[1], true)
     else
         propertyMenu(propertyList)
     end
 end
 
 CreateThread(function()
-    local properties = lib.callback.await('qbx_properties:callback:loadProperties')
+    properties = lib.callback.await('qbx_properties:callback:loadProperties')
     while true do
         local sleep = 800
         local playerCoords = GetEntityCoords(cache.ped)
@@ -348,4 +408,8 @@ RegisterNetEvent('qbx_properties:client:revealPlayers', function()
     local players = GetActivePlayers()
     for i = 1, #players do NetworkConcealPlayer(players[i], false, false) end
     isConcealing = false
+end)
+
+RegisterNetEvent('qbx_properties:client:addProperty', function(propertyCoords)
+    properties[#properties + 1] = propertyCoords
 end)
