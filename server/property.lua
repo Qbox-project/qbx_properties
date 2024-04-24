@@ -395,8 +395,8 @@ RegisterNetEvent('qbx_properties:server:stopRenting', function()
     if player.PlayerData.citizenid ~= property.owner then return end
 
     exports.qbx_core:Notify(player.PlayerData.source, string.format('You stopped your rental contract for %s', property.property_name), 'success')
-    MySQL.update('UPDATE properties SET owner = ? WHERE id = ?', {nil, propertyId})
-    for i = 1, #insideProperty[propertyId] do
-        exitProperty(insideProperty[propertyId][i])
+    MySQL.update('UPDATE properties SET owner = ?, keyholders = JSON_OBJECT() WHERE id = ?', {nil, propertyId})
+    for _ = 1, #insideProperty[propertyId] do
+        exitProperty(insideProperty[propertyId][1])
     end
 end)
