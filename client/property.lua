@@ -409,5 +409,6 @@ RegisterNetEvent('qbx_properties:client:revealPlayers', function()
 end)
 
 RegisterNetEvent('qbx_properties:client:addProperty', function(propertyCoords)
+    if lib.table.contains(properties, propertyCoords) then return end
     properties[#properties + 1] = propertyCoords
 end)
