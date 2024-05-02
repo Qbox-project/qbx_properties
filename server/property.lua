@@ -2,6 +2,8 @@ local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
 local ring = {}
+local sql = LoadResourceFile(cache.resource, 'property.sql')
+if sql then MySQL.query(sql) end
 
 function EnterProperty(playerSource, id)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
