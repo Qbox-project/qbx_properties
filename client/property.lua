@@ -6,6 +6,7 @@ local isPropertyRental = false
 local interactions
 local isConcealing = false
 local concealWhitelist = {}
+local blips = {}
 
 local function prepareKeyMenu()
     local keyholders = lib.callback.await('qbx_properties:callback:requestKeyHolders')
@@ -367,6 +368,14 @@ function PreparePropertyMenu(propertyCoords)
 end
 
 CreateThread(function()
+    for i = 1, #ApartmentOptions do
+        local data = ApartmentOptions[i]
+
+        if not blips[data.enter] then
+            blips[data.enter] = CreateBlip(data.enter, data.label)
+        end
+    end
+
     properties = lib.callback.await('qbx_properties:callback:loadProperties')
     while true do
         local sleep = 800

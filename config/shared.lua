@@ -4,6 +4,18 @@ function CalculateOffsetCoords(propertyCoords, offset)
     return vec3(propertyCoords.x + offset.x, propertyCoords.y + offset.y, (propertyCoords.z - ShellUndergroundOffset) + offset.z)
 end
 
+function CreateBlip(apartmentCoords, label)
+	local blip = AddBlipForCoord(apartmentCoords.x, apartmentCoords.y, apartmentCoords.z)
+	SetBlipSprite(blip, 40)
+	SetBlipAsShortRange(blip, true)
+	SetBlipScale(blip, 0.8)
+	SetBlipColour(blip, 2)
+	BeginTextCommandSetBlipName('STRING')
+	AddTextComponentString(label)
+	EndTextCommandSetBlipName(blip)
+	return blip
+end
+
 ApartmentOptions = {
     {
         interior = 'DellPerroHeightsApt4',
