@@ -1,3 +1,10 @@
+### Installation
+
+From a fresh Qbox build
+1. Remove `qbx_apartments`
+2. Remove `qbx_houses`
+3. Either use no spawn system (so the core defaults to last location) or https://github.com/Qbox-project/qbx_spawn/tree/dev
+
 ### todo
 
 - Realtor job aspect. Simple command to make more properties. (steal more code from Tony)
