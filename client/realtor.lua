@@ -5,7 +5,7 @@ for k in pairs(Interiors) do
 end
 
 local shell = 0
-local playerCoords = vector3(0, 0, 0)
+local playerCoords = vec3(0, 0, 0)
 local isPreviewing = false
 
 local function previewProperty(propertyIndex)

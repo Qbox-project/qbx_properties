@@ -1,4 +1,4 @@
-local BoardCoords = vector4(-44.19, -585.99, 87.71, 250.0)
+local BoardCoords = vec4(-44.19, -585.99, 87.71, 250.0)
 local BoardModel = `tr_prop_tr_planning_board_01a`
 local RenderTarget = 'modgarage_01'
 local Board, scaleform, currentButtonID = nil, 0, 1

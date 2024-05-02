@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `properties` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`property_name` VARCHAR(255) NOT NULL, /* simple label that can be used to identify which property it is. I.e. used for spawn list */
-	`coords` JSON NOT NULL, /* vector3 world coords for the entry position */
+	`coords` JSON NOT NULL, /* vec3 world coords for the entry position */
 	`price` INT NOT NULL DEFAULT 0,
 	`owner` VARCHAR(255), /* citizen ID of the owner */
 	`interior` VARCHAR(255) NOT NULL, /* the interior name, can range from IPL name to a shell hash that needs to spawn in */
