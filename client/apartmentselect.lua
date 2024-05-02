@@ -5,7 +5,7 @@ local Board, scaleform, currentButtonID = nil, 0, 1
 local previewCam
 
 local function SetupBoard()
-    while not HasModelLoaded(BoardModel) do RequestModel(BoardModel) Wait(0) end
+    lib.requestModel(BoardModel)
     Board = CreateObject(BoardModel, BoardCoords.x, BoardCoords.y, BoardCoords.z, false, false, false)
     SetEntityHeading(Board, BoardCoords.w)
 end
@@ -15,18 +15,20 @@ local function CreateNamedRenderTargetForModel(name, model)
 	if not IsNamedRendertargetRegistered(name) then
 		RegisterNamedRendertarget(name, false)
 	end
+
 	if not IsNamedRendertargetLinked(model) then
 		LinkNamedRendertarget(model)
 	end
+
 	if IsNamedRendertargetRegistered(name) then
 		handle = GetNamedRendertargetRenderId(name)
 	end
+
 	return handle
 end
 
 local function StartScaleform()
-    scaleform = RequestScaleformMovie('AUTO_SHOP_BOARD')
-    while not HasScaleformMovieLoaded(scaleform) do Wait(0) end
+    scaleform = lib.requestScaleformMovie('AUTO_SHOP_BOARD') or 0
     CreateThread(function()
         while DoesCamExist(previewCam) do
             local Handle = CreateNamedRenderTargetForModel(RenderTarget, BoardModel)
@@ -57,6 +59,7 @@ local function SetupScaleform()
     elseif currentButtonID < 7 then
         StartingPoint = 4
     end
+
     for i = StartingPoint, StartingPoint + 2 do
         ScaleformMovieMethodAddParamTextureNameString(string.format('selection%s', i))
         BeginTextCommandScaleformString('STRING')
