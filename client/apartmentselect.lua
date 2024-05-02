@@ -129,12 +129,12 @@ end
 local function InputHandler()
     while true do
         if IsControlJustReleased(0, 188) then
-            currentButtonID = currentButtonID - 1
-            if currentButtonID < 1 then currentButtonID = 1 end
+            currentButtonID -= 1
+            if currentButtonID < 1 then currentButtonID = #ApartmentOptions end
             SetupScaleform()
         elseif IsControlJustReleased(0, 187) then
-            currentButtonID = currentButtonID + 1
-            if currentButtonID > #ApartmentOptions then currentButtonID = #ApartmentOptions end
+            currentButtonID += 1
+            if currentButtonID > #ApartmentOptions then currentButtonID = 1 end
             SetupScaleform()
         elseif IsControlJustReleased(0, 191) then
             local alert = lib.alertDialog({
