@@ -60,6 +60,7 @@ function EnterProperty(playerSource, id)
     TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, type(property.rent_interval) == 'number')
 end
 
+---@param playerSource integer
 local function exitProperty(playerSource)
     if not enteredProperty[playerSource] then return end
 
