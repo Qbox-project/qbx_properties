@@ -10,5 +10,6 @@ CREATE TABLE IF NOT EXISTS `properties` (
 	`interact_options` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* clothing and exit points */
 	`stash_options` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* multiple stash support */
 	`decorations` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* the model name with its corresponding coords that needs to be placed */
+	FOREIGN KEY (owner) REFERENCES `players` (`citizenid`),
 	PRIMARY KEY (id)
 );
