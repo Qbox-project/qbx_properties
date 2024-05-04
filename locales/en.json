@@ -33,7 +33,11 @@
         "retrieve_properties": "Retrieve Owned Properties",
         "show_owned_properties": "Only show properties you own",
         "interior_preview": "Interior Preview"
-
+    },
+    "instructButtons": {
+        "up": "Up",
+        "down": "Down",
+        "submit": "Submit"
     },
     "drawtext": {
         "stash": "[E] - Stash",

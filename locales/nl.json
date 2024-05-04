@@ -1,0 +1,49 @@
+{
+    "notify": {
+        "no_access": "Geen toegang.",
+        "someone_at_door": "Iemand is aan de deur!",
+        "keyholder": " is teogevoegd als sleutelhouder.",
+        "added_as_keyholder": "Je bent toegevoegd als sleutelhouder.",
+        "removed_as_keyholder": " is verwijderd als sleutelhouder."
+    },
+    "alert": {
+        "give_keys": "Geef sleutels aan deze persoon?",
+        "apartment_selection": "Appartement Keuze",
+        "are_you_sure": "Weet je zeker dat je %s wilt?",
+        "want_remove_keys": "Wil je de sleutels van deze persoon verwijderen?",
+        "want_let_person_in": "Wil je deze persoon binnenlaten?",
+        "property_name": "Vastgoed Naam",
+        "property_name_description": "Een simpele, beschrijvende naam van het vastgoed.",
+        "price": "Prijs",
+        "price_description": "De koopprijs of de prijs voor het afschrijven van huur.",
+        "rent_interval": "Huur interval",
+        "rent_interval_description": "Het interval waarin huur wordt afgeschreven in uren (maakt het vastgoed huurbaar in plaats van koopbaar)"
+    },
+    "menu": {
+        "add_keyholder": "Sleutelhouder Toevoegen",
+        "people_inside": "Mensen Binnen",
+        "keyholders": "Sleutelhouders",
+        "doorbell_ringers": "Aanbellers",
+        "manage_keys": "Sleutels Beheren",
+        "doorbell": "Deurbel",
+        "manage_property": "Beheer Vastgoed",
+        "enter": "Binnentreden",
+        "ring_doorbell": "Bel aan",
+        "properties": "Vastgoed",
+        "retrieve_properties": "Haal Jouw Vastgoed Op",
+        "show_owned_properties": "Alleen jouw vastgoed laten zien",
+        "interior_preview": "Interieur Voorbeeld"
+    },
+    "instructButtons": {
+        "up": "Omhoog",
+        "down": "Omlaag",
+        "submit": "Bevestig"
+    },
+    "drawtext": {
+        "stash": "[E] - Stash",
+        "exit": "[E] - Verlaat | [G] - Beheer",
+        "clothing": "[E] - Kleding | [G] - Outfits",
+        "logout": "[E] - Logout",
+        "view_property": "[E] - Bekijk Vastgoed"
+    }
+}
