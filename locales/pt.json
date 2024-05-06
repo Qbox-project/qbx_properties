@@ -1,0 +1,49 @@
+{
+    "notify": {
+        "no_access": "Sem acesso.",
+        "someone_at_door": "Alguém está à sua porta!",
+        "keyholder": " foi adicionado como portador de chave.",
+        "added_as_keyholder": "Foi adicionado como portador de chave.",
+        "removed_as_keyholder": " foi removido como portador de chave."
+    },
+    "alert": {
+        "give_keys": "Dar chaves a esta pessoa?",
+        "apartment_selection": "Seleção de Apartamento",
+        "are_you_sure": "Tem a certeza de que quer obter %s?",
+        "want_remove_keys": "Quer remover as chaves desta pessoa?",
+        "want_let_person_in": "Quer deixar esta pessoa entrar?",
+        "property_name": "Nome da Propriedade",
+        "property_name_description": "Um nome simples e descritivo da propriedade",
+        "price": "Preço",
+        "price_description": "O preço de compra ou o preço deduzido para o aluguel",
+        "rent_interval": "Intervalo de Aluguel",
+        "rent_interval_description": "O intervalo em que o aluguel será deduzido em horas (torna a propriedade alugável em vez de comprável)"
+    },
+    "menu": {
+        "add_keyholder": "Adicionar Portador de Chave",
+        "people_inside": "Pessoas Dentro",
+        "keyholders": "Portadores de Chave",
+        "doorbell_ringers": "Toque de Campainha",
+        "manage_keys": "Gerir Chaves",
+        "doorbell": "Campainha",
+        "manage_property": "Gerir Propriedade",
+        "enter": "Entrar",
+        "ring_doorbell": "Tocar a Campainha",
+        "properties": "Propriedades",
+        "retrieve_properties": "Recuperar Propriedades Possuídas",
+        "show_owned_properties": "Mostrar apenas propriedades que possui",
+        "interior_preview": "Pré-visualização de Interior"
+    },
+    "instructButtons": {
+        "up": "Cima",
+        "down": "Baixo",
+        "submit": "Submeter"
+    },
+    "drawtext": {
+        "stash": "[E] - Esconderijo",
+        "exit": "[E] - Sair | [G] - Gerir",
+        "clothing": "[E] - Roupas | [G] - Equipamentos",
+        "logout": "[E] - Terminar Sessão",
+        "view_property": "[E] - Ver Propriedade"
+    }
+}
