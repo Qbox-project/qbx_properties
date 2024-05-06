@@ -34,9 +34,9 @@ local function SetupInstructionalScaleform()
     ScaleformMovieMethodAddParamInt(200)
     EndScaleformMovieMethod()
 
-    SetupInstructionalButton(0, 188, locale('instructButtons.up'))
+    SetupInstructionalButton(0, 191, locale('instructButtons.submit'))
     SetupInstructionalButton(1, 187, locale('instructButtons.down'))
-    SetupInstructionalButton(2, 191, locale('instructButtons.submit'))
+    SetupInstructionalButton(2, 188, locale('instructButtons.up'))
 
     BeginScaleformMovieMethod(buttonsScaleform, 'DRAW_INSTRUCTIONAL_BUTTONS')
     EndScaleformMovieMethod()
