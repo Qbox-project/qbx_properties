@@ -1,0 +1,49 @@
+{
+    "notify": {
+        "no_access": "Pas d'accès.",
+        "someone_at_door": "Quelqu'un est à votre porte !",
+        "keyholder": " a été ajouté en tant que détenteur de clés.",
+        "added_as_keyholder": "Vous avez été ajouté en tant que détenteur de clés.",
+        "removed_as_keyholder": " a été retiré en tant que détenteur de clés."
+    },
+    "alert": {
+        "give_keys": "Donner les clés à cette personne ?",
+        "apartment_selection": "Sélection d'appartement",
+        "are_you_sure": "Êtes-vous sûr de vouloir obtenir %s ?",
+        "want_remove_keys": "Voulez-vous retirer les clés à cette personne ?",
+        "want_let_person_in": "Voulez-vous laisser entrer cette personne ?",
+        "property_name": "Nom de la propriété",
+        "property_name_description": "Un nom descriptif simple de la propriété",
+        "price": "Prix",
+        "price_description": "Le prix d'achat ou le prix déduit pour le loyer",
+        "rent_interval": "Intervalle de loyer",
+        "rent_interval_description": "L'intervalle durant lequel le loyer sera déduit en heures (rend la propriété louable plutôt qu'achetable)"
+    },
+    "menu": {
+        "add_keyholder": "Ajouter un détenteur de clés",
+        "people_inside": "Personnes à l'intérieur",
+        "keyholders": "Détenteurs de clés",
+        "doorbell_ringers": "Sonneurs de porte",
+        "manage_keys": "Gérer les clés",
+        "doorbell": "Sonnette",
+        "manage_property": "Gérer la propriété",
+        "enter": "Entrer",
+        "ring_doorbell": "Sonner à la porte",
+        "properties": "Propriétés",
+        "retrieve_properties": "Récupérer les propriétés possédées",
+        "show_owned_properties": "Afficher uniquement les propriétés que vous possédez",
+        "interior_preview": "Aperçu de l'intérieur"
+    },
+    "instructButtons": {
+        "up": "Haut",
+        "down": "Bas",
+        "submit": "Soumettre"
+    },
+    "drawtext": {
+        "stash": "[E] - Cachette",
+        "exit": "[E] - Sortir | [G] - Gérer",
+        "clothing": "[E] - Vêtements | [G] - Tenues",
+        "logout": "[E] - Déconnexion",
+        "view_property": "[E] - Voir la propriété"
+    }
+}
