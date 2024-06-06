@@ -157,7 +157,6 @@ end
 function StopCamera()
     SetCamActive(previewCam, false)
     DestroyCam(previewCam, true)
-    RenderScriptCams(false, false, 1, true, true)
 end
 
 function ManagePlayer()
