@@ -1,0 +1,49 @@
+{
+    "notify": {
+        "no_access": "Ingen adgang.",
+        "someone_at_door": "Der er nogen ved din dør!",
+        "keyholder": " er blevet tilføjet som nøgleholder.",
+        "added_as_keyholder": "Du er blevet tilføjet som nøgleholder.",
+        "removed_as_keyholder": " er blevet fjernet som nøgleholder."
+    },
+    "alert": {
+        "give_keys": "Giv nøgler til denne person?",
+        "apartment_selection": "Lejlighedsvalg",
+        "are_you_sure": "Er du sikker på, at du vil få %s?",
+        "want_remove_keys": "Vil du fjerne nøgler fra denne person?",
+        "want_let_person_in": "Vil du lade denne person komme ind?",
+        "property_name": "Ejendommens navn",
+        "property_name_description": "Et simpelt beskrivende navn for ejendommen",
+        "price": "Pris",
+        "price_description": "Købsprisen eller prisen fratrukket for leje",
+        "rent_interval": "Lejeinterval",
+        "rent_interval_description": "Intervallet hvori lejen vil blive trukket i timer (gør ejendommen lejet i stedet for købt)"
+    },
+    "menu": {
+        "add_keyholder": "Tilføj nøgleholder",
+        "people_inside": "gæster indenfor?",
+        "keyholders": "Nøgleholdere",
+        "doorbell_ringers": "Dørklokke",
+        "manage_keys": "Administrer nøgler",
+        "doorbell": "Dørklokke",
+        "manage_property": "Administrer ejendom",
+        "enter": "Gå ind",
+        "ring_doorbell": "Ring på dørklokken",
+        "properties": "Ejendomme",
+        "retrieve_properties": "Hent ejede ejendomme",
+        "show_owned_properties": "Vis kun ejendomme, du ejer",
+        "interior_preview": "Indvendig forhåndsvisning"
+    },
+    "instructButtons": {
+        "up": "Op",
+        "down": "Ned",
+        "submit": "Indsend"
+    },
+    "drawtext": {
+        "stash": "[E] - Opbevaring",
+        "exit": "[E] - Afslut | [G] - Administrér",
+        "clothing": "[E] - Tøj | [G] - Outfits",
+        "logout": "[E] - Log ud",
+        "view_property": "[E] - Se ejendom"
+    }
+}
