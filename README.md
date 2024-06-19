@@ -3,7 +3,7 @@
 From a fresh Qbox build
 1. Remove `qbx_apartments`
 2. Remove `qbx_houses`
-3. Either use no spawn system (so the core defaults to last location) or https://github.com/Qbox-project/qbx_spawn/tree/dev
+3. Either use no spawn system (so the core defaults to last location) or https://github.com/Qbox-project/qbx_spawn/
 
 ### todo
 
