@@ -8,6 +8,7 @@ local function SetupBoard()
     lib.requestModel(BoardModel)
     Board = CreateObject(BoardModel, BoardCoords.x, BoardCoords.y, BoardCoords.z, false, false, false)
     SetEntityHeading(Board, BoardCoords.w)
+    SetModelAsNoLongerNeeded(BoardModel)
 end
 
 local function SetupInstructionalButton(index, control, text)
