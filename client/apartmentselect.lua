@@ -203,7 +203,7 @@ local function InputHandler()
     StopCamera()
 end
 
-AddEventHandler('apartments:client:setupSpawnUI', function()
+RegisterNetEvent('apartments:client:setupSpawnUI', function()
     Wait(400)
     ManagePlayer()
     SetupCamera(true)
