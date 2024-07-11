@@ -33,7 +33,8 @@
         "retrieve_properties": "Retrieve Owned Properties",
         "show_owned_properties": "Only show properties you own",
         "interior_preview": "Interior Preview",
-        "decorating": "Start Decorating"
+        "start_decorating": "Start Decorating",
+        "decorating_categories": "Categories"
     },
     "instructButtons": {
         "up": "Up",

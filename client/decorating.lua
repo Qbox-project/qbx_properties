@@ -8,7 +8,7 @@ local GetCamRot = GetCamRot
 
 local function freeCam()
     if IsDecorating then
-        lib.showTextUI('BACKSPACE - Exit  \n SPACE - Up  \n LCTRL - Down  \n WHEELUP - Speedup  \n WHEELDOWN - Slowdown')
+        lib.showTextUI('BACKSPACE - Exit  \n SPACE - Up  \n LCTRL - Down  \n WHEELUP - Speedup  \n WHEELDOWN - Slowdown  \n E - Add Object')
         local cameraPosition = GetGameplayCamCoord()
         local cameraRotation = GetGameplayCamRot(2)
         local cameraFov = GetGameplayCamFov()
@@ -71,5 +71,44 @@ function ToggleDecorating()
         if IsDisabledControlJustReleased(0, 202) then
             ToggleDecorating()
         end
+        if IsDisabledControlJustReleased(0, 38) then
+            lib.showContext('qbx_properties_decoratingMenu')
+        end
     end
 end
+
+local decoratingOptions = {}
+for k, v in pairs(Furniture) do
+    local menuId = string.format('qbx_properties_decoratingMenu_%s', k)
+    decoratingOptions[#decoratingOptions + 1] = {
+        title = k,
+        menu = menuId
+    }
+
+    local furnitureOptions = {}
+    for i = 1, #v do
+        local furniture = v[i]
+        furnitureOptions[#furnitureOptions + 1] = {
+            title = furniture.label,
+            onSelect = function(args)
+                print(args.object, args.label)
+            end,
+            args = {
+                object = furniture.object,
+                label = furniture.label
+            }
+        }
+    end
+    lib.registerContext({
+        id = menuId,
+        title = k,
+        menu = 'qbx_properties_decoratingMenu',
+        options = furnitureOptions
+    })
+end
+
+lib.registerContext({
+    id = 'qbx_properties_decoratingMenu',
+    title = locale('menu.decorating_categories'),
+    options = decoratingOptions
+})

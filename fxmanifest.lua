@@ -15,10 +15,11 @@ shared_scripts {
 
 client_scripts {
     '@qbx_core/modules/playerdata.lua',
+    'config/client.lua',
     'client/apartmentselect.lua',
     'client/property.lua',
     'client/realtor.lua',
-    'client/decorating.lua'
+    'client/decorating.lua',
 }
 
 server_scripts {

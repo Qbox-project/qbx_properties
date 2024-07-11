@@ -124,7 +124,7 @@ local function prepareManageMenu()
             end
         },
         {
-            title = locale('menu.decorating'),
+            title = locale('menu.start_decorating'),
             icon = 'shrimp',
             onSelect = function()
                 ToggleDecorating()
