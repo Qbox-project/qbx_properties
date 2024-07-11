@@ -17,7 +17,8 @@ client_scripts {
     '@qbx_core/modules/playerdata.lua',
     'client/apartmentselect.lua',
     'client/property.lua',
-    'client/realtor.lua'
+    'client/realtor.lua',
+    'client/decorating.lua'
 }
 
 server_scripts {

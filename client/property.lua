@@ -123,6 +123,13 @@ local function prepareManageMenu()
                 prepareDoorbellMenu()
             end
         },
+        {
+            title = locale('menu.decorating'),
+            icon = 'shrimp',
+            onSelect = function()
+                ToggleDecorating()
+            end
+        }
     }
     if isPropertyRental then
         options[#options+1] = {
@@ -200,7 +207,7 @@ local function checkInteractions()
             local sleep = 800
             local playerCoords = GetEntityCoords(cache.ped)
             for i = 1, #interactions do
-                if #(playerCoords - interactions[i].coords) < 1.5 then
+                if #(playerCoords - interactions[i].coords) < 1.5 and not IsDecorating then
                     sleep = 0
                     interactOptions[interactions[i].type](interactions[i].coords)
                 end
