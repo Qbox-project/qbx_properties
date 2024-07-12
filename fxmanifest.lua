@@ -24,14 +24,16 @@ client_scripts {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'config/server.lua',
     'server/apartmentselect.lua',
     'server/property.lua',
     'server/realtor.lua',
-    'config/server.lua'
+    'server/decorating.js'
 }
 
 files {
-    'locales/*.json'
+    'locales/*.json',
+    'screenshots/*.png'
 }
 
 lua54 'yes'
