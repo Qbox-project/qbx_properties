@@ -1,19 +1,8 @@
 {
   "name": "qbx_properties",
-  "version": "1.0.0",
-  "description": "Make screenshots of the available furtniture",
-  "scripts": {
-    "preinstall": "ml-regression-exponential",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "author": "",
-  "license": "ISC",
+  "private": true,
   "dependencies": {
     "@citizenfx/server": "^2.0.8903-1",
     "image-js": "^0.35.5"
-  },
-  "resolutions": {
-    "ml-regression-exponential": "2.1.0"
   }
 }
