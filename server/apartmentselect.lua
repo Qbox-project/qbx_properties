@@ -47,7 +47,10 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
         json.encode(stashData),
     })
 
-    TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
+    SetTimeout(500, function()
+        TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
+    end)
+    
     TriggerClientEvent('qbx_properties:client:addProperty', -1, ApartmentOptions[apartmentIndex].enter)
     EnterProperty(playerSource, id)
 end)
