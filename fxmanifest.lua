@@ -19,6 +19,7 @@ client_scripts {
     'client/apartmentselect.lua',
     'client/property.lua',
     'client/realtor.lua',
+    'client/dataview.lua',
     'client/decorating.lua',
 }
 
