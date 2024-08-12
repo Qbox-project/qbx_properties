@@ -8,7 +8,6 @@ local SetCamCoord = SetCamCoord
 local SetCamRot = SetCamRot
 local GetCamCoord = GetCamCoord
 local GetCamRot = GetCamRot
----@diagnostic disable-next-line: unused-local
 local GetHashKey = GetHashKey
 
 local function freeCam()
