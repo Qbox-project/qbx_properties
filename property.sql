@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS `properties` (
     `rent_interval` INT DEFAULT NULL, /* the rent interval in hours */
     `interact_options` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* clothing and exit points */
     `stash_options` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* multiple stash support */
-    `decorations` JSON NOT NULL DEFAULT (JSON_OBJECT()), /* the model name with it's corresponding coords that needs to be placed */
     FOREIGN KEY (owner) REFERENCES `players` (`citizenid`),
     PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -235,20 +235,28 @@ end)
 RegisterNetEvent('qbx_properties:client:loadDecorations', function(decorations)
     for i = 1, #decorations do
         local decoration = decorations[i]
-        lib.requestModel(decoration.model, 2000)
-        decorationObjects[i] = CreateObjectNoOffset(decoration.model, decoration.coords.x, decoration.coords.y, decoration.coords.z, false, false, false)
-        FreezeEntityPosition(decorationObjects[i], true)
-        SetEntityHeading(decorationObjects[i], decoration.coords.w)
+        lib.requestModel(decoration.model, 5000)
+        decorationObjects[decoration.id] = CreateObjectNoOffset(decoration.model, decoration.coords.x, decoration.coords.y, decoration.coords.z, false, false, false)
+        FreezeEntityPosition(decorationObjects[decoration.id], true)
+        SetEntityRotation(decorationObjects[decoration.id], decoration.rotation.x, decoration.rotation.y, decoration.rotation.z, 2, false)
         SetModelAsNoLongerNeeded(decoration.model)
     end
+end)
+
+RegisterNetEvent('qbx_properties:client:addDecoration', function(id, hash, coords, rotation)
+    lib.requestModel(hash, 5000)
+    decorationObjects[id] = CreateObjectNoOffset(hash, coords.x, coords.y, coords.z, false, false, false)
+    FreezeEntityPosition(decorationObjects[id], true)
+    SetEntityRotation(decorationObjects[id], rotation.x, rotation.y, rotation.z, 2, false)
+    SetModelAsNoLongerNeeded(hash)
 end)
 
 RegisterNetEvent('qbx_properties:client:unloadProperty', function()
     DoScreenFadeIn(1000)
     insideProperty = false
     if DoesEntityExist(interiorShell) then DeleteEntity(interiorShell) end
-    for i = 1, #decorationObjects do
-        if DoesEntityExist(decorationObjects[i]) then DeleteEntity(decorationObjects[i]) end
+    for _, v in pairs(decorationObjects) do
+        if DoesEntityExist(v) then DeleteEntity(v) end
     end
     interiorShell = nil
     decorationObjects = {}

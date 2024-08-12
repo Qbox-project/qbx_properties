@@ -2,8 +2,10 @@ local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
 local ring = {}
-local sql = LoadResourceFile(cache.resource, 'property.sql')
-if sql then MySQL.query(sql) end
+local sql1 = LoadResourceFile(cache.resource, 'property.sql')
+local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
+if sql1 then MySQL.query(sql1) end
+if sql2 then MySQL.query(sql2) end
 
 function EnterProperty(playerSource, id)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
@@ -44,18 +46,21 @@ function EnterProperty(playerSource, id)
         end
     end
 
-    local decorations = json.decode(property.decorations)
-    for i = 1, #decorations do
-        decorations[i].coords = CalculateOffsetCoords(propertyCoords, decorations[i].coords) or vec3(decorations[i].coords.x, decorations[i].coords.y, decorations[i].coords.z)
-    end
-    TriggerClientEvent('qbx_properties:client:loadDecorations', playerSource, decorations)
-
     enteredProperty[playerSource] = id
     insideProperty[id] = insideProperty[id] or {}
     insideProperty[id][#insideProperty[id] + 1] = playerSource
     for i = 1, #insideProperty[id] do
         TriggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[id][i], insideProperty[id])
     end
+
+    local decorations =  MySQL.query.await('SELECT `id`, `model`, `coords`, `rotation` FROM `properties_decorations` WHERE `property_id` = ?', {id})
+    for i = 1, #decorations do
+        local temp = json.decode(decorations[i].coords)
+        decorations[i].coords = isInteriorShell and CalculateOffsetCoords(propertyCoords, vec3(temp.x, temp.y, temp.z)) or vec3(temp.x, temp.y, temp.z)
+        temp = json.decode(decorations[i].rotation)
+        decorations[i].rotation = vec3(temp.x, temp.y, temp.z)
+    end
+    TriggerClientEvent('qbx_properties:client:loadDecorations', playerSource, decorations)
 
     TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, type(property.rent_interval) == 'number')
 end
@@ -402,4 +407,19 @@ RegisterNetEvent('qbx_properties:server:stopRenting', function()
     for _ = 1, #insideProperty[propertyId] do
         exitProperty(insideProperty[propertyId][1])
     end
+end)
+
+RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, rotation)
+    local player = exports.qbx_core:GetPlayer(source)
+    local propertyId = enteredProperty[source]
+    local property = MySQL.single.await('SELECT owner, property_name FROM properties WHERE id = ?', {propertyId})
+
+    if player.PlayerData.citizenid ~= property.owner then return end
+
+    MySQL.insert('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)},
+    function(id)
+        for i = 1, #insideProperty[propertyId] do
+            TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], id, hash, coords, rotation)
+        end
+    end)
 end)

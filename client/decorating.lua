@@ -2,6 +2,7 @@ IsDecorating = false
 local camera
 local previewObject
 local cursorMode = false
+local currentlySelected
 local IsDisabledControlPressed = IsDisabledControlPressed
 local SetCamCoord = SetCamCoord
 local SetCamRot = SetCamRot
@@ -64,7 +65,7 @@ end
 
 local function showText()
     if cursorMode then
-        lib.showTextUI('BACKSPACE - Exit  \n LALT - Toggle Cursor Mode  \n T - Move Object  \n R - Rotate Object  \n G - Snap To Ground')
+        lib.showTextUI('BACKSPACE - Exit  \n LALT - Toggle Cursor Mode  \n T - Move Object  \n R - Rotate Object  \n G - Snap To Ground  \n ENTER - Confirm Placement')
     else
         lib.showTextUI('BACKSPACE - Exit  \n SPACE - Up  \n LCTRL - Down  \n WHEELUP - Speedup  \n WHEELDOWN - Slowdown  \n E - Add Object  \n DEL - Delete Object  \n LALT - Toggle Cursor Mode')
     end
@@ -110,13 +111,23 @@ function ToggleDecorating()
                 LeaveCursorMode()
             end
         end
-        if IsDisabledControlJustReleased(0, 214) then
-            if DoesEntityExist(previewObject) then
+        if IsDisabledControlJustReleased(0, 214) and DoesEntityExist(previewObject) then
+            DeleteEntity(previewObject)
+        end
+        if IsDisabledControlJustReleased(0, 47) and DoesEntityExist(previewObject) then
+            PlaceObjectOnGroundProperly(previewObject)
+        end
+        if IsDisabledControlJustReleased(0, 191) and DoesEntityExist(previewObject) then
+            local alert = lib.alertDialog({
+                header = 'Confirm Placement',
+                content = string.format('Are you sure that you want to place %s here?', currentlySelected.label),
+                centered = true,
+                cancel = true
+            })
+            if alert == 'confirm' then
+                TriggerServerEvent('qbx_properties:server:addDecoration', currentlySelected.object, GetEntityCoords(previewObject), GetEntityRotation(previewObject))
                 DeleteEntity(previewObject)
             end
-        end
-        if IsDisabledControlJustReleased(0, 47) then
-            PlaceObjectOnGroundProperly(previewObject)
         end
         if DoesEntityExist(previewObject) then
             local matrixBuffer = makeEntityMatrix(previewObject)
@@ -127,6 +138,8 @@ function ToggleDecorating()
         end
     end
     lib.hideTextUI()
+    if cursorMode then LeaveCursorMode() end
+    cursorMode = false
     if DoesEntityExist(previewObject) then
         DeleteEntity(previewObject)
     end
@@ -149,6 +162,7 @@ for k, v in pairs(Furniture) do
         furnitureOptions[#furnitureOptions + 1] = {
             title = furniture.label,
             onSelect = function(args)
+                currentlySelected = args
                 if DoesEntityExist(previewObject) then
                     DeleteEntity(previewObject)
                 end
