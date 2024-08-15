@@ -172,12 +172,12 @@ function ToggleDecorating()
             end
             local alert = lib.alertDialog({
                 header = 'Confirm Placement',
-                content = string.format('Are you sure that you want to place %s here?', objectId and GetEntityModel(previewObject) or currentlySelected.label),
+                content = string.format('Are you sure that you want to place %s here?', objectId and GetEntityArchetypeName(previewObject) or currentlySelected.label),
                 centered = true,
                 cancel = true
             })
             if alert == 'confirm' then
-                TriggerServerEvent('qbx_properties:server:addDecoration', objectId and GetEntityModel(previewObject) or currentlySelected.object, GetEntityCoords(previewObject), GetEntityRotation(previewObject), objectId)
+                TriggerServerEvent('qbx_properties:server:addDecoration', objectId and GetEntityArchetypeName(previewObject) or currentlySelected.object, GetEntityCoords(previewObject), GetEntityRotation(previewObject), objectId)
                 DeleteEntity(previewObject)
             end
         end
