@@ -15,21 +15,26 @@ shared_scripts {
 
 client_scripts {
     '@qbx_core/modules/playerdata.lua',
+    'config/client.lua',
     'client/apartmentselect.lua',
     'client/property.lua',
-    'client/realtor.lua'
+    'client/realtor.lua',
+    'client/dataview.lua',
+    'client/decorating.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'config/server.lua',
     'server/apartmentselect.lua',
     'server/property.lua',
     'server/realtor.lua',
-    'config/server.lua'
+    'server/decorating.js'
 }
 
 files {
-    'locales/*.json'
+    'locales/*.json',
+    'screenshots/*.png'
 }
 
 lua54 'yes'

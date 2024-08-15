@@ -1,0 +1,8 @@
+{
+  "name": "qbx_properties",
+  "private": true,
+  "dependencies": {
+    "@citizenfx/server": "^2.0.8903-1",
+    "image-js": "^0.35.5"
+  }
+}
