@@ -93,9 +93,35 @@ function ToggleDecorating()
     IsDecorating = not IsDecorating
     freeCam()
     showText()
+    local last, lastMatrix
     while IsDecorating do
         Wait(0)
+        if cursorMode then
+            local entity = SelectEntityAtCursor((1 << 5), true)
+            if entity ~= last then
+                if lib.table.contains(DecorationObjects, entity) then
+                    SetEntityDrawOutline(entity, true)
+                end
+                SetEntityDrawOutline(last, false)
+                last = entity
+            end
+            if IsDisabledControlJustReleased(0, 24) and previewObject ~= entity and entity ~= 0 then
+                if lastMatrix then
+                    applyEntityMatrix(previewObject, lastMatrix)
+                end
+                lastMatrix = makeEntityMatrix(entity)
+                previewObject = entity
+            end
+        end
         if IsDisabledControlJustReleased(0, 202) then
+            if DoesEntityExist(previewObject) then
+                if lib.table.contains(DecorationObjects, previewObject) then
+                    applyEntityMatrix(previewObject, lastMatrix)
+                else
+                    DeleteEntity(previewObject)
+                end
+            end
+            SetEntityDrawOutline(last, false)
             ToggleDecorating()
         end
         if IsDisabledControlJustReleased(0, 38) then
@@ -107,24 +133,51 @@ function ToggleDecorating()
             if cursorMode then
                 EnterCursorMode()
             else
+                SetEntityDrawOutline(last, false)
                 LeaveCursorMode()
             end
         end
-        if IsDisabledControlJustReleased(0, 214) and DoesEntityExist(previewObject) then
-            DeleteEntity(previewObject)
+        if IsDisabledControlJustReleased(0, 214) and DoesEntityExist(previewObject) and lib.table.contains(DecorationObjects, previewObject) then
+            local alert = lib.alertDialog({
+                header = 'Confirm Deletion',
+                content = 'Are you sure that you want to remove this object',
+                centered = true,
+                cancel = true
+            })
+            if alert == 'confirm' then
+                local objectId = false
+                if lib.table.contains(DecorationObjects, previewObject) then
+                    for k, v in pairs(DecorationObjects) do
+                        if v == previewObject then
+                            objectId = k
+                            break
+                        end
+                    end
+                end
+                TriggerServerEvent('qbx_properties:server:removeDecoration', objectId)
+            end
         end
         if IsDisabledControlJustReleased(0, 47) and DoesEntityExist(previewObject) then
             PlaceObjectOnGroundProperly(previewObject)
         end
         if IsDisabledControlJustReleased(0, 191) and DoesEntityExist(previewObject) then
+            local objectId = false
+            if lib.table.contains(DecorationObjects, previewObject) then
+                for k, v in pairs(DecorationObjects) do
+                    if v == previewObject then
+                        objectId = k
+                        break
+                    end
+                end
+            end
             local alert = lib.alertDialog({
                 header = 'Confirm Placement',
-                content = string.format('Are you sure that you want to place %s here?', currentlySelected.label),
+                content = string.format('Are you sure that you want to place %s here?', objectId and GetEntityModel(previewObject) or currentlySelected.label),
                 centered = true,
                 cancel = true
             })
             if alert == 'confirm' then
-                TriggerServerEvent('qbx_properties:server:addDecoration', currentlySelected.object, GetEntityCoords(previewObject), GetEntityRotation(previewObject))
+                TriggerServerEvent('qbx_properties:server:addDecoration', objectId and GetEntityModel(previewObject) or currentlySelected.object, GetEntityCoords(previewObject), GetEntityRotation(previewObject), objectId)
                 DeleteEntity(previewObject)
             end
         end
@@ -139,9 +192,6 @@ function ToggleDecorating()
     lib.hideTextUI()
     if cursorMode then LeaveCursorMode() end
     cursorMode = false
-    if DoesEntityExist(previewObject) then
-        DeleteEntity(previewObject)
-    end
 end
 
 RegisterKeyMapping('+gizmoTranslation', 'Sets mode of the gizmo to translation', 'keyboard', 'T')

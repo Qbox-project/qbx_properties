@@ -1,5 +1,5 @@
 local interiorShell
-local decorationObjects = {}
+DecorationObjects = {}
 local properties = {}
 local insideProperty = false
 local isPropertyRental = false
@@ -236,30 +236,36 @@ RegisterNetEvent('qbx_properties:client:loadDecorations', function(decorations)
     for i = 1, #decorations do
         local decoration = decorations[i]
         lib.requestModel(decoration.model, 5000)
-        decorationObjects[decoration.id] = CreateObjectNoOffset(decoration.model, decoration.coords.x, decoration.coords.y, decoration.coords.z, false, false, false)
-        FreezeEntityPosition(decorationObjects[decoration.id], true)
-        SetEntityRotation(decorationObjects[decoration.id], decoration.rotation.x, decoration.rotation.y, decoration.rotation.z, 2, false)
+        DecorationObjects[decoration.id] = CreateObjectNoOffset(decoration.model, decoration.coords.x, decoration.coords.y, decoration.coords.z, false, false, false)
+        SetEntityCollision(DecorationObjects[decoration.id], true, true)
+        FreezeEntityPosition(DecorationObjects[decoration.id], true)
+        SetEntityRotation(DecorationObjects[decoration.id], decoration.rotation.x, decoration.rotation.y, decoration.rotation.z, 2, false)
         SetModelAsNoLongerNeeded(decoration.model)
     end
 end)
 
 RegisterNetEvent('qbx_properties:client:addDecoration', function(id, hash, coords, rotation)
     lib.requestModel(hash, 5000)
-    decorationObjects[id] = CreateObjectNoOffset(hash, coords.x, coords.y, coords.z, false, false, false)
-    FreezeEntityPosition(decorationObjects[id], true)
-    SetEntityRotation(decorationObjects[id], rotation.x, rotation.y, rotation.z, 2, false)
+    DecorationObjects[id] = CreateObjectNoOffset(hash, coords.x, coords.y, coords.z, false, false, false)
+    FreezeEntityPosition(DecorationObjects[id], true)
+    SetEntityRotation(DecorationObjects[id], rotation.x, rotation.y, rotation.z, 2, false)
     SetModelAsNoLongerNeeded(hash)
+end)
+
+RegisterNetEvent('qbx_properties:client:removeDecoration', function(objectId)
+    if DoesEntityExist(DecorationObjects[objectId]) then DeleteEntity(DecorationObjects[objectId]) end
+    DecorationObjects[objectId] = nil
 end)
 
 RegisterNetEvent('qbx_properties:client:unloadProperty', function()
     DoScreenFadeIn(1000)
     insideProperty = false
     if DoesEntityExist(interiorShell) then DeleteEntity(interiorShell) end
-    for _, v in pairs(decorationObjects) do
+    for _, v in pairs(DecorationObjects) do
         if DoesEntityExist(v) then DeleteEntity(v) end
     end
     interiorShell = nil
-    decorationObjects = {}
+    DecorationObjects = {}
 end)
 
 local function singlePropertyMenu(property, noBackMenu)

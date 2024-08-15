@@ -409,17 +409,40 @@ RegisterNetEvent('qbx_properties:server:stopRenting', function()
     end
 end)
 
-RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, rotation)
+RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, rotation, objectId)
     local player = exports.qbx_core:GetPlayer(source)
     local propertyId = enteredProperty[source]
     local property = MySQL.single.await('SELECT owner, property_name FROM properties WHERE id = ?', {propertyId})
 
     if player.PlayerData.citizenid ~= property.owner then return end
 
-    MySQL.insert('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)},
-    function(id)
+    if objectId then
         for i = 1, #insideProperty[propertyId] do
-            TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], id, hash, coords, rotation)
+            TriggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId][i], objectId)
         end
-    end)
+        MySQL.update.await('UPDATE properties_decorations SET coords = ?, rotation = ? WHERE id = ?', { json.encode(coords), json.encode(rotation), objectId })
+        for i = 1, #insideProperty[propertyId] do
+            TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], objectId, hash, coords, rotation)
+        end
+    else
+        MySQL.insert('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)},
+        function(id)
+            for i = 1, #insideProperty[propertyId] do
+                TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], id, hash, coords, rotation)
+            end
+        end)
+    end
+end)
+
+RegisterNetEvent('qbx_properties:server:removeDecoration', function(objectId)
+    local player = exports.qbx_core:GetPlayer(source)
+    local propertyId = enteredProperty[source]
+    local property = MySQL.single.await('SELECT owner FROM properties WHERE id = ?', {propertyId})
+
+    if player.PlayerData.citizenid ~= property.owner then return end
+
+    MySQL.update('DELETE FROM properties_decorations WHERE id = ?', {objectId})
+    for i = 1, #insideProperty[propertyId] do
+        TriggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId][i], objectId)
+    end
 end)
