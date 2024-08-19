@@ -29,7 +29,7 @@ server_scripts {
     'server/apartmentselect.lua',
     'server/property.lua',
     'server/realtor.lua',
-    'server/decorating.js'
+    --'server/decorating.js' only used for taking screenshots of furniture
 }
 
 files {
