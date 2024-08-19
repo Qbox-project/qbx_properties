@@ -7,13 +7,12 @@ local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
 if sql1 then MySQL.query(sql1) end
 if sql2 then MySQL.query(sql2) end
 
-function EnterProperty(playerSource, id)
+function EnterProperty(playerSource, id, isSpawn)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
     local propertyCoords = json.decode(property.coords)
     propertyCoords = vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
-
-    if #(playerCoords - propertyCoords) > 8.0 then return end
+    if not isSpawn and #(playerCoords - propertyCoords) > 8.0 then return end
 
     local player = exports.qbx_core:GetPlayer(playerSource)
     citizenid[playerSource] = player.PlayerData.citizenid
@@ -23,7 +22,7 @@ function EnterProperty(playerSource, id)
     local stashes = json.decode(property.stash_options)
     for i = 1, #stashes do
         local stashCoords = isInteriorShell and CalculateOffsetCoords(propertyCoords, stashes[i].coords) or stashes[i].coords
-        interactions[#interactions+1] = {
+        interactions[#interactions + 1] = {
             type = 'stash',
             coords = vec3(stashCoords.x, stashCoords.y, stashCoords.z)
         }
@@ -37,7 +36,7 @@ function EnterProperty(playerSource, id)
     local interactData = json.decode(property.interact_options)
     for i = 1, #interactData do
         local coords = isInteriorShell and CalculateOffsetCoords(propertyCoords, interactData[i].coords) or interactData[i].coords
-        interactions[#interactions+1] = {
+        interactions[#interactions + 1] = {
             type = interactData[i].type,
             coords = vec3(coords.x, coords.y, coords.z)
         }
@@ -49,9 +48,9 @@ function EnterProperty(playerSource, id)
     enteredProperty[playerSource] = id
     insideProperty[id] = insideProperty[id] or {}
     insideProperty[id][#insideProperty[id] + 1] = playerSource
-    for i = 1, #insideProperty[id] do
-        TriggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[id][i], insideProperty[id])
-    end
+    lib.triggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[id], insideProperty[id])
+
+    player.Functions.SetMetaData('currentPropertyId', id)
 
     local decorations =  MySQL.query.await('SELECT `id`, `model`, `coords`, `rotation` FROM `properties_decorations` WHERE `property_id` = ?', {id})
     for i = 1, #decorations do
@@ -60,34 +59,48 @@ function EnterProperty(playerSource, id)
         temp = json.decode(decorations[i].rotation)
         decorations[i].rotation = vec3(temp.x, temp.y, temp.z)
     end
+
     TriggerClientEvent('qbx_properties:client:loadDecorations', playerSource, decorations)
 
     TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, type(property.rent_interval) == 'number')
 end
 
 ---@param playerSource integer
-local function exitProperty(playerSource)
+local function exitProperty(playerSource, isLogout)
     if not enteredProperty[playerSource] then return end
 
     TriggerClientEvent('qbx_properties:client:unloadProperty', playerSource)
     TriggerClientEvent('qbx_properties:client:revealPlayers', playerSource)
 
-    local enterCoords = json.decode(MySQL.single.await('SELECT coords FROM properties WHERE id = ?', {enteredProperty[playerSource]}).coords)
-    SetEntityCoords(GetPlayerPed(playerSource), enterCoords.x, enterCoords.y, enterCoords.z, false, false, false, false)
+    if not isLogout then
+        local enterCoords = json.decode(MySQL.single.await('SELECT coords FROM properties WHERE id = ?', {enteredProperty[playerSource]}).coords)
+        SetEntityCoords(GetPlayerPed(playerSource), enterCoords.x, enterCoords.y, enterCoords.z, false, false, false, false)
+    end
+
     for i = 1, #insideProperty[enteredProperty[playerSource]] do
         if insideProperty[enteredProperty[playerSource]][i] == playerSource then
             table.remove(insideProperty[enteredProperty[playerSource]], i)
             break
         end
     end
-    for i = 1, #insideProperty[enteredProperty[playerSource]] do
-        TriggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[enteredProperty[playerSource]][i], insideProperty[enteredProperty[playerSource]])
-    end
+
+    lib.triggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[enteredProperty[playerSource]], insideProperty[enteredProperty[playerSource]])
     enteredProperty[playerSource] = nil
+
+    if isLogout then return end
+
+    local player = exports.qbx_core:GetPlayer(playerSource)
+    if not player then return end
+
+    player.Functions.SetMetaData('currentPropertyId', nil)
 end
 
 RegisterNetEvent('qbx_properties:server:exitProperty', function()
-    exitProperty(source)
+    exitProperty(source --[[@as number]])
+end)
+
+AddEventHandler('QBCore:Server:OnPlayerUnload', function(source)
+    exitProperty(source, true)
 end)
 
 lib.callback.register('qbx_properties:callback:loadProperties', function()
@@ -97,6 +110,7 @@ lib.callback.register('qbx_properties:callback:loadProperties', function()
         local coords = json.decode(result[i].coords)
         properties[i] = vec3(coords.x, coords.y, coords.z)
     end
+
     return properties
 end)
 
@@ -107,10 +121,12 @@ end)
 local function hasAccess(citizenId, propertyId)
     local property = MySQL.single.await('SELECT owner, keyholders FROM properties WHERE id = ?', {propertyId})
     if citizenId == property.owner then return true end
+
     local keyholders = json.decode(property.keyholders)
     for i = 1, #keyholders do
         if citizenId == keyholders[i] then return true end
     end
+
     return false
 end
 
@@ -118,10 +134,9 @@ RegisterNetEvent('qbx_properties:server:enterProperty', function(data)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
     local propertyId = data.id
-
     if not hasAccess(player.PlayerData.citizenid, propertyId) then return end
 
-    EnterProperty(playerSource, propertyId)
+    EnterProperty(playerSource, propertyId, data.isSpawn)
 end)
 
 RegisterNetEvent('qbx_properties:server:ringProperty', function(data)
@@ -254,17 +269,18 @@ RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
     local propertyId = enteredProperty[playerSource]
 
     local result = MySQL.single.await('SELECT owner, keyholders FROM properties WHERE id = ?', {propertyId})
-
     if owner.PlayerData.citizenid ~= result.owner then return end
 
     local keyholders = json.decode(result.keyholders)
     if not lib.table.contains(keyholders, keyholderCid) then return end
+
     for i = 1, #keyholders do
         if keyholders[i] == keyholderCid then
             table.remove(keyholders, i)
             break
         end
     end
+
     MySQL.Sync.execute('UPDATE properties SET keyholders = ? WHERE id = ?', {json.encode(keyholders), propertyId})
     local keyholder = exports.qbx_core:GetOfflinePlayer(keyholderCid)
     exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. locale('notify.removed_as_keyholder'))
@@ -273,12 +289,10 @@ end)
 RegisterNetEvent('qbx_properties:server:logoutProperty', function()
     local playerSource = source --[[@as number]]
     local propertyId = enteredProperty[playerSource]
-
     if not propertyId then return end
 
     local result = MySQL.single.await('SELECT owner, coords FROM properties WHERE id = ?', {propertyId})
     local player = exports.qbx_core:GetPlayer(playerSource)
-
     if player.PlayerData.citizenid ~= result.owner then return end
 
     TriggerClientEvent('qbx_properties:client:unloadProperty', playerSource)
@@ -289,9 +303,8 @@ RegisterNetEvent('qbx_properties:server:logoutProperty', function()
             break
         end
     end
-    for i = 1, #insideProperty[enteredProperty[playerSource]] do
-        TriggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[enteredProperty[playerSource]][i], insideProperty[enteredProperty[playerSource]])
-    end
+
+    lib.triggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[enteredProperty[playerSource]], insideProperty[enteredProperty[playerSource]])
     enteredProperty[playerSource] = nil
     exports.qbx_core:Logout(playerSource)
     Wait(50)
@@ -303,7 +316,6 @@ RegisterNetEvent('qbx_properties:server:openStash', function()
     local playerSource = source --[[@as number]]
     local propertyId = enteredProperty[playerSource]
     local player = exports.qbx_core:GetPlayer(playerSource)
-
     if not hasAccess(player.PlayerData.citizenid, propertyId) then return end
 
     local property = MySQL.single.await('SELECT property_name FROM properties WHERE id = ?', {propertyId})
@@ -321,6 +333,7 @@ AddEventHandler('playerDropped', function ()
             break
         end
     end
+
     Wait(50)
     local coords = json.decode(MySQL.single.await('SELECT coords FROM properties WHERE id = ?', {enteredProperty[playerSource]}).coords)
     MySQL.update('UPDATE players SET position = ? WHERE citizenid = ?', { json.encode(vec4(coords.x, coords.y, coords.z, 0.0)), citizenid[playerSource] })
@@ -330,10 +343,11 @@ local function startRentThread(propertyId)
     CreateThread(function()
         while true do
             local property = MySQL.single.await('SELECT owner, price, rent_interval, property_name FROM properties WHERE id = ?', {propertyId})
-            if not property then break end
-            if not property.owner then break end
+            if not property or not property.owner  then break end
+
             local player = exports.qbx_core:GetPlayerByCitizenId(property.owner) or exports.qbx_core:GetOfflinePlayer(property.owner)
             if not player then print(string.format('%s does not exist anymore, consider checking property id %s', property.owner, propertyId)) break end
+
             if player.Offline then
                 player.PlayerData.money.bank = player.PlayerData.money.bank - property.price
                 if player.PlayerData.money.bank < 0 then break end
@@ -344,8 +358,10 @@ local function startRentThread(propertyId)
                     break
                 end
             end
+
             Wait(property.rent_interval * 3600000)
         end
+
         MySQL.update('UPDATE properties SET owner = ? WHERE id = ?', {nil, propertyId})
     end)
 end
@@ -356,10 +372,10 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(propertyId)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
     local property = MySQL.single.await('SELECT owner, price, property_name, coords, rent_interval FROM properties WHERE id = ?', {propertyId})
     local propertyCoords = json.decode(property.coords)
-
     if #(playerCoords - vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)) > 8.0 then return end
     if property.owner then return end
     if not property.rent_interval then return end
+
     if player.PlayerData.money.bank < property.price then
         exports.qbx_core:Notify(playerSource, 'Not enough money to rent property.', 'error')
         return
@@ -377,8 +393,8 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
     local property = MySQL.single.await('SELECT owner, price, property_name, coords FROM properties WHERE id = ?', {propertyId})
     local propertyCoords = json.decode(property.coords)
 
-    if #(playerCoords - vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)) > 8.0 then return end
-    if property.owner then return end
+    if #(playerCoords - vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)) > 8.0 or property.owner then return end
+
     if not player.Functions.RemoveMoney('cash', property.price, string.format('Purchased %s', property.property_name)) and not player.Functions.RemoveMoney('bank', property.price, string.format('Purchased %s', property.property_name)) then
         exports.qbx_core:Notify(playerSource, 'Not enough money to purchase property.', 'error')
         return
@@ -399,11 +415,10 @@ RegisterNetEvent('qbx_properties:server:stopRenting', function()
     local player = exports.qbx_core:GetPlayer(source)
     local propertyId = enteredProperty[source]
     local property = MySQL.single.await('SELECT owner, property_name FROM properties WHERE id = ?', {propertyId})
-
     if player.PlayerData.citizenid ~= property.owner then return end
 
     exports.qbx_core:Notify(player.PlayerData.source, string.format('You stopped your rental contract for %s', property.property_name), 'success')
-    MySQL.update('UPDATE properties SET owner = ?, keyholders = JSON_OBJECT() WHERE id = ?', {nil, propertyId})
+    MySQL.update.await('UPDATE properties SET owner = ?, keyholders = JSON_OBJECT() WHERE id = ?', {nil, propertyId})
     for _ = 1, #insideProperty[propertyId] do
         exitProperty(insideProperty[propertyId][1])
     end
@@ -413,24 +428,15 @@ RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, r
     local player = exports.qbx_core:GetPlayer(source)
     local propertyId = enteredProperty[source]
     local property = MySQL.single.await('SELECT owner, property_name FROM properties WHERE id = ?', {propertyId})
-
     if player.PlayerData.citizenid ~= property.owner then return end
 
     if objectId then
-        for i = 1, #insideProperty[propertyId] do
-            TriggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId][i], objectId)
-        end
+        lib.triggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId], objectId)
         MySQL.update.await('UPDATE properties_decorations SET coords = ?, rotation = ? WHERE id = ?', { json.encode(coords), json.encode(rotation), objectId })
-        for i = 1, #insideProperty[propertyId] do
-            TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], objectId, hash, coords, rotation)
-        end
+        lib.triggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId], objectId, hash, coords, rotation)
     else
-        MySQL.insert('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)},
-        function(id)
-            for i = 1, #insideProperty[propertyId] do
-                TriggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId][i], id, hash, coords, rotation)
-            end
-        end)
+        local id = MySQL.insert.await('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)})
+        lib.triggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId], id, hash, coords, rotation)
     end
 end)
 
@@ -438,11 +444,8 @@ RegisterNetEvent('qbx_properties:server:removeDecoration', function(objectId)
     local player = exports.qbx_core:GetPlayer(source)
     local propertyId = enteredProperty[source]
     local property = MySQL.single.await('SELECT owner FROM properties WHERE id = ?', {propertyId})
-
     if player.PlayerData.citizenid ~= property.owner then return end
 
-    MySQL.update('DELETE FROM properties_decorations WHERE id = ?', {objectId})
-    for i = 1, #insideProperty[propertyId] do
-        TriggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId][i], objectId)
-    end
+    MySQL.query.await('DELETE FROM properties_decorations WHERE id = ?', {objectId})
+    lib.triggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId], objectId)
 end)
