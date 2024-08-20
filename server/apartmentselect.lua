@@ -1,8 +1,8 @@
 RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentIndex)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
-
     if not ApartmentOptions[apartmentIndex] then return end
+
     local hasApartment = MySQL.single.await('SELECT * FROM properties WHERE owner = ?', {player.PlayerData.citizenid})
     if hasApartment then return end
 
@@ -29,7 +29,7 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
         }
     }
 
-    local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC', {})
+    local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC')
     local apartmentNumber = result?.id or 0
 
     ::again::
@@ -47,7 +47,7 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
         json.encode(stashData),
     })
 
-    TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
     TriggerClientEvent('qbx_properties:client:addProperty', -1, ApartmentOptions[apartmentIndex].enter)
-    EnterProperty(playerSource, id)
+    TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
+    EnterProperty(playerSource, id, true)
 end)
