@@ -5,7 +5,7 @@ local Board, scaleform, buttonsScaleform, currentButtonID = nil, 0, 0, 1
 local previewCam
 
 local function SetupBoard()
-    lib.requestModel(BoardModel)
+    lib.requestModel(BoardModel, 10000)
     Board = CreateObject(BoardModel, BoardCoords.x, BoardCoords.y, BoardCoords.z, false, false, false)
     SetEntityHeading(Board, BoardCoords.w)
     SetModelAsNoLongerNeeded(BoardModel)
@@ -61,8 +61,8 @@ local function CreateNamedRenderTargetForModel(name, model)
 end
 
 local function StartScaleform()
-    scaleform = lib.requestScaleformMovie('AUTO_SHOP_BOARD') or 0
-    buttonsScaleform = lib.requestScaleformMovie('INSTRUCTIONAL_BUTTONS') or 0
+    scaleform = lib.requestScaleformMovie('AUTO_SHOP_BOARD', 10000) or 0
+    buttonsScaleform = lib.requestScaleformMovie('INSTRUCTIONAL_BUTTONS', 10000) or 0
     CreateThread(function()
         SetupInstructionalScaleform()
         while DoesCamExist(previewCam) do
