@@ -196,6 +196,7 @@ end
 
 RegisterKeyMapping('+gizmoTranslation', 'Sets mode of the gizmo to translation', 'keyboard', 'T')
 RegisterKeyMapping('+gizmoRotation', 'Sets mode for the gizmo to rotation', 'keyboard', 'R')
+RegisterKeyMapping("+gizmoSelect", "Selects the currently highlighted gizmo", "MOUSE_BUTTON", "MOUSE_LEFT")
 
 local decoratingOptions = {}
 for k, v in pairs(Furniture) do
