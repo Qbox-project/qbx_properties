@@ -64,7 +64,7 @@ end
 
 local function showText()
     if cursorMode then
-        lib.showTextUI('BACKSPACE - Exit  \n LALT - Toggle Cursor Mode  \n T - Move Object  \n R - Rotate Object  \n G - Snap To Ground  \n ENTER - Confirm Placement')
+        lib.showTextUI('BACKSPACE - Exit  \n LALT - Toggle Cursor Mode  \n T - Move Object  \n R - Rotate Object  \n G - Snap To Ground  \n L - Relative to World/Object  \n ENTER - Confirm Placement')
     else
         lib.showTextUI('BACKSPACE - Exit  \n SPACE - Up  \n LCTRL - Down  \n WHEELUP - Speedup  \n WHEELDOWN - Slowdown  \n E - Add Object  \n DEL - Delete Object  \n LALT - Toggle Cursor Mode')
     end
@@ -197,6 +197,7 @@ end
 RegisterKeyMapping('+gizmoTranslation', 'Sets mode of the gizmo to translation', 'keyboard', 'T')
 RegisterKeyMapping('+gizmoRotation', 'Sets mode for the gizmo to rotation', 'keyboard', 'R')
 RegisterKeyMapping("+gizmoSelect", "Selects the currently highlighted gizmo", "MOUSE_BUTTON", "MOUSE_LEFT")
+RegisterKeyMapping("+gizmoLocal", "Sets gizmo to be local to the entity instead of world", "keyboard", "L")
 
 local decoratingOptions = {}
 for k, v in pairs(Furniture) do
