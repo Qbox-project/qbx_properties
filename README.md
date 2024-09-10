@@ -15,7 +15,3 @@ From a fresh Qbox build
 - Garage options for properties and not apartments
 - MLO Support
 - Figure out all the models to hide using `EnableExteriorCullModelThisFrame` when inside IPLs
-
-<p align="center">
-  <img src="https://i.imgur.com/YTHfNGG.gif" alt="pog">
-</p>
