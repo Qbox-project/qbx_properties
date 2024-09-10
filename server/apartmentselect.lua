@@ -48,8 +48,9 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
     })
 
     TriggerClientEvent('qbx_properties:client:addProperty', -1, ApartmentOptions[apartmentIndex].enter)
-    TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
     EnterProperty(playerSource, id, true)
+    Wait(200)
+    TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
 end)
 
 local startingApartment = require '@qbx_core.config.client'.characters.startingApartment
