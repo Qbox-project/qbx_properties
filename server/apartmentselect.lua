@@ -51,3 +51,16 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
     TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
     EnterProperty(playerSource, id, true)
 end)
+
+local startingApartment = require '@qbx_core.config.client'.characters.startingApartment
+
+if not startingApartment then return end
+
+RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
+    local playerSource = source --[[@as number]]
+    local player = exports.qbx_core:GetPlayer(playerSource)
+    local hasApartment = MySQL.single.await('SELECT * FROM properties WHERE owner = ?', {player.PlayerData.citizenid})
+    if not hasApartment then
+        TriggerClientEvent('apartments:client:setupSpawnUI', playerSource)
+    end
+end)
