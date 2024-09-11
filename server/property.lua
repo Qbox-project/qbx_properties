@@ -42,6 +42,7 @@ function EnterProperty(playerSource, id, isSpawn)
         }
         if interactData[i].type == 'exit' then
             SetEntityCoords(GetPlayerPed(playerSource), coords.x, coords.y, coords.z, false, false, false, false)
+            SetEntityHeading(GetPlayerPed(playerSource), coords.w)
         end
     end
 
