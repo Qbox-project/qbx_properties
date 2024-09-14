@@ -38,9 +38,9 @@ RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex,
             maxWeight = ApartmentStash.maxWeight,
         }
     }
-    local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC', {})
+    local result = MySQL.single.await('SELECT id FROM qbx_properties ORDER BY id DESC', {})
     local propertNumber = result?.id or 0
-    MySQL.insert('INSERT INTO `properties` (`coords`, `property_name`, `price`, `interior`, `interact_options`, `stash_options`, `rent_interval`) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+    MySQL.insert('INSERT INTO `qbx_properties` (`coords`, `property_name`, `price`, `interior`, `interact_options`, `stash_options`, `rent_interval`) VALUES (?, ?, ?, ?, ?, ?, ?)', {
         json.encode(propertyCoords),
         string.format('%s %s', data[1], propertNumber),
         data[2],

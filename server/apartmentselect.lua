@@ -3,7 +3,7 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
     local player = exports.qbx_core:GetPlayer(playerSource)
     if not ApartmentOptions[apartmentIndex] then return end
 
-    local hasApartment = MySQL.single.await('SELECT * FROM properties WHERE owner = ?', {player.PlayerData.citizenid})
+    local hasApartment = MySQL.single.await('SELECT * FROM qbx_properties WHERE owner = ?', {player.PlayerData.citizenid})
     if hasApartment then return end
 
     local interior = ApartmentOptions[apartmentIndex].interior
@@ -29,16 +29,16 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
         }
     }
 
-    local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC')
+    local result = MySQL.single.await('SELECT id FROM qbx_properties ORDER BY id DESC')
     local apartmentNumber = result?.id or 0
 
     ::again::
 
     apartmentNumber += 1
-    local numberExists = MySQL.single.await('SELECT * FROM properties WHERE property_name = ?', {string.format('%s %s', ApartmentOptions[apartmentIndex].label, apartmentNumber)})
+    local numberExists = MySQL.single.await('SELECT * FROM qbx_properties WHERE property_name = ?', {string.format('%s %s', ApartmentOptions[apartmentIndex].label, apartmentNumber)})
     if numberExists then goto again end
 
-    local id = MySQL.insert.await('INSERT INTO `properties` (`coords`, `property_name`, `owner`, `interior`, `interact_options`, `stash_options`) VALUES (?, ?, ?, ?, ?, ?)', {
+    local id = MySQL.insert.await('INSERT INTO `qbx_properties` (`coords`, `property_name`, `owner`, `interior`, `interact_options`, `stash_options`) VALUES (?, ?, ?, ?, ?, ?)', {
         json.encode(ApartmentOptions[apartmentIndex].enter),
         string.format('%s %s', ApartmentOptions[apartmentIndex].label, apartmentNumber),
         player.PlayerData.citizenid,
@@ -60,7 +60,7 @@ if not startingApartment then return end
 RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
-    local hasApartment = MySQL.single.await('SELECT * FROM properties WHERE owner = ?', {player.PlayerData.citizenid})
+    local hasApartment = MySQL.single.await('SELECT * FROM qbx_properties WHERE owner = ?', {player.PlayerData.citizenid})
     if not hasApartment then
         TriggerClientEvent('apartments:client:setupSpawnUI', playerSource)
     end

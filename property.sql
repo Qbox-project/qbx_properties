@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `properties` (
+CREATE TABLE IF NOT EXISTS `qbx_properties` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `property_name` VARCHAR(255) NOT NULL, /* simple label that can be used to identify which property it is. I.e. used for spawn list */
     `coords` JSON NOT NULL,
