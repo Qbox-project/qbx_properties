@@ -1,3 +1,4 @@
+local sharedConfig = require 'config.shared'
 local interiorShell
 DecorationObjects = {}
 local properties = {}
@@ -7,6 +8,18 @@ local interactions
 local isConcealing = false
 local concealWhitelist = {}
 local blips = {}
+
+local function createBlip(apartmentCoords, label)
+	local blip = AddBlipForCoord(apartmentCoords.x, apartmentCoords.y, apartmentCoords.z)
+	SetBlipSprite(blip, 40)
+	SetBlipAsShortRange(blip, true)
+	SetBlipScale(blip, 0.8)
+	SetBlipColour(blip, 2)
+	BeginTextCommandSetBlipName('STRING')
+	AddTextComponentString(label)
+	EndTextCommandSetBlipName(blip)
+	return blip
+end
 
 local function prepareKeyMenu()
     local keyholders = lib.callback.await('qbx_properties:callback:requestKeyHolders')
@@ -389,11 +402,11 @@ function PreparePropertyMenu(propertyCoords)
 end
 
 CreateThread(function()
-    for i = 1, #ApartmentOptions do
-        local data = ApartmentOptions[i]
+    for i = 1, #sharedConfig.apartmentOptions do
+        local data = sharedConfig.apartmentOptions[i]
 
         if not blips[data.enter] then
-            blips[data.enter] = CreateBlip(data.enter, data.label)
+            blips[data.enter] = createBlip(data.enter, data.label)
         end
     end
 

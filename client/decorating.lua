@@ -1,4 +1,5 @@
 IsDecorating = false
+local config = require 'config.client'
 local camera
 local previewObject
 local cursorMode = false
@@ -200,7 +201,7 @@ RegisterKeyMapping("+gizmoSelect", "Selects the currently highlighted gizmo", "M
 RegisterKeyMapping("+gizmoLocal", "Sets gizmo to be local to the entity instead of world", "keyboard", "L")
 
 local decoratingOptions = {}
-for k, v in pairs(Furniture) do
+for k, v in pairs(config.furniture) do
     local menuId = string.format('qbx_properties_decoratingMenu_%s', k)
     decoratingOptions[#decoratingOptions + 1] = {
         title = k,
@@ -266,7 +267,7 @@ lib.registerContext({
 --     DisableIdleCamera(true)
 --     local cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 --     RenderScriptCams(true, false, 0, false, false)
---     for _, v in pairs(Furniture) do
+--     for _, v in pairs(config.furniture) do
 --         for i = 1, #v do
 --             modelHash = GetHashKey(v[i].object)
 --             lib.requestModel(modelHash, 5000)

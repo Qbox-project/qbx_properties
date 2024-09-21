@@ -1,3 +1,4 @@
+local sharedConfig = require 'config.shared'
 local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
@@ -6,6 +7,10 @@ local sql1 = LoadResourceFile(cache.resource, 'property.sql')
 local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
 if sql1 then MySQL.query(sql1) end
 if sql2 then MySQL.query(sql2) end
+
+local function calculateOffsetCoords(propertyCoords, offset)
+    return vec4(propertyCoords.x + offset.x, propertyCoords.y + offset.y, (propertyCoords.z - sharedConfig.shellUndergroundOffset) + offset.z, propertyCoords.w or 0.0)
+end
 
 function EnterProperty(playerSource, id, isSpawn)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
@@ -21,7 +26,7 @@ function EnterProperty(playerSource, id, isSpawn)
     local isInteriorShell = tonumber(property.interior) ~= nil
     local stashes = json.decode(property.stash_options)
     for i = 1, #stashes do
-        local stashCoords = isInteriorShell and CalculateOffsetCoords(propertyCoords, stashes[i].coords) or stashes[i].coords
+        local stashCoords = isInteriorShell and calculateOffsetCoords(propertyCoords, stashes[i].coords) or stashes[i].coords
         interactions[#interactions + 1] = {
             type = 'stash',
             coords = vec3(stashCoords.x, stashCoords.y, stashCoords.z)
@@ -30,12 +35,12 @@ function EnterProperty(playerSource, id, isSpawn)
     end
 
     if isInteriorShell then
-        TriggerClientEvent('qbx_properties:client:createInterior', playerSource, tonumber(property.interior), vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z - ShellUndergroundOffset))
+        TriggerClientEvent('qbx_properties:client:createInterior', playerSource, tonumber(property.interior), vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z - sharedConfig.shellUndergroundOffset))
     end
 
     local interactData = json.decode(property.interact_options)
     for i = 1, #interactData do
-        local coords = isInteriorShell and CalculateOffsetCoords(propertyCoords, interactData[i].coords) or interactData[i].coords
+        local coords = isInteriorShell and calculateOffsetCoords(propertyCoords, interactData[i].coords) or interactData[i].coords
         interactions[#interactions + 1] = {
             type = interactData[i].type,
             coords = vec3(coords.x, coords.y, coords.z)
@@ -56,7 +61,7 @@ function EnterProperty(playerSource, id, isSpawn)
     local decorations =  MySQL.query.await('SELECT `id`, `model`, `coords`, `rotation` FROM `properties_decorations` WHERE `property_id` = ?', {id})
     for i = 1, #decorations do
         local temp = json.decode(decorations[i].coords)
-        decorations[i].coords = isInteriorShell and CalculateOffsetCoords(propertyCoords, vec3(temp.x, temp.y, temp.z)) or vec3(temp.x, temp.y, temp.z)
+        decorations[i].coords = isInteriorShell and calculateOffsetCoords(propertyCoords, vec3(temp.x, temp.y, temp.z)) or vec3(temp.x, temp.y, temp.z)
         temp = json.decode(decorations[i].rotation)
         decorations[i].rotation = vec3(temp.x, temp.y, temp.z)
     end

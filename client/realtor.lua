@@ -1,6 +1,6 @@
-
+local sharedConfig = require 'config.shared'
 local values = {}
-for k in pairs(Interiors) do
+for k in pairs(sharedConfig.interiors) do
     values[#values + 1] = k
 end
 
@@ -8,17 +8,21 @@ local shell = 0
 local playerCoords = vec3(0, 0, 0)
 local isPreviewing = false
 
+local function calculateOffsetCoords(propertyCoords, offset)
+    return vec4(propertyCoords.x + offset.x, propertyCoords.y + offset.y, (propertyCoords.z - sharedConfig.shellUndergroundOffset) + offset.z, propertyCoords.w or 0.0)
+end
+
 local function previewProperty(propertyIndex)
     if DoesEntityExist(shell) then DeleteEntity(shell) end
     if type(propertyIndex) == 'number' then
         lib.requestModel(propertyIndex, 5000)
-        shell = CreateObject(propertyIndex, playerCoords.x, playerCoords.y, playerCoords.z - ShellUndergroundOffset, false, false, false)
+        shell = CreateObject(propertyIndex, playerCoords.x, playerCoords.y, playerCoords.z - sharedConfig.shellUndergroundOffset, false, false, false)
         FreezeEntityPosition(shell, true)
         SetModelAsNoLongerNeeded(propertyIndex)
-        local teleportCoords = CalculateOffsetCoords(playerCoords, Interiors[propertyIndex].exit)
+        local teleportCoords = calculateOffsetCoords(playerCoords, sharedConfig.interiors[propertyIndex].exit)
         SetEntityCoords(cache.ped, teleportCoords.x, teleportCoords.y, teleportCoords.z, false, false, false, false)
     else
-        local teleportCoords = Interiors[propertyIndex].exit
+        local teleportCoords = sharedConfig.interiors[propertyIndex].exit
         SetEntityCoords(cache.ped, teleportCoords.x, teleportCoords.y, teleportCoords.z, false, false, false, false)
     end
 end
