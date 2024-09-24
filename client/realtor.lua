@@ -8,10 +8,6 @@ local shell = 0
 local playerCoords = vec3(0, 0, 0)
 local isPreviewing = false
 
-local function calculateOffsetCoords(propertyCoords, offset)
-    return vec4(propertyCoords.x + offset.x, propertyCoords.y + offset.y, (propertyCoords.z - sharedConfig.shellUndergroundOffset) + offset.z, propertyCoords.w or 0.0)
-end
-
 local function previewProperty(propertyIndex)
     if DoesEntityExist(shell) then DeleteEntity(shell) end
     if type(propertyIndex) == 'number' then
@@ -19,7 +15,7 @@ local function previewProperty(propertyIndex)
         shell = CreateObject(propertyIndex, playerCoords.x, playerCoords.y, playerCoords.z - sharedConfig.shellUndergroundOffset, false, false, false)
         FreezeEntityPosition(shell, true)
         SetModelAsNoLongerNeeded(propertyIndex)
-        local teleportCoords = calculateOffsetCoords(playerCoords, sharedConfig.interiors[propertyIndex].exit)
+        local teleportCoords = CalculateOffsetCoords(playerCoords, sharedConfig.interiors[propertyIndex].exit)
         SetEntityCoords(cache.ped, teleportCoords.x, teleportCoords.y, teleportCoords.z, false, false, false, false)
     else
         local teleportCoords = sharedConfig.interiors[propertyIndex].exit
