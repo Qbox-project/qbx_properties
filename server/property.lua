@@ -2,10 +2,6 @@ local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
 local ring = {}
-local sql1 = LoadResourceFile(cache.resource, 'property.sql')
-local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
-if sql1 then MySQL.query(sql1) end
-if sql2 then MySQL.query(sql2) end
 
 function EnterProperty(playerSource, id, isSpawn)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
@@ -406,6 +402,11 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
 end)
 
 CreateThread(function()
+    local sql1 = LoadResourceFile(cache.resource, 'property.sql')
+    local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
+    MySQL.query.await(sql1)
+    MySQL.query.await(sql2)
+
     local properties = MySQL.query.await('SELECT id FROM properties WHERE owner IS NOT NULL AND rent_interval IS NOT NULL')
     for i = 1, #properties do
         startRentThread(properties[i].id)
