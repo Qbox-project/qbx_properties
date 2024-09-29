@@ -39,6 +39,12 @@
         "down": "Ned",
         "submit": "Indsend"
     },
+    "keyMappings": {
+        "gizmo_translation": "Sets mode to translation",
+        "gizmo_rotation": "Sets mode to rotation",
+        "gizmo_select": "Selects currently highlighted",
+        "gizmo_local": "Sets gizmo local to the entity"
+    },
     "drawtext": {
         "stash": "[E] - Opbevaring",
         "exit": "[E] - Afslut | [G] - Administrér",
