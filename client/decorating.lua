@@ -194,10 +194,10 @@ function ToggleDecorating()
     cursorMode = false
 end
 
-RegisterKeyMapping('+gizmoTranslation', locale('gizmo_translation'), 'keyboard', 'T')
-RegisterKeyMapping('+gizmoRotation', locale('gizmo_rotation'), 'keyboard', 'R')
-RegisterKeyMapping("+gizmoSelect", locale('gizmo_select'), "MOUSE_BUTTON", "MOUSE_LEFT")
-RegisterKeyMapping("+gizmoLocal", locale('gizmo_local'), "keyboard", "L")
+RegisterKeyMapping('+gizmoTranslation', locale('keyMappings.gizmo_translation'), 'keyboard', 'T')
+RegisterKeyMapping('+gizmoRotation', locale('keyMappings.gizmo_rotation'), 'keyboard', 'R')
+RegisterKeyMapping("+gizmoSelect", locale('keyMappings.gizmo_select'), "MOUSE_BUTTON", "MOUSE_LEFT")
+RegisterKeyMapping("+gizmoLocal", locale('keyMappings.gizmo_local'), "keyboard", "L")
 
 local decoratingOptions = {}
 for k, v in pairs(Furniture) do
