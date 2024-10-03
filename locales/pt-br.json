@@ -1,0 +1,51 @@
+{
+    "notify": {
+        "no_access": "Sem acesso.",
+        "someone_at_door": "Alguém está na sua porta!",
+        "keyholder": " foi adicionado como um portador de chave.",
+        "added_as_keyholder": "Você foi adicionado como um portador de chave.",
+        "removed_as_keyholder": " foi removido como um portador de chave."
+    },
+    "alert": {
+        "give_keys": "Dar chaves a esta pessoa?",
+        "apartment_selection": "Seleção de Apartamento",
+        "are_you_sure": "Você tem certeza que deseja pegar %s?",
+        "want_remove_keys": "Você quer remover as chaves dessa pessoa?",
+        "want_let_person_in": "Quer deixar essa pessoa entrar?",
+        "property_name": "Nome da Propriedade",
+        "property_name_description": "Um nome descritivo simples da propriedade",
+        "price": "Preço",
+        "price_description": "O preço de compra ou o preço descontado para aluguel",
+        "rent_interval": "Intervalo de Aluguel",
+        "rent_interval_description": "O intervalo em que o aluguel será descontado em horas (torna a propriedade alugável em vez de comprável)"
+    },
+    "menu": {
+        "add_keyholder": "Adicionar Portador de Chave",
+        "people_inside": "Pessoas Dentro",
+        "keyholders": "Portadores de Chave",
+        "doorbell_ringers": "Campainhas",
+        "manage_keys": "Gerenciar Chaves",
+        "doorbell": "Campainha",
+        "manage_property": "Gerenciar Propriedade",
+        "enter": "Entrar",
+        "ring_doorbell": "Tocar Campainha",
+        "properties": "Propriedades",
+        "retrieve_properties": "Recuperar Propriedades Possuídas",
+        "show_owned_properties": "Mostrar apenas propriedades que você possui",
+        "interior_preview": "Pré-visualização do Interior",
+        "start_decorating": "Começar a Decorar",
+        "decorating_categories": "Categorias"
+    },
+    "instructButtons": {
+        "up": "Cima",
+        "down": "Baixo",
+        "submit": "Enviar"
+    },
+    "drawtext": {
+        "stash": "[E] - Cofre",
+        "exit": "[E] - Sair | [G] - Gerenciar",
+        "clothing": "[E] - Roupas | [G] - Trajes",
+        "logout": "[E] - Sair",
+        "view_property": "[E] - Ver Propriedade"
+    }
+}
