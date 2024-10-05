@@ -1,0 +1,51 @@
+{
+    "notify": {
+        "no_access": "No tienes acceso.",
+        "someone_at_door": "¡Alguien está en tu puerta!",
+        "keyholder": " ha sido agregado como titular de llaves.",
+        "added_as_keyholder": "Has sido agregado como titular de llaves.",
+        "removed_as_keyholder": " ha sido removido como titular de llaves."
+    },
+    "alert": {
+        "give_keys": "¿Dar llaves a esta persona?",
+        "apartment_selection": "Selección de Apartamento",
+        "are_you_sure": "¿Estás seguro de que quieres obtener %s?",
+        "want_remove_keys": "¿Deseas quitar las llaves a esta persona?",
+        "want_let_person_in": "¿Quieres dejar entrar a esta persona?",
+        "property_name": "Nombre de la Propiedad",
+        "property_name_description": "Un nombre simple y descriptivo de la propiedad",
+        "price": "Precio",
+        "price_description": "El precio de compra o el precio deducido por alquiler",
+        "rent_interval": "Intervalo de Alquiler",
+        "rent_interval_description": "El intervalo en el cual se deducirá el alquiler en horas (convierte la propiedad en alquilable en lugar de comprable)"
+    },
+    "menu": {
+        "add_keyholder": "Agregar Titular de Llaves",
+        "people_inside": "Personas Dentro",
+        "keyholders": "Titulares de Llaves",
+        "doorbell_ringers": "Personas que Tocan el Timbre",
+        "manage_keys": "Gestionar Llaves",
+        "doorbell": "Timbre",
+        "manage_property": "Gestionar Propiedad",
+        "enter": "Entrar",
+        "ring_doorbell": "Tocar Timbre",
+        "properties": "Propiedades",
+        "retrieve_properties": "Recuperar Propiedades Propias",
+        "show_owned_properties": "Mostrar solo propiedades que posees",
+        "interior_preview": "Vista Previa del Interior",
+        "start_decorating": "Comenzar a Decorar",
+        "decorating_categories": "Categorías"
+    },
+    "instructButtons": {
+        "up": "Arriba",
+        "down": "Abajo",
+        "submit": "Enter"
+    },
+    "drawtext": {
+        "stash": "[E] - Stash",
+        "exit": "[E] - Salir | [G] - Gestionar",
+        "clothing": "[E] - Ropa | [G] - Atuendos",
+        "logout": "[E] - Cerrar Sesión",
+        "view_property": "[E] - Ver Propiedad"
+    }
+}

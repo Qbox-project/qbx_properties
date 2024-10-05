@@ -1,4 +1,5 @@
 IsDecorating = false
+local config = require 'config.client'
 local camera
 local previewObject
 local cursorMode = false
@@ -194,13 +195,13 @@ function ToggleDecorating()
     cursorMode = false
 end
 
-RegisterKeyMapping('+gizmoTranslation', 'Sets mode of the gizmo to translation', 'keyboard', 'T')
-RegisterKeyMapping('+gizmoRotation', 'Sets mode for the gizmo to rotation', 'keyboard', 'R')
-RegisterKeyMapping("+gizmoSelect", "Selects the currently highlighted gizmo", "MOUSE_BUTTON", "MOUSE_LEFT")
-RegisterKeyMapping("+gizmoLocal", "Sets gizmo to be local to the entity instead of world", "keyboard", "L")
+RegisterKeyMapping('+gizmoTranslation', locale('keyMappings.gizmo_translation'), 'keyboard', 'T')
+RegisterKeyMapping('+gizmoRotation', locale('keyMappings.gizmo_rotation'), 'keyboard', 'R')
+RegisterKeyMapping("+gizmoSelect", locale('keyMappings.gizmo_select'), "MOUSE_BUTTON", "MOUSE_LEFT")
+RegisterKeyMapping("+gizmoLocal", locale('keyMappings.gizmo_local'), "keyboard", "L")
 
 local decoratingOptions = {}
-for k, v in pairs(Furniture) do
+for k, v in pairs(config.furniture) do
     local menuId = string.format('qbx_properties_decoratingMenu_%s', k)
     decoratingOptions[#decoratingOptions + 1] = {
         title = k,
@@ -266,7 +267,7 @@ lib.registerContext({
 --     DisableIdleCamera(true)
 --     local cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
 --     RenderScriptCams(true, false, 0, false, false)
---     for _, v in pairs(Furniture) do
+--     for _, v in pairs(config.furniture) do
 --         for i = 1, #v do
 --             modelHash = GetHashKey(v[i].object)
 --             lib.requestModel(modelHash, 5000)

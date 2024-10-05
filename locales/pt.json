@@ -1,23 +1,23 @@
 {
     "notify": {
         "no_access": "Sem acesso.",
-        "someone_at_door": "Alguém está à sua porta!",
-        "keyholder": " foi adicionado como portador de chave.",
-        "added_as_keyholder": "Foi adicionado como portador de chave.",
-        "removed_as_keyholder": " foi removido como portador de chave."
+        "someone_at_door": "Alguém está à tua porta!",
+        "keyholder": " foste adicionado como portador de chave.",
+        "added_as_keyholder": "Foste adicionado como portador de chave.",
+        "removed_as_keyholder": " foste removido como portador de chave."
     },
     "alert": {
         "give_keys": "Dar chaves a esta pessoa?",
         "apartment_selection": "Seleção de Apartamento",
-        "are_you_sure": "Tem a certeza de que quer obter %s?",
-        "want_remove_keys": "Quer remover as chaves desta pessoa?",
-        "want_let_person_in": "Quer deixar esta pessoa entrar?",
+        "are_you_sure": "Tens a certeza de que queres obter %s?",
+        "want_remove_keys": "Queres remover as chaves desta pessoa?",
+        "want_let_person_in": "Queres deixar esta pessoa entrar?",
         "property_name": "Nome da Propriedade",
         "property_name_description": "Um nome simples e descritivo da propriedade",
         "price": "Preço",
-        "price_description": "O preço de compra ou o preço deduzido para o aluguel",
-        "rent_interval": "Intervalo de Aluguel",
-        "rent_interval_description": "O intervalo em que o aluguel será deduzido em horas (torna a propriedade alugável em vez de comprável)"
+        "price_description": "O preço de compra ou o preço deduzido para o aluguer",
+        "rent_interval": "Intervalo de Aluguer",
+        "rent_interval_description": "O intervalo em que o aluguer será deduzido em horas (torna a propriedade alugável em vez de comprável)"
     },
     "menu": {
         "add_keyholder": "Adicionar Portador de Chave",
@@ -31,13 +31,19 @@
         "ring_doorbell": "Tocar a Campainha",
         "properties": "Propriedades",
         "retrieve_properties": "Recuperar Propriedades Possuídas",
-        "show_owned_properties": "Mostrar apenas propriedades que possui",
+        "show_owned_properties": "Mostrar apenas propriedades que possuís",
         "interior_preview": "Pré-visualização de Interior"
     },
     "instructButtons": {
         "up": "Cima",
         "down": "Baixo",
         "submit": "Submeter"
+    },
+    "keyMappings": {
+        "gizmo_translation": "Sets mode to translation",
+        "gizmo_rotation": "Sets mode to rotation",
+        "gizmo_select": "Selects currently highlighted",
+        "gizmo_local": "Sets gizmo local to the entity"
     },
     "drawtext": {
         "stash": "[E] - Esconderijo",

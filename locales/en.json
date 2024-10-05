@@ -41,6 +41,12 @@
         "down": "Down",
         "submit": "Submit"
     },
+    "keyMappings": {
+        "gizmo_translation": "Sets mode to translation",
+        "gizmo_rotation": "Sets mode to rotation",
+        "gizmo_select": "Selects currently highlighted",
+        "gizmo_local": "Sets gizmo local to the entity"
+    },
     "drawtext": {
         "stash": "[E] - Stash",
         "exit": "[E] - Exit | [G] - Manage",

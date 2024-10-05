@@ -1,3 +1,4 @@
+local sharedConfig = require 'config.shared'
 local BoardCoords = vec4(-44.19, -585.99, 87.71, 250.0)
 local BoardModel = `tr_prop_tr_planning_board_01a`
 local RenderTarget = 'modgarage_01'
@@ -105,16 +106,16 @@ local function SetupScaleform()
     for i = StartingPoint, StartingPoint + 2 do
         ScaleformMovieMethodAddParamTextureNameString(string.format('selection%s', i))
         BeginTextCommandScaleformString('STRING')
-        AddTextComponentSubstringPlayerName(ApartmentOptions[i].label)
+        AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].label)
         EndTextCommandScaleformString()
         BeginTextCommandScaleformString('STRING')
-        AddTextComponentSubstringPlayerName(ApartmentOptions[i].description)
+        AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].description)
         EndTextCommandScaleformString()
         ScaleformMovieMethodAddParamInt(0)
     end
 
     BeginTextCommandScaleformString('STRING')
-    AddTextComponentSubstringPlayerName(string.format('%s/%s', currentButtonID, #ApartmentOptions))
+    AddTextComponentSubstringPlayerName(string.format('%s/%s', currentButtonID, #sharedConfig.apartmentOptions))
     EndTextCommandScaleformString()
 
     ScaleformMovieMethodAddParamInt(0)
@@ -184,16 +185,16 @@ local function InputHandler()
     while true do
         if IsControlJustReleased(0, 188) then
             currentButtonID -= 1
-            if currentButtonID < 1 then currentButtonID = #ApartmentOptions end
+            if currentButtonID < 1 then currentButtonID = #sharedConfig.apartmentOptions end
             SetupScaleform()
         elseif IsControlJustReleased(0, 187) then
             currentButtonID += 1
-            if currentButtonID > #ApartmentOptions then currentButtonID = 1 end
+            if currentButtonID > #sharedConfig.apartmentOptions then currentButtonID = 1 end
             SetupScaleform()
         elseif IsControlJustReleased(0, 191) then
             local alert = lib.alertDialog({
                 header = locale('alert.apartment_selection'),
-                content = string.format(locale('alert.are_you_sure'), ApartmentOptions[currentButtonID].label),
+                content = string.format(locale('alert.are_you_sure'), sharedConfig.apartmentOptions[currentButtonID].label),
                 centered = true,
                 cancel = true
             })
