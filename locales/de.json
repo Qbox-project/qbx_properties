@@ -1,0 +1,57 @@
+{
+    "notify": {
+        "no_access": "Kein Zugriff.",
+        "someone_at_door": "Jemand ist an deiner Tür!",
+        "keyholder": " wurde als Schlüsselinhaber hinzugefügt.",
+        "added_as_keyholder": "Du wurdest als Schlüsselinhaber hinzugefügt.",
+        "removed_as_keyholder": " wurde als Schlüsselinhaber entfernt."
+    },
+    "alert": {
+        "give_keys": "Schlüssel an diese Person übergeben?",
+        "apartment_selection": "Wohnungsauswahl",
+        "are_you_sure": "Bist du sicher, dass du %s nehmen möchtest?",
+        "want_remove_keys": "Möchtest du dieser Person die Schlüssel entziehen?",
+        "want_let_person_in": "Möchtest du diese Person hereinlassen?",
+        "property_name": "Objektname",
+        "property_name_description": "Ein einfacher beschreibender Name des Objekts",
+        "price": "Preis",
+        "price_description": "Der Kaufpreis oder der abgezogene Mietpreis",
+        "rent_interval": "Mietintervall",
+        "rent_interval_description": "Der Intervall, in dem die Miete in Stunden abgezogen wird (macht das Objekt vermietbar statt käuflich)"
+    },
+    "menu": {
+        "add_keyholder": "Schlüsselinhaber hinzufügen",
+        "people_inside": "Personen im Inneren",
+        "keyholders": "Schlüsselinhaber",
+        "doorbell_ringers": "Türklingler",
+        "manage_keys": "Schlüssel verwalten",
+        "doorbell": "Türklingel",
+        "manage_property": "Objekt verwalten",
+        "enter": "Betreten",
+        "ring_doorbell": "Türklingel betätigen",
+        "properties": "Objekte",
+        "retrieve_properties": "Eigene Objekte abrufen",
+        "show_owned_properties": "Nur eigene Objekte anzeigen",
+        "interior_preview": "Innenansicht",
+        "start_decorating": "Dekorieren beginnen",
+        "decorating_categories": "Kategorien"
+    },
+    "instructButtons": {
+        "up": "Hoch",
+        "down": "Runter",
+        "submit": "Bestätigen"
+    },
+    "keyMappings": {
+        "gizmo_translation": "Setzt den Modus auf Translation",
+        "gizmo_rotation": "Setzt den Modus auf Rotation",
+        "gizmo_select": "Wählt das aktuell hervorgehobene aus",
+        "gizmo_local": "Setzt Gizmo lokal auf das Objekt"
+    },
+    "drawtext": {
+        "stash": "[E] - Versteck",
+        "exit": "[E] - Verlassen | [G] - Verwalten",
+        "clothing": "[E] - Kleidung | [G] - Outfits",
+        "logout": "[E] - Abmelden",
+        "view_property": "[E] - Objekt anzeigen"
+    }
+}
