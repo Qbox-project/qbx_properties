@@ -209,7 +209,7 @@ local function InputHandler()
 end
 
 RegisterNetEvent('apartments:client:setupSpawnUI', function()
-    if #ApartmentOptions == 1 then
+    if #sharedConfig.apartmentOptions == 1 then
         inputConfirm(1)
         return
     end
