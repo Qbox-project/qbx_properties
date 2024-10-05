@@ -172,7 +172,7 @@ local function inputConfirm(apartmentIndex)
     DoScreenFadeOut(500)
     while not IsScreenFadedOut() do Wait(0) end
     FreezeEntityPosition(cache.ped, false)
-    SetEntityCoords(cache.ped, ApartmentOptions[apartmentIndex].enter.x, ApartmentOptions[apartmentIndex].enter.y, ApartmentOptions[apartmentIndex].enter.z - 2.0, false, false, false, false)
+    SetEntityCoords(cache.ped, sharedConfig.apartmentOptions[apartmentIndex].enter.x, sharedConfig.apartmentOptions[apartmentIndex].enter.y, sharedConfig.apartmentOptions[apartmentIndex].enter.z - 2.0, false, false, false, false)
     Wait(0)
     TriggerServerEvent('qbx_properties:server:apartmentSelect', apartmentIndex)
     Wait(1000) -- Wait for player to spawn correctly so clothing menu can load in nice
