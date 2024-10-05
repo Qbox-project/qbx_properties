@@ -1,3 +1,5 @@
+local config = require 'config.server'
+local sharedConfig = require 'config.shared'
 
 lib.addCommand('createproperty', {
     help = 'Create a property at your current location',
@@ -20,22 +22,22 @@ RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex,
     local interactData = {
         {
             type = 'logout',
-            coords = Interiors[interiorIndex].logout
+            coords = sharedConfig.interiors[interiorIndex].logout
         },
         {
             type = 'clothing',
-            coords = Interiors[interiorIndex].clothing
+            coords = sharedConfig.interiors[interiorIndex].clothing
         },
         {
             type = 'exit',
-            coords = Interiors[interiorIndex].exit
+            coords = sharedConfig.interiors[interiorIndex].exit
         }
     }
     local stashData = {
         {
-            coords = Interiors[interiorIndex].stash,
-            slots = ApartmentStash.slots,
-            maxWeight = ApartmentStash.maxWeight,
+            coords = sharedConfig.interiors[interiorIndex].stash,
+            slots = config.apartmentStash.slots,
+            maxWeight = config.apartmentStash.maxWeight,
         }
     }
     local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC', {})

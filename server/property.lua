@@ -1,3 +1,4 @@
+local sharedConfig = require 'config.shared'
 local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
@@ -26,7 +27,7 @@ function EnterProperty(playerSource, id, isSpawn)
     end
 
     if isInteriorShell then
-        TriggerClientEvent('qbx_properties:client:createInterior', playerSource, tonumber(property.interior), vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z - ShellUndergroundOffset))
+        TriggerClientEvent('qbx_properties:client:createInterior', playerSource, tonumber(property.interior), vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z - sharedConfig.shellUndergroundOffset))
     end
 
     local interactData = json.decode(property.interact_options)

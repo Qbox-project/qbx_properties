@@ -1,31 +1,34 @@
+local config = require 'config.server'
+local sharedConfig = require 'config.shared'
+
 RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentIndex)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
-    if not ApartmentOptions[apartmentIndex] then return end
+    if not sharedConfig.apartmentOptions[apartmentIndex] then return end
 
     local hasApartment = MySQL.single.await('SELECT * FROM properties WHERE owner = ?', {player.PlayerData.citizenid})
     if hasApartment then return end
 
-    local interior = ApartmentOptions[apartmentIndex].interior
+    local interior = sharedConfig.apartmentOptions[apartmentIndex].interior
     local interactData = {
         {
             type = 'logout',
-            coords = Interiors[interior].logout
+            coords = sharedConfig.interiors[interior].logout
         },
         {
             type = 'clothing',
-            coords = Interiors[interior].clothing
+            coords = sharedConfig.interiors[interior].clothing
         },
         {
             type = 'exit',
-            coords = Interiors[interior].exit
+            coords = sharedConfig.interiors[interior].exit
         }
     }
     local stashData = {
         {
-            coords = Interiors[interior].stash,
-            slots = ApartmentStash.slots,
-            maxWeight = ApartmentStash.maxWeight,
+            coords = sharedConfig.interiors[interior].stash,
+            slots = config.apartmentStash.slots,
+            maxWeight = config.apartmentStash.maxWeight,
         }
     }
 
@@ -35,19 +38,19 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
     ::again::
 
     apartmentNumber += 1
-    local numberExists = MySQL.single.await('SELECT * FROM properties WHERE property_name = ?', {string.format('%s %s', ApartmentOptions[apartmentIndex].label, apartmentNumber)})
+    local numberExists = MySQL.single.await('SELECT * FROM properties WHERE property_name = ?', {string.format('%s %s', sharedConfig.apartmentOptions[apartmentIndex].label, apartmentNumber)})
     if numberExists then goto again end
 
     local id = MySQL.insert.await('INSERT INTO `properties` (`coords`, `property_name`, `owner`, `interior`, `interact_options`, `stash_options`) VALUES (?, ?, ?, ?, ?, ?)', {
-        json.encode(ApartmentOptions[apartmentIndex].enter),
-        string.format('%s %s', ApartmentOptions[apartmentIndex].label, apartmentNumber),
+        json.encode(sharedConfig.apartmentOptions[apartmentIndex].enter),
+        string.format('%s %s', sharedConfig.apartmentOptions[apartmentIndex].label, apartmentNumber),
         player.PlayerData.citizenid,
         interior,
         json.encode(interactData),
         json.encode(stashData),
     })
 
-    TriggerClientEvent('qbx_properties:client:addProperty', -1, ApartmentOptions[apartmentIndex].enter)
+    TriggerClientEvent('qbx_properties:client:addProperty', -1, sharedConfig.apartmentOptions[apartmentIndex].enter)
     EnterProperty(playerSource, id, true)
     Wait(200)
     TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
