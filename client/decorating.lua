@@ -194,10 +194,10 @@ function ToggleDecorating()
     cursorMode = false
 end
 
-RegisterKeyMapping('+gizmoTranslation', 'Sets mode of the gizmo to translation', 'keyboard', 'T')
-RegisterKeyMapping('+gizmoRotation', 'Sets mode for the gizmo to rotation', 'keyboard', 'R')
-RegisterKeyMapping("+gizmoSelect", "Selects the currently highlighted gizmo", "MOUSE_BUTTON", "MOUSE_LEFT")
-RegisterKeyMapping("+gizmoLocal", "Sets gizmo to be local to the entity instead of world", "keyboard", "L")
+RegisterKeyMapping('+gizmoTranslation', locale('keyMappings.gizmo_translation'), 'keyboard', 'T')
+RegisterKeyMapping('+gizmoRotation', locale('keyMappings.gizmo_rotation'), 'keyboard', 'R')
+RegisterKeyMapping("+gizmoSelect", locale('keyMappings.gizmo_select'), "MOUSE_BUTTON", "MOUSE_LEFT")
+RegisterKeyMapping("+gizmoLocal", locale('keyMappings.gizmo_local'), "keyboard", "L")
 
 local decoratingOptions = {}
 for k, v in pairs(Furniture) do

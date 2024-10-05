@@ -1,0 +1,57 @@
+{
+    "notify": {
+        "no_access": "Nu ai acces.",
+        "someone_at_door": "Cineva este la ușa ta!",
+        "keyholder": " a fost adăugat ca deținător de chei.",
+        "added_as_keyholder": "Ai fost adăugat ca deținător de chei.",
+        "removed_as_keyholder": " a fost eliminat ca deținător de chei."
+    },
+    "alert": {
+        "give_keys": "Dorești să dai cheile acestei persoane?",
+        "apartment_selection": "Selecție apartament",
+        "are_you_sure": "Ești sigur că vrei să obții %s?",
+        "want_remove_keys": "Dorești să elimini cheile acestei persoane?",
+        "want_let_person_in": "Vrei să lași această persoană să intre?",
+        "property_name": "Nume proprietate",
+        "property_name_description": "Un nume simplu și descriptiv al proprietății",
+        "price": "Preț",
+        "price_description": "Prețul de achiziție sau prețul dedus pentru chirie",
+        "rent_interval": "Interval chirie",
+        "rent_interval_description": "Intervalul în care chiria va fi dedusă, în ore (face proprietatea închiriabilă în loc de achiziționabilă)"
+    },
+    "menu": {
+        "add_keyholder": "Adaugă deținător de chei",
+        "people_inside": "Persoane înăuntru",
+        "keyholders": "Deținători de chei",
+        "doorbell_ringers": "Persoane care sună la ușă",
+        "manage_keys": "Administrează chei",
+        "doorbell": "Sonerie",
+        "manage_property": "Administrează proprietatea",
+        "enter": "Intră",
+        "ring_doorbell": "Sună la ușă",
+        "properties": "Proprietăți",
+        "retrieve_properties": "Vezi doar proprietățile deținute",
+        "show_owned_properties": "Arată doar proprietățile pe care le deții",
+        "interior_preview": "Previzualizare interior",
+        "start_decorating": "Începe decorarea",
+        "decorating_categories": "Categorii"
+    },
+    "instructButtons": {
+        "up": "Sus",
+        "down": "Jos",
+        "submit": "Trimite"
+    },
+    "keyMappings": {
+        "gizmo_translation": "Schimba la modul traducere",
+        "gizmo_rotation": "Schimba la modul rotatie",
+        "gizmo_select": "Selecteaza obiectul actual",
+        "gizmo_local": "Seteaza gizmo local la entitate",
+    },
+    "drawtext": {
+        "stash": "[E] - Depozit",
+        "exit": "[E] - Iesi | [G] - Administreaza",
+        "clothing": "[E] - Haine | [G] - Outfit-uri",
+        "logout": "[E] - Deconectare",
+        "view_property": "[E] - Vizualizeaza proprietatea"
+    }
+}
