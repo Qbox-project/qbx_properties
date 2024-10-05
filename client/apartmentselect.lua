@@ -169,6 +169,18 @@ function ManagePlayer()
     end)
 end
 
+local function inputConfirm(apartmentIndex)
+    DoScreenFadeOut(500)
+    while not IsScreenFadedOut() do Wait(0) end
+    FreezeEntityPosition(cache.ped, false)
+    SetEntityCoords(cache.ped, sharedConfig.apartmentOptions[apartmentIndex].enter.x, sharedConfig.apartmentOptions[apartmentIndex].enter.y, sharedConfig.apartmentOptions[apartmentIndex].enter.z - 2.0, false, false, false, false)
+    Wait(0)
+    TriggerServerEvent('qbx_properties:server:apartmentSelect', apartmentIndex)
+    Wait(1000) -- Wait for player to spawn correctly so clothing menu can load in nice
+    TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
+    TriggerEvent('QBCore:Client:OnPlayerLoaded')
+end
+
 local function InputHandler()
     while true do
         if IsControlJustReleased(0, 188) then
@@ -187,15 +199,7 @@ local function InputHandler()
                 cancel = true
             })
             if alert == 'confirm' then
-                DoScreenFadeOut(500)
-                while not IsScreenFadedOut() do Wait(0) end
-                FreezeEntityPosition(cache.ped, false)
-                SetEntityCoords(cache.ped, sharedConfig.apartmentOptions[currentButtonID].enter.x, sharedConfig.apartmentOptions[currentButtonID].enter.y, sharedConfig.apartmentOptions[currentButtonID].enter.z - 2.0, false, false, false, false)
-                Wait(0)
-                TriggerServerEvent('qbx_properties:server:apartmentSelect', currentButtonID)
-                Wait(1000) -- Wait for player to spawn correctly so clothing menu can load in nice
-                TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
-                TriggerEvent('QBCore:Client:OnPlayerLoaded')
+                inputConfirm(currentButtonID)
                 break
             end
         end
@@ -205,6 +209,10 @@ local function InputHandler()
 end
 
 RegisterNetEvent('apartments:client:setupSpawnUI', function()
+    if #ApartmentOptions == 1 then
+        inputConfirm(1)
+        return
+    end
     Wait(400)
     ManagePlayer()
     SetupCamera(true)
