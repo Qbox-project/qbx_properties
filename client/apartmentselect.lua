@@ -157,8 +157,12 @@ function SetupCamera(apartmentCam)
 end
 
 function StopCamera()
-    SetCamActive(previewCam, false)
-    DestroyCam(previewCam, true)
+    if DoesCamExist(previewCam) then
+        SetCamActive(previewCam, false)
+        RenderScriptCams(false, false, 0, true, true)
+        DestroyCam(previewCam, true)
+        previewCam = nil
+    end
 end
 
 function ManagePlayer()
