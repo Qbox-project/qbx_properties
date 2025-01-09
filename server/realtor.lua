@@ -11,13 +11,14 @@ lib.addCommand('createproperty', {
     TriggerClientEvent('qbx_properties:client:createProperty', source)
 end)
 
-RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex, data, propertyCoords)
+RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex, data, propertyCoords, garageCoords)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
 
     if player.PlayerData.job.name ~= 'realestate' then return end
-    if #(playerCoords - propertyCoords) > 5.0 then return end
+    if not garageCoords and #(playerCoords - propertyCoords) > 5.0 then return end
+    if garageCoords and #(playerCoords - vec3(garageCoords.x, garageCoords.y, garageCoords.z)) > 5.0 then return end
 
     local interactData = {
         {
@@ -33,6 +34,7 @@ RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex,
             coords = sharedConfig.interiors[interiorIndex].exit
         }
     }
+
     local stashData = {
         {
             coords = sharedConfig.interiors[interiorIndex].stash,
@@ -40,16 +42,20 @@ RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex,
             maxWeight = config.apartmentStash.maxWeight,
         }
     }
+
     local result = MySQL.single.await('SELECT id FROM properties ORDER BY id DESC', {})
-    local propertNumber = result?.id or 0
-    MySQL.insert('INSERT INTO `properties` (`coords`, `property_name`, `price`, `interior`, `interact_options`, `stash_options`, `rent_interval`) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+    local propertyNumber = result?.id or 0
+    local propertyName = string.format('%s %s', data[1], propertyNumber)
+
+    MySQL.insert('INSERT INTO `properties` (`coords`, `property_name`, `price`, `interior`, `interact_options`, `stash_options`, `rent_interval`, `garage`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', {
         json.encode(propertyCoords),
-        string.format('%s %s', data[1], propertNumber),
+        propertyName,
         data[2],
         interiorIndex,
         json.encode(interactData),
         json.encode(stashData),
-        data[3]
+        data[3],
+        garageCoords and json.encode(garageCoords) or nil,
     })
     TriggerClientEvent('qbx_properties:client:addProperty', -1, propertyCoords)
 end)

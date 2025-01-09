@@ -4,9 +4,25 @@ for k in pairs(sharedConfig.interiors) do
     values[#values + 1] = k
 end
 
+local car = 0
 local shell = 0
+
 local playerCoords = vec3(0, 0, 0)
+local garageCoords = nil
+local garageHeading = 0.0
+
 local isPreviewing = false
+local isAddingGarage = false
+
+local function showText()
+    lib.showTextUI('BACKSPACE - Exit  \n ARROW LEFT - Turn left  \n ARROW RIGHT - Turn right  \n ENTER - Confirm Placement')
+end
+
+local function spawnCar()
+    local model = lib.requestModel('sultanrs', 2500)
+    car = CreateVehicle(model, 0.0, 0.0, 0.0, 0.0, false, false)
+    SetEntityCompletelyDisableCollision(car, false, false)
+end
 
 local function previewProperty(propertyIndex)
     if DoesEntityExist(shell) then DeleteEntity(shell) end
@@ -35,6 +51,59 @@ local function stopPreview()
     end
 end
 
+local function addGaragePoint()
+    isAddingGarage = not isAddingGarage
+    garageCoords = nil
+
+    showText()
+    spawnCar()
+
+    while isAddingGarage do
+        Wait(0)
+
+        local hit, _, endCoords, _, _ = lib.raycast.fromCamera(511, 4, 25.0)
+
+        if not hit then
+            SetEntityCoords(car, 0.0, 0.0, 0.0, false, false, false, false)
+        else
+            SetEntityCoords(car, endCoords.x, endCoords.y, endCoords.z + 1.0, false, false, false, false)
+            SetVehicleOnGroundProperly(car)
+        end
+
+        if IsControlJustPressed(0, 202) then
+            if DoesEntityExist(car) then
+                DeleteEntity(car)
+            end
+            isAddingGarage = false
+        end
+
+        if IsControlPressed(0, 190) then
+            garageHeading = garageHeading + 1.0
+            SetEntityHeading(car, garageHeading)
+            Wait(100)
+        end
+
+        if IsControlPressed(0, 189) then
+            garageHeading = garageHeading - 1.0
+            SetEntityHeading(car, garageHeading)
+            Wait(100)
+        end
+
+        if IsControlJustPressed(0, 18) then
+            garageCoords = endCoords
+            garageHeading = GetEntityHeading(car)
+            if DoesEntityExist(car) then
+                DeleteEntity(car)
+            end
+            isAddingGarage = false
+        end
+
+        SetEntityHeading(car, garageHeading) -- Prevent the car from rotating
+    end
+
+    lib.hideTextUI()
+end
+
 lib.registerMenu({
     id = 'qbx_properties_realtor_menu',
     title = locale('menu.interior_preview'),
@@ -54,10 +123,14 @@ lib.registerMenu({
         {type = 'input', label = locale('alert.property_name'), description = locale('alert.property_name_description'), required = true, min = 4, max = 32, icon = 'home'},
         {type = 'number', label = locale('alert.price'), description = locale('alert.price_description'), icon = 'dollar-sign', required = true, min = 1},
         {type = 'number', label = locale('alert.rent_interval'), description = locale('alert.rent_interval_description'), icon = 'clock', min = 1, max = 24, step = 1},
+        {type = 'checkbox', label = locale('alert.add_garage'), required = true},
     })
-    if input then
-        TriggerServerEvent('qbx_properties:server:createProperty', args[scrollIndex], input, playerCoords)
+    if not input then return end
+
+    if input[4] then
+        addGaragePoint()
     end
+    TriggerServerEvent('qbx_properties:server:createProperty', args[scrollIndex], input, playerCoords, vec4(garageCoords.x, garageCoords.y, garageCoords.z + 1.0, garageHeading))
 end)
 
 RegisterNetEvent('qbx_properties:client:createProperty', function()
