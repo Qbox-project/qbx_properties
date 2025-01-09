@@ -354,7 +354,6 @@ local function registerGarage(name, owner, keyholders, garage)
         accessPoints = {
             {
                 coords = vec4(garage.x, garage.y, garage.z, garage.w),
-                spawn = vec4(garage.x, garage.y, garage.z, garage.w),
             }
         },
         canAccess = function(source)
@@ -366,25 +365,9 @@ end
 local function registerGarages()
     local properties = MySQL.query.await('SELECT property_name, owner, keyholders, garage FROM properties WHERE owner IS NOT NULL AND garage IS NOT NULL')
     if not properties then return end
-
     for i = 1, #properties do
         local property = properties[i]
-        local coords = json.decode(property.garage)
-        local garageName = 'property_' .. string.gsub(string.lower(property.property_name), ' ', '_')
-
-        exports.qbx_garages:RegisterGarage(garageName, {
-            label = property.property_name,
-            vehicleType = 'car',
-            accessPoints = {
-                {
-                    coords = vec4(coords.x, coords.y, coords.z, coords.w),
-                    spawn = vec4(coords.x, coords.y, coords.z, coords.w),
-                }
-            },
-            canAccess = function(source)
-                return canAccess(source, property.owner, json.decode(property.keyholders))
-            end
-        })
+        registerGarage(property.property_name, property.owner, json.decode(property.keyholders), json.decode(property.garage))
     end
 end
 
