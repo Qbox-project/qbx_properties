@@ -61,7 +61,7 @@ local function addGaragePoint()
     while isAddingGarage do
         Wait(0)
 
-        local hit, _, endCoords, _, _ = lib.raycast.fromCamera(511, 4, 25.0)
+        local hit, _, endCoords = lib.raycast.fromCamera(511, 4, 25.0)
 
         if not hit then
             SetEntityCoords(car, 0.0, 0.0, 0.0, false, false, false, false)
