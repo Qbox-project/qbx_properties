@@ -78,24 +78,28 @@ local function addGaragePoint()
         end
 
         if IsControlPressed(0, 190) then
-            garageHeading = garageHeading + 1.0
+            garageHeading = (garageHeading + 2.5) % 360.0
             SetEntityHeading(car, garageHeading)
             Wait(100)
         end
 
         if IsControlPressed(0, 189) then
-            garageHeading = garageHeading - 1.0
+            garageHeading = (garageHeading - 2.5) % 360.0
             SetEntityHeading(car, garageHeading)
             Wait(100)
         end
 
         if IsControlJustPressed(0, 18) then
-            garageCoords = endCoords
-            garageHeading = GetEntityHeading(car)
-            if DoesEntityExist(car) then
-                DeleteEntity(car)
+            if hit then
+                garageCoords = endCoords
+                garageHeading = GetEntityHeading(car)
+                if DoesEntityExist(car) then
+                    DeleteEntity(car)
+                end
+                isAddingGarage = false
+            else
+                lib.notify({type = 'error', title = 'Error', description = 'Invalid garage location.'})
             end
-            isAddingGarage = false
         end
 
         SetEntityHeading(car, garageHeading) -- Prevent the car from rotating
