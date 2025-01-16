@@ -444,7 +444,7 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
     exports.qbx_core:Notify(playerSource, string.format('Successfully purchased %s for $%s', property.property_name, property.price))
 end)
 
-CreateThread(function()
+Citizen.CreateThreadNow(function()
     local sql1 = LoadResourceFile(cache.resource, 'property.sql')
     local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
     local sql3 = LoadResourceFile(cache.resource, 'property_garages.sql')
