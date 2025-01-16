@@ -18,7 +18,7 @@ RegisterNetEvent('qbx_properties:server:createProperty', function(interiorIndex,
 
     if player.PlayerData.job.name ~= 'realestate' then return end
     if not garageCoords and #(playerCoords - propertyCoords) > 5.0 then return end
-    if garageCoords and #(playerCoords - vec3(garageCoords.x, garageCoords.y, garageCoords.z)) > 5.0 then return end
+    if garageCoords and #(playerCoords - vec3(garageCoords.xyz)) > 5.0 then return end
 
     local interactData = {
         {

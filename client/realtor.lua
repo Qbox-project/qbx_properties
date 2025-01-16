@@ -6,13 +6,10 @@ end
 
 local car = 0
 local shell = 0
-
 local playerCoords = vec3(0, 0, 0)
 local garageCoords = nil
 local garageHeading = 0.0
-
 local isPreviewing = false
-local isAddingGarage = false
 
 local function showText()
     lib.showTextUI('BACKSPACE - Exit  \n ARROW LEFT - Turn left  \n ARROW RIGHT - Turn right  \n ENTER - Confirm Placement')
@@ -22,6 +19,7 @@ local function spawnCar()
     local model = lib.requestModel('sultanrs', 2500)
     car = CreateVehicle(model, 0.0, 0.0, 0.0, 0.0, false, false)
     SetEntityCompletelyDisableCollision(car, false, false)
+    SetModelAsNoLongerNeeded(model)
 end
 
 local function previewProperty(propertyIndex)
@@ -52,7 +50,7 @@ local function stopPreview()
 end
 
 local function addGaragePoint()
-    isAddingGarage = not isAddingGarage
+    local isAddingGarage = true
     garageCoords = nil
 
     showText()
@@ -127,7 +125,7 @@ lib.registerMenu({
         {type = 'input', label = locale('alert.property_name'), description = locale('alert.property_name_description'), required = true, min = 4, max = 32, icon = 'home'},
         {type = 'number', label = locale('alert.price'), description = locale('alert.price_description'), icon = 'dollar-sign', required = true, min = 1},
         {type = 'number', label = locale('alert.rent_interval'), description = locale('alert.rent_interval_description'), icon = 'clock', min = 1, max = 24, step = 1},
-        {type = 'checkbox', label = locale('alert.add_garage'), required = true},
+        {type = 'checkbox', label = locale('alert.add_garage')},
     })
     if not input then return end
 
