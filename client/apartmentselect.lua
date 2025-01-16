@@ -186,14 +186,28 @@ local function inputConfirm(apartmentIndex)
 end
 
 local function InputHandler()
+    local coords = sharedConfig.apartmentOptions[currentButtonID].enter
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(blip, 40)
+    ShowTickOnBlip(blip, true)
+    LockMinimapAngle(0.0)
     while true do
+        SetBigmapActive(true, false)
+        DisplayRadar(true)
+        SetRadarAsExteriorThisFrame()
         if IsControlJustReleased(0, 188) then
             currentButtonID -= 1
             if currentButtonID < 1 then currentButtonID = #sharedConfig.apartmentOptions end
+            coords = sharedConfig.apartmentOptions[currentButtonID].enter
+            SetBlipCoords(blip, coords.x, coords.y, coords.z)
+            LockMinimapPosition(coords.x, coords.y)
             SetupScaleform()
         elseif IsControlJustReleased(0, 187) then
             currentButtonID += 1
             if currentButtonID > #sharedConfig.apartmentOptions then currentButtonID = 1 end
+            coords = sharedConfig.apartmentOptions[currentButtonID].enter
+            SetBlipCoords(blip, coords.x, coords.y, coords.z)
+            LockMinimapPosition(coords.x, coords.y)
             SetupScaleform()
         elseif IsControlJustReleased(0, 191) then
             local alert = lib.alertDialog({
@@ -209,6 +223,11 @@ local function InputHandler()
         end
         Wait(0)
     end
+    SetBigmapActive(false, false)
+    DisplayRadar(false)
+    RemoveBlip(blip)
+    UnlockMinimapPosition()
+    UnlockMinimapAngle()
     StopCamera()
 end
 
