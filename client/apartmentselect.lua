@@ -104,12 +104,21 @@ local function SetupScaleform()
     end
 
     for i = StartingPoint, StartingPoint + 2 do
-        ScaleformMovieMethodAddParamTextureNameString(string.format('selection%s', i))
-        BeginTextCommandScaleformString('STRING')
-        AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].label)
-        EndTextCommandScaleformString()
-        BeginTextCommandScaleformString('STRING')
-        AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].description)
+        if sharedConfig.apartmentOptions[i] then
+            ScaleformMovieMethodAddParamTextureNameString(string.format('selection%s', i))
+            BeginTextCommandScaleformString('STRING')
+            AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].label)
+            EndTextCommandScaleformString()
+            BeginTextCommandScaleformString('STRING')
+            AddTextComponentSubstringPlayerName(sharedConfig.apartmentOptions[i].description)
+        else
+            ScaleformMovieMethodAddParamTextureNameString('empty')
+            BeginTextCommandScaleformString('STRING')
+            AddTextComponentSubstringPlayerName('')
+            EndTextCommandScaleformString()
+            BeginTextCommandScaleformString('STRING')
+            AddTextComponentSubstringPlayerName('')
+        end
         EndTextCommandScaleformString()
         ScaleformMovieMethodAddParamInt(0)
     end
@@ -120,9 +129,9 @@ local function SetupScaleform()
 
     ScaleformMovieMethodAddParamInt(0)
 
-    ScaleformMovieMethodAddParamBool(true)
-    ScaleformMovieMethodAddParamBool(true)
-    ScaleformMovieMethodAddParamBool(true)
+    ScaleformMovieMethodAddParamBool(sharedConfig.apartmentOptions[StartingPoint])
+    ScaleformMovieMethodAddParamBool(sharedConfig.apartmentOptions[StartingPoint + 1])
+    ScaleformMovieMethodAddParamBool(sharedConfig.apartmentOptions[StartingPoint + 2])
 
     -- Same "modular" bullshit here. Had no success with CURRENT_SELECTION nor CURRENT_ROLLOVER, not sure why.
     for i = StartingPoint, StartingPoint + 2 do
