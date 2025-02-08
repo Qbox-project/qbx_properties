@@ -6,6 +6,7 @@ local ring = {}
 
 function EnterProperty(playerSource, id, isSpawn)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
+    if not property then return end -- Lua and its stupid need check nil warnings
     local propertyCoords = json.decode(property.coords)
     propertyCoords = vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
@@ -60,7 +61,7 @@ function EnterProperty(playerSource, id, isSpawn)
 
     TriggerClientEvent('qbx_properties:client:loadDecorations', playerSource, decorations)
 
-    TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, type(property.rent_interval) == 'number')
+    TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, property.interior, type(property.rent_interval) == 'number')
 end
 
 ---@param playerSource integer

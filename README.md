@@ -14,4 +14,3 @@ From a fresh Qbox build
 - Add decoration option in the managemenu. Use Gizmo.
 - Garage options for properties and not apartments
 - MLO Support
-- Figure out all the models to hide using `EnableExteriorCullModelThisFrame` when inside IPLs

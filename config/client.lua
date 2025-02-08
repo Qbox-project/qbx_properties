@@ -1,4 +1,12 @@
 return {
+    exteriorHashs = { -- Used for hiding the exterior when inside of an apartment IPL
+        ['DellPerroHeightsApt4'] = {`sm_14_emissive`, `hei_sm_14_bld2`},
+        ['DellPerroHeightsApt7'] = {`sm_14_emissive`, `hei_sm_14_bld2`},
+        ['4IntegrityWayApt28'] = {`hei_dt1_03_build1x`, `DT1_Emissive_DT1_03_b1`, `dt1_03_dt1_Emissive_b1`},
+        ['4IntegrityWayApt30'] = {`hei_dt1_03_build1x`, `DT1_Emissive_DT1_03_b1`, `dt1_03_dt1_Emissive_b1`},
+        ['RichardMajesticApt2'] = {`hei_bh1_08_bld2`, `bh1_emissive_bh1_08`, `bh1_08_bld2_LOD`, `hei_bh1_08_bld2`, `bh1_08_em`},
+        ['TinselTowersApt42'] = {`apa_ss1_02_building01`, `SS1_02_Building01_LOD`},
+    },
     furniture = {
         lighting = {
             {
