@@ -338,11 +338,45 @@ AddEventHandler('playerDropped', function ()
     MySQL.update('UPDATE players SET position = ? WHERE citizenid = ?', { json.encode(vec4(coords.x, coords.y, coords.z, 0.0)), citizenid[playerSource] })
 end)
 
+local function canAccess(source, owner, keyholders)
+    local player = exports.qbx_core:GetPlayer(source)
+    if player.PlayerData.citizenid == owner then return true end
+    for i = 1, #keyholders do
+        if player.PlayerData.citizenid == keyholders[i] then return true end
+    end
+    return false
+end
+
+local function registerGarage(name, owner, keyholders, garage)
+    local garageName = 'property_' .. string.gsub(string.lower(name), ' ', '_')
+    exports.qbx_garages:RegisterGarage(garageName, {
+        label = name,
+        vehicleType = 'car',
+        accessPoints = {
+            {
+                coords = vec4(garage.x, garage.y, garage.z, garage.w),
+            }
+        },
+        canAccess = function(source)
+            return canAccess(source, owner, keyholders)
+        end
+    })
+end
+
+local function registerGarages()
+    local properties = MySQL.query.await('SELECT property_name, owner, keyholders, garage FROM properties WHERE owner IS NOT NULL AND garage IS NOT NULL')
+    if not properties then return end
+    for i = 1, #properties do
+        local property = properties[i]
+        registerGarage(property.property_name, property.owner, json.decode(property.keyholders), json.decode(property.garage))
+    end
+end
+
 local function startRentThread(propertyId)
     CreateThread(function()
         while true do
             local property = MySQL.single.await('SELECT owner, price, rent_interval, property_name FROM properties WHERE id = ?', {propertyId})
-            if not property or not property.owner  then break end
+            if not property or not property.owner then break end
 
             local player = exports.qbx_core:GetPlayerByCitizenId(property.owner) or exports.qbx_core:GetOfflinePlayer(property.owner)
             if not player then print(string.format('%s does not exist anymore, consider checking property id %s', property.owner, propertyId)) break end
@@ -369,7 +403,7 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(propertyId)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
-    local property = MySQL.single.await('SELECT owner, price, property_name, coords, rent_interval FROM properties WHERE id = ?', {propertyId})
+    local property = MySQL.single.await('SELECT owner, price, property_name, coords, rent_interval, keyholders, garage FROM properties WHERE id = ?', {propertyId})
     local propertyCoords = json.decode(property.coords)
     if #(playerCoords - vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)) > 8.0 then return end
     if property.owner then return end
@@ -378,6 +412,10 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(propertyId)
     if player.PlayerData.money.bank < property.price then
         exports.qbx_core:Notify(playerSource, 'Not enough money to rent property.', 'error')
         return
+    end
+
+    if property.garage then
+        registerGarage(property.property_name, player.PlayerData.citizenid, json.decode(property.keyholders), json.decode(property.garage))
     end
 
     exports.qbx_core:Notify(playerSource, string.format('Successfully started renting %s', property.property_name), 'success')
@@ -389,7 +427,7 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
     local playerSource = source --[[@as number]]
     local player = exports.qbx_core:GetPlayer(playerSource)
     local playerCoords = GetEntityCoords(GetPlayerPed(playerSource))
-    local property = MySQL.single.await('SELECT owner, price, property_name, coords FROM properties WHERE id = ?', {propertyId})
+    local property = MySQL.single.await('SELECT owner, price, property_name, coords, keyholders, garage FROM properties WHERE id = ?', {propertyId})
     local propertyCoords = json.decode(property.coords)
 
     if #(playerCoords - vec3(propertyCoords.x, propertyCoords.y, propertyCoords.z)) > 8.0 or property.owner then return end
@@ -399,6 +437,10 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
         return
     end
 
+    if property.garage then
+        registerGarage(property.property_name, player.PlayerData.citizenid, json.decode(property.keyholders), json.decode(property.garage))
+    end
+
     MySQL.update('UPDATE properties SET owner = ? WHERE id = ?', {player.PlayerData.citizenid, propertyId})
     exports.qbx_core:Notify(playerSource, string.format('Successfully purchased %s for $%s', property.property_name, property.price))
 end)
@@ -406,13 +448,18 @@ end)
 Citizen.CreateThreadNow(function()
     local sql1 = LoadResourceFile(cache.resource, 'property.sql')
     local sql2 = LoadResourceFile(cache.resource, 'decorations.sql')
+    local sql3 = LoadResourceFile(cache.resource, 'property_garages.sql')
+
     MySQL.query.await(sql1)
     MySQL.query.await(sql2)
+    MySQL.query.await(sql3)
 
     local properties = MySQL.query.await('SELECT id FROM properties WHERE owner IS NOT NULL AND rent_interval IS NOT NULL')
     for i = 1, #properties do
         startRentThread(properties[i].id)
     end
+
+    registerGarages()
 end)
 
 RegisterNetEvent('qbx_properties:server:stopRenting', function()

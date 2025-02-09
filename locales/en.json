@@ -17,7 +17,8 @@
         "price": "Price",
         "price_description": "The purchasing price or the price deducted for rent",
         "rent_interval": "Rent interval",
-        "rent_interval_description": "The interval in which the rent will be deducted in hours (makes the property rentable instead of purchasable)"
+        "rent_interval_description": "The interval in which the rent will be deducted in hours (makes the property rentable instead of purchasable)",
+        "add_garage": "Add Garage"
     },
     "menu": {
         "add_keyholder": "Add Keyholder",
