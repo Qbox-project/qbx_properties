@@ -1,4 +1,5 @@
 local sharedConfig = require 'config.shared'
+local clientConfig = require 'config.client'
 local interiorShell
 DecorationObjects = {}
 local properties = {}
@@ -230,12 +231,26 @@ local function checkInteractions()
     end)
 end
 
-RegisterNetEvent('qbx_properties:client:updateInteractions', function(interactionsData, isRental)
+local function hideExterior(name)
+    local models = clientConfig.exteriorHashs[name]
+    if not models then return end
+    CreateThread(function()
+        while insideProperty do
+            for i = 1, #models, 1 do
+                EnableExteriorCullModelThisFrame(models[i])
+            end
+            Wait(0)
+        end
+    end)
+end
+
+RegisterNetEvent('qbx_properties:client:updateInteractions', function(interactionsData, interiorString, isRental)
     DoScreenFadeIn(1000)
     interactions = interactionsData
     insideProperty = true
     isPropertyRental = isRental
     checkInteractions()
+    hideExterior(interiorString)
 end)
 
 RegisterNetEvent('qbx_properties:client:createInterior', function(interiorHash, interiorCoords)
