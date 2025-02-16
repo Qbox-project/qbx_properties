@@ -207,15 +207,19 @@ local function checkInteractions()
                 TriggerEvent('illenium-appearance:client:openOutfitMenu')
             end
         end,
-        ['logout'] = function(coords)
+    }
+
+    if clientConfig.allowLogout then
+        interactOptions['logout'] = function(coords)
             qbx.drawText3d({ coords = coords, text = locale('drawtext.logout') })
             if IsControlJustPressed(0, 38) then
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
                 TriggerServerEvent('qbx_properties:server:logoutProperty')
             end
-        end,
-    }
+        end
+    end
+
     CreateThread(function()
         while insideProperty do
             local sleep = 800
