@@ -318,8 +318,6 @@ RegisterNetEvent('qbx_properties:server:openStash', function()
     -- Set to 1 as there is currently no implementation for multiple stashes
     local stashId = 1
     if not hasAccess(player.PlayerData.citizenid, propertyId) then return end
-
-    local property = MySQL.single.await('SELECT property_name FROM properties WHERE id = ?', {propertyId})
     exports.ox_inventory:forceOpenInventory(playerSource, 'stash', { id = string.format('qbx_properties_%s_%s', propertyId, stashId) })
 end)
 
