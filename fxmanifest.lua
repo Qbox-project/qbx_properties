@@ -35,7 +35,7 @@ files {
     'config/client.lua',
     'config/shared.lua',
     'locales/*.json',
-    'screenshots/*.png'
+    'screenshots/*.webp'
 }
 
 lua54 'yes'

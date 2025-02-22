@@ -229,7 +229,7 @@ for k, v in pairs(config.furniture) do
                 SetEntityCollision(previewObject, false, false)
                 SetEntityDrawOutline(previewObject, true)
             end,
-            image = string.format('nui://qbx_properties/screenshots/%s.png', furniture.object),
+            image = string.format('nui://qbx_properties/screenshots/%s.webp', furniture.object),
             args = {
                 object = furniture.object,
                 label = furniture.label

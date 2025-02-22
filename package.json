@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@citizenfx/server": "^2.0.8903-1",
-    "image-js": "^0.35.5"
+    "image-js": "^0.36.0",
+    "webp-converter": "^2.3.3"
   }
 }
