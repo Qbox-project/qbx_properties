@@ -1,4 +1,7 @@
+local config = require 'config.server'
 local sharedConfig = require 'config.shared'
+local logger = require '@qbx_core.modules.logger'
+
 local enteredProperty = {}
 local insideProperty = {}
 local citizenid = {}
@@ -62,6 +65,13 @@ function EnterProperty(playerSource, id, isSpawn)
     TriggerClientEvent('qbx_properties:client:loadDecorations', playerSource, decorations)
 
     TriggerClientEvent('qbx_properties:client:updateInteractions', playerSource, interactions, property.interior, type(property.rent_interval) == 'number')
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:enterProperty',
+        message = locale('logs.enter_property', player.PlayerData.citizenid, property.property_name),
+        webhook = config.discordWebhook
+    })
 end
 
 ---@param playerSource integer
@@ -92,6 +102,13 @@ local function exitProperty(playerSource, isLogout)
     if not player then return end
 
     player.Functions.SetMetaData('currentPropertyId', nil)
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:exitProperty',
+        message = locale('logs.exit_property', player.PlayerData.citizenid),
+        webhook = config.discordWebhook
+    })
 end
 
 RegisterNetEvent('qbx_properties:server:exitProperty', function()
@@ -260,6 +277,13 @@ RegisterNetEvent('qbx_properties:server:addKeyholder', function(keyholderCid)
     local keyholder = exports.qbx_core:GetPlayerByCitizenId(keyholderCid)
     exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. locale('notify.keyholder'))
     exports.qbx_core:Notify(keyholder.PlayerData.source, locale('notify.added_as_keyholder'))
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:exitProperty',
+        message = locale('logs.added_keyholder', keyholderCid, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
@@ -283,6 +307,13 @@ RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
     MySQL.Sync.execute('UPDATE properties SET keyholders = ? WHERE id = ?', {json.encode(keyholders), propertyId})
     local keyholder = exports.qbx_core:GetOfflinePlayer(keyholderCid)
     exports.qbx_core:Notify(playerSource, keyholder.PlayerData.charinfo.firstname.. locale('notify.removed_as_keyholder'))
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:exitProperty',
+        message = locale('logs.removed_keyholder', keyholderCid, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 RegisterNetEvent('qbx_properties:server:logoutProperty', function()
@@ -421,6 +452,13 @@ RegisterNetEvent('qbx_properties:server:rentProperty', function(propertyId)
     exports.qbx_core:Notify(playerSource, string.format('Successfully started renting %s', property.property_name), 'success')
     MySQL.update('UPDATE properties SET owner = ? WHERE id = ?', {player.PlayerData.citizenid, propertyId})
     startRentThread()
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:rentProperty',
+        message = locale('logs.rent_property', player.PlayerData.citizenid, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
@@ -443,6 +481,13 @@ RegisterNetEvent('qbx_properties:server:buyProperty', function(propertyId)
 
     MySQL.update('UPDATE properties SET owner = ? WHERE id = ?', {player.PlayerData.citizenid, propertyId})
     exports.qbx_core:Notify(playerSource, string.format('Successfully purchased %s for $%s', property.property_name, property.price))
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:buyProperty',
+        message = locale('logs.buy_property', player.PlayerData.citizenid, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 Citizen.CreateThreadNow(function()
@@ -473,6 +518,13 @@ RegisterNetEvent('qbx_properties:server:stopRenting', function()
     for _ = 1, #insideProperty[propertyId] do
         exitProperty(insideProperty[propertyId][1])
     end
+
+    logger.log({
+        source = player.PlayerData.source,
+        event = 'qbx_properties:server:stopRenting',
+        message = locale('logs.stop_renting', player.PlayerData.citizenid, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, rotation, objectId)
@@ -489,6 +541,13 @@ RegisterNetEvent('qbx_properties:server:addDecoration', function(hash, coords, r
         local id = MySQL.insert.await('INSERT INTO `properties_decorations` (property_id, model, coords, rotation) VALUES (?, ?, ?, ?)', {propertyId, hash, json.encode(coords), json.encode(rotation)})
         lib.triggerClientEvent('qbx_properties:client:addDecoration', insideProperty[propertyId], id, hash, coords, rotation)
     end
+
+    logger.log({
+        source = player.PlayerData.source,
+        event = 'qbx_properties:server:addDecoration',
+        message = locale('logs.add_decoration', player.PlayerData.citizenid, hash, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
 
 RegisterNetEvent('qbx_properties:server:removeDecoration', function(objectId)
@@ -499,4 +558,11 @@ RegisterNetEvent('qbx_properties:server:removeDecoration', function(objectId)
 
     MySQL.query.await('DELETE FROM properties_decorations WHERE id = ?', {objectId})
     lib.triggerClientEvent('qbx_properties:client:removeDecoration', insideProperty[propertyId], objectId)
+
+    logger.log({
+        source = player.PlayerData.source,
+        event = 'qbx_properties:server:removeDecoration',
+        message = locale('logs.remove_decoration', player.PlayerData.citizenid, objectId, propertyId),
+        webhook = config.discordWebhook
+    })
 end)
