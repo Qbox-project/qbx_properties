@@ -1,5 +1,6 @@
 local config = require 'config.server'
 local sharedConfig = require 'config.shared'
+local logger = require '@qbx_core.modules.logger'
 
 RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentIndex)
     local playerSource = source --[[@as number]]
@@ -48,6 +49,13 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
         interior,
         json.encode(interactData),
         json.encode(stashData),
+    })
+
+    logger.log({
+        source = playerSource,
+        event = 'qbx_properties:server:apartmentSelect',
+        message = locale('logs.apartment_selected', player.PlayerData.citizenid, sharedConfig.apartmentOptions[apartmentIndex].label, apartmentNumber),
+        webhook = config.discordWebhook
     })
 
     TriggerClientEvent('qbx_properties:client:addProperty', -1, sharedConfig.apartmentOptions[apartmentIndex].enter)

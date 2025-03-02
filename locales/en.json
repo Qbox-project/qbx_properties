@@ -54,5 +54,19 @@
         "clothing": "[E] - Clothing | [G] - Outfits",
         "logout": "[E] - Logout",
         "view_property": "[E] - View Property"
+    },
+    "logs": {
+        "create_property": "Attempting to create a property.",
+        "property_created": "Property %s created successfully.",
+        "enter_property": "Player %s entered property %s.",
+        "exit_property": "Player %s exited property id %s.",
+        "apartment_selected": "Player %s selected apartment %s %s.",
+        "added_keyholder": "Added %s as a keyholder to the property %s.",
+        "removed_keyholder": "Removed %s as a keyholder to the property %s.",
+        "rent_property": "Player %s rented property %s.",
+        "buy_property": "Player %s bought property %s.",
+        "stop_renting": "Player %s stopped renting property %s.",
+        "add_decoration": "Player %s added decoration %s to property %s.",
+        "remove_decoration": "Player %s removed decoration %s from property %s."
     }
 }
