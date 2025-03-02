@@ -94,6 +94,7 @@ local function exitProperty(playerSource, isLogout)
     end
 
     lib.triggerClientEvent('qbx_properties:client:concealPlayers', insideProperty[enteredProperty[playerSource]], insideProperty[enteredProperty[playerSource]])
+    local logPropertyId = enteredProperty[playerSource]
     enteredProperty[playerSource] = nil
 
     if isLogout then return end
@@ -106,7 +107,7 @@ local function exitProperty(playerSource, isLogout)
     logger.log({
         source = playerSource,
         event = 'qbx_properties:server:exitProperty',
-        message = locale('logs.exit_property', player.PlayerData.citizenid),
+        message = locale('logs.exit_property', player.PlayerData.citizenid, logPropertyId),
         webhook = config.discordWebhook
     })
 end
@@ -280,7 +281,7 @@ RegisterNetEvent('qbx_properties:server:addKeyholder', function(keyholderCid)
 
     logger.log({
         source = playerSource,
-        event = 'qbx_properties:server:exitProperty',
+        event = 'qbx_properties:server:addKeyholder',
         message = locale('logs.added_keyholder', keyholderCid, propertyId),
         webhook = config.discordWebhook
     })
@@ -310,7 +311,7 @@ RegisterNetEvent('qbx_properties:server:removeKeyholder', function(keyholderCid)
 
     logger.log({
         source = playerSource,
-        event = 'qbx_properties:server:exitProperty',
+        event = 'qbx_properties:server:removeKeyholder',
         message = locale('logs.removed_keyholder', keyholderCid, propertyId),
         webhook = config.discordWebhook
     })

@@ -59,7 +59,7 @@
         "create_property": "Attempting to create a property.",
         "property_created": "Property %s created successfully.",
         "enter_property": "Player %s entered property %s.",
-        "exit_property": "Player %s exited property.",
+        "exit_property": "Player %s exited property id %s.",
         "apartment_selected": "Player %s selected apartment %s %s.",
         "added_keyholder": "Added %s as a keyholder to the property %s.",
         "removed_keyholder": "Removed %s as a keyholder to the property %s.",
