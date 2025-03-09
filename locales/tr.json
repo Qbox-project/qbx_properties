@@ -1,0 +1,72 @@
+{
+  "notify": {
+    "no_access": "Erişim yok.",
+    "someone_at_door": "Kapında biri var!",
+    "keyholder": " anahtar sahibi olarak eklendi.",
+    "added_as_keyholder": "Anahtar sahibi olarak eklendin.",
+    "removed_as_keyholder": " anahtar sahibi listesinden çıkarıldı."
+  },
+  "alert": {
+    "give_keys": "Bu kişiye anahtar vermek istiyor musun?",
+    "apartment_selection": "Daire Seçimi",
+    "are_you_sure": "Gerçekten %s almak istiyor musun?",
+    "want_remove_keys": "Bu kişiden anahtarları kaldırmak istiyor musun?",
+    "want_let_person_in": "Bu kişiyi içeri almak istiyor musun?",
+    "property_name": "Mülk Adı",
+    "property_name_description": "Mülkü tanımlayan basit bir isim",
+    "price": "Fiyat",
+    "price_description": "Satın alma fiyatı veya kiradan düşülen tutar",
+    "rent_interval": "Kira Aralığı",
+    "rent_interval_description": "Kiranın saat cinsinden kesileceği aralık (mülkü kiralanabilir hale getirir, satın alınabilir değil)",
+    "add_garage": "Garaj Ekle"
+  },
+  "menu": {
+    "add_keyholder": "Anahtar Sahibi Ekle",
+    "people_inside": "İçerideki Kişiler",
+    "keyholders": "Anahtar Sahipleri",
+    "doorbell_ringers": "Kapı Zili Çalanlar",
+    "manage_keys": "Anahtarları Yönet",
+    "doorbell": "Kapı Zili",
+    "manage_property": "Mülkü Yönet",
+    "enter": "İçeri Gir",
+    "ring_doorbell": "Kapı Zilini Çal",
+    "properties": "Mülkler",
+    "retrieve_properties": "Sahip Olunan Mülkleri Getir",
+    "show_owned_properties": "Yalnızca sahip olduğun mülkleri göster",
+    "interior_preview": "İç Mekan Önizlemesi",
+    "start_decorating": "Dekorasyona Başla",
+    "decorating_categories": "Kategoriler"
+  },
+  "instructButtons": {
+    "up": "Yukarı",
+    "down": "Aşağı",
+    "submit": "Onayla"
+  },
+  "keyMappings": {
+    "gizmo_translation": "Çeviri modunu etkinleştirir",
+    "gizmo_rotation": "Dönüş modunu etkinleştirir",
+    "gizmo_select": "Şu anda seçili olanı belirler",
+    "gizmo_local": "Gizmo'yu nesneye yerel olarak ayarlar"
+  },
+  "drawtext": {
+    "stash": "[E] - Sakla",
+    "exit": "[E] - Çık | [G] - Yönet",
+    "clothing": "[E] - Kıyafetler | [G] - Kombinler",
+    "logout": "[E] - Çıkış Yap",
+    "view_property": "[E] - Mülkü Görüntüle"
+  },
+  "logs": {
+    "create_property": "Bir mülk oluşturulmaya çalışılıyor.",
+    "property_created": "Mülk %s başarıyla oluşturuldu.",
+    "enter_property": "Oyuncu %s, %s mülküne girdi.",
+    "exit_property": "Oyuncu %s, %s ID'li mülkten çıktı.",
+    "apartment_selected": "Oyuncu %s, %s %s dairesini seçti.",
+    "added_keyholder": "%s, %s mülküne anahtar sahibi olarak eklendi.",
+    "removed_keyholder": "%s, %s mülkünün anahtar sahipleri listesinden çıkarıldı.",
+    "rent_property": "Oyuncu %s, %s mülkünü kiraladı.",
+    "buy_property": "Oyuncu %s, %s mülkünü satın aldı.",
+    "stop_renting": "Oyuncu %s, %s mülkünün kiralamasını durdurdu.",
+    "add_decoration": "Oyuncu %s, %s dekorasyonunu %s mülküne ekledi.",
+    "remove_decoration": "Oyuncu %s, %s dekorasyonunu %s mülkünden kaldırdı."
+  }
+}
