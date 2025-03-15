@@ -1,0 +1,58 @@
+{
+    "notify": {
+        "no_access": "Brak dostępu.",
+        "someone_at_door": "Ktoś jest przy drzwiach!",
+        "keyholder": " zostało dodane jako osoba z dostępem.",
+        "added_as_keyholder": "Zostano dodanym jako osoba z dostępem.",
+        "removed_as_keyholder": " zostało usunięte jako osoba z dostępem."
+    },
+    "alert": {
+        "give_keys": "Przekazać dostęp tej osobie?",
+        "apartment_selection": "Wybór mieszkania",
+        "are_you_sure": "Czy na pewno chcesz uzyskać %s?",
+        "want_remove_keys": "Czy chcesz odebrać dostęp tej osobie?",
+        "want_let_person_in": "Czy chcesz wpuścić tę osobę?",
+        "property_name": "Nazwa nieruchomości",
+        "property_name_description": "Prosta, opisowa nazwa nieruchomości",
+        "price": "Cena",
+        "price_description": "Cena zakupu lub kwota potrącana za wynajem",
+        "rent_interval": "Interwał wynajmu",
+        "rent_interval_description": "Interwał, w którym będzie potrącana opłata za wynajem, w godzinach (czyni nieruchomość wynajmowaną zamiast kupowaną)",
+        "add_garage": "Dodaj garaż"
+    },
+    "menu": {
+        "add_keyholder": "Dodaj osobę z dostępem",
+        "people_inside": "Osoby wewnątrz",
+        "keyholders": "Osoby z dostępem",
+        "doorbell_ringers": "Osoby dzwoniące",
+        "manage_keys": "Zarządzaj dostępem",
+        "doorbell": "Dzwonek",
+        "manage_property": "Zarządzaj nieruchomością",
+        "enter": "Wejdź",
+        "ring_doorbell": "Zadzwoń",
+        "properties": "Nieruchomości",
+        "retrieve_properties": "Pobierz posiadane nieruchomości",
+        "show_owned_properties": "Pokaż tylko nieruchomości, które posiadasz",
+        "interior_preview": "Podgląd wnętrza",
+        "start_decorating": "Rozpocznij dekorowanie",
+        "decorating_categories": "Kategorie"
+    },
+    "instructButtons": {
+        "up": "W górę",
+        "down": "W dół",
+        "submit": "Zatwierdź"
+    },
+    "keyMappings": {
+        "gizmo_translation": "Ustawia tryb przesuwania",
+        "gizmo_rotation": "Ustawia tryb obracania",
+        "gizmo_select": "Zaznacza aktualnie podświetlone",
+        "gizmo_local": "Ustawia gizmo lokalnie względem obiektu"
+    },
+    "drawtext": {
+        "stash": "[E] - Schowek",
+        "exit": "[E] - Wyjdź | [G] - Zarządzaj",
+        "clothing": "[E] - Ubrania | [G] - Stroje",
+        "logout": "[E] - Wyloguj",
+        "view_property": "[E] - Zobacz nieruchomość"
+    }
+}
