@@ -1,10 +1,10 @@
 {
     "notify": {
-        "no_access": "Pas d'accès.",
+        "no_access": "Accès refusé.",
         "someone_at_door": "Quelqu'un est à votre porte !",
-        "keyholder": " a été ajouté en tant que détenteur de clés.",
-        "added_as_keyholder": "Vous avez été ajouté en tant que détenteur de clés.",
-        "removed_as_keyholder": " a été retiré en tant que détenteur de clés."
+        "keyholder": " a été ajouté comme détenteur de clé.",
+        "added_as_keyholder": "Vous avez été ajouté comme détenteur de clé.",
+        "removed_as_keyholder": " a été retiré comme détenteur de clé."
     },
     "alert": {
         "give_keys": "Donner les clés à cette personne ?",
@@ -15,24 +15,27 @@
         "property_name": "Nom de la propriété",
         "property_name_description": "Un nom descriptif simple de la propriété",
         "price": "Prix",
-        "price_description": "Le prix d'achat ou le prix déduit pour le loyer",
+        "price_description": "Le prix d'achat ou le montant déduit pour le loyer",
         "rent_interval": "Intervalle de loyer",
-        "rent_interval_description": "L'intervalle durant lequel le loyer sera déduit en heures (rend la propriété louable plutôt qu'achetable)"
+        "rent_interval_description": "L'intervalle en heures pendant lequel le loyer sera déduit (rend la propriété louable au lieu d'achetable)",
+        "add_garage": "Ajouter un garage"
     },
     "menu": {
-        "add_keyholder": "Ajouter un détenteur de clés",
+        "add_keyholder": "Ajouter un détenteur de clé",
         "people_inside": "Personnes à l'intérieur",
-        "keyholders": "Détenteurs de clés",
-        "doorbell_ringers": "Sonneurs de porte",
+        "keyholders": "Détenteurs de clé",
+        "doorbell_ringers": "Sonnettes",
         "manage_keys": "Gérer les clés",
         "doorbell": "Sonnette",
         "manage_property": "Gérer la propriété",
         "enter": "Entrer",
-        "ring_doorbell": "Sonner à la porte",
+        "ring_doorbell": "Sonner",
         "properties": "Propriétés",
         "retrieve_properties": "Récupérer les propriétés possédées",
         "show_owned_properties": "Afficher uniquement les propriétés que vous possédez",
-        "interior_preview": "Aperçu de l'intérieur"
+        "interior_preview": "Aperçu de l'intérieur",
+        "start_decorating": "Commencer la décoration",
+        "decorating_categories": "Catégories"
     },
     "instructButtons": {
         "up": "Haut",
@@ -40,16 +43,30 @@
         "submit": "Soumettre"
     },
     "keyMappings": {
-        "gizmo_translation": "Sets mode to translation",
-        "gizmo_rotation": "Sets mode to rotation",
-        "gizmo_select": "Selects currently highlighted",
-        "gizmo_local": "Sets gizmo local to the entity"
+        "gizmo_translation": "Passe en mode translation",
+        "gizmo_rotation": "Passe en mode rotation",
+        "gizmo_select": "Sélectionne l'élément actuellement surligné",
+        "gizmo_local": "Définit le gizmo local à l'entité"
     },
     "drawtext": {
-        "stash": "[E] - Cachette",
+        "stash": "[E] - Ranger",
         "exit": "[E] - Sortir | [G] - Gérer",
         "clothing": "[E] - Vêtements | [G] - Tenues",
         "logout": "[E] - Déconnexion",
         "view_property": "[E] - Voir la propriété"
+    },
+    "logs": {
+        "create_property": "Tentative de création d'une propriété.",
+        "property_created": "Propriété %s créée avec succès.",
+        "enter_property": "Le joueur %s est entré dans la propriété %s.",
+        "exit_property": "Le joueur %s est sorti de la propriété id %s.",
+        "apartment_selected": "Le joueur %s a sélectionné l'appartement %s %s.",
+        "added_keyholder": "%s a été ajouté comme détenteur de clé à la propriété %s.",
+        "removed_keyholder": "%s a été retiré comme détenteur de clé à la propriété %s.",
+        "rent_property": "Le joueur %s a loué la propriété %s.",
+        "buy_property": "Le joueur %s a acheté la propriété %s.",
+        "stop_renting": "Le joueur %s a cessé de louer la propriété %s.",
+        "add_decoration": "Le joueur %s a ajouté la décoration %s à la propriété %s.",
+        "remove_decoration": "Le joueur %s a retiré la décoration %s de la propriété %s."
     }
 }
