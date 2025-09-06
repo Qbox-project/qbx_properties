@@ -129,14 +129,21 @@ lib.registerMenu({
     })
     if not input then return end
 
+    local garageData = nil
+    
     if input[4] then
         addGaragePoint()
+        if garageCoords then
+            garageData = vec4(garageCoords.x, garageCoords.y, garageCoords.z + 1.0, garageHeading)
+        end
     end
-    TriggerServerEvent('qbx_properties:server:createProperty', args[scrollIndex], input, playerCoords, vec4(garageCoords.x, garageCoords.y, garageCoords.z + 1.0, garageHeading))
+
+    TriggerServerEvent('qbx_properties:server:createProperty', args[scrollIndex], input, playerCoords, garageData)
 end)
 
 RegisterNetEvent('qbx_properties:client:createProperty', function()
     playerCoords = GetEntityCoords(cache.ped)
+    garageCoords = nil
     isPreviewing = true
     previewProperty(values[1])
     lib.showMenu('qbx_properties_realtor_menu')
