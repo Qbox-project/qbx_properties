@@ -61,12 +61,12 @@
         "enter_property": "プレイヤー %s が物件 %s に入りました。",
         "exit_property": "プレイヤー %s が物件ID %s から退出しました。",
         "apartment_selected": "プレイヤー %s がアパート %s %s を選択しました。",
-        "added_keyholder": "物件 %s のキーホルダーとして %s を追加しました。",
-        "removed_keyholder": "物件 %s のキーホルダーから %s を削除しました。",
+        "added_keyholder": "%s を物件 %s のキーホルダーとして追加しました。",
+        "removed_keyholder": "%s を物件 %s のキーホルダーから削除しました。",
         "rent_property": "プレイヤー %s が物件 %s を借りました。",
         "buy_property": "プレイヤー %s が物件 %s を購入しました。",
         "stop_renting": "プレイヤー %s が物件 %s のレンタルを停止しました。",
-        "add_decoration": "プレイヤー %s が物件 %s にデコレーション %s を追加しました。",
-        "remove_decoration": "プレイヤー %s が物件 %s からデコレーション %s を削除しました。"
+        "add_decoration": "プレイヤー %s がデコレーション %s を物件 %s に追加しました。",
+        "remove_decoration": "プレイヤー %s がデコレーション %s を物件 %s から削除しました。"
     }
 }
