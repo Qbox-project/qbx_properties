@@ -1,0 +1,72 @@
+{
+    "notify": {
+        "no_access": "アクセス権がありません。",
+        "someone_at_door": "誰かがドアの前にいます！",
+        "keyholder": " がキーホルダーとして追加されました。",
+        "added_as_keyholder": "あなたはキーホルダーとして追加されました。",
+        "removed_as_keyholder": " がキーホルダーから削除されました。"
+    },
+    "alert": {
+        "give_keys": "この人物に鍵を渡しますか？",
+        "apartment_selection": "アパート選択",
+        "are_you_sure": "%s を取得してもよろしいですか？",
+        "want_remove_keys": "この人物から鍵を削除しますか？",
+        "want_let_person_in": "この人物を入れますか？",
+        "property_name": "物件名",
+        "property_name_description": "物件の簡単な説明名",
+        "price": "価格",
+        "price_description": "購入価格または家賃として差し引かれる金額",
+        "rent_interval": "家賃間隔",
+        "rent_interval_description": "家賃が差し引かれる間隔（時間単位、購入でなくレンタル物件になります）",
+        "add_garage": "ガレージを追加"
+    },
+    "menu": {
+        "add_keyholder": "キーホルダーを追加",
+        "people_inside": "中にいる人",
+        "keyholders": "キーホルダー",
+        "doorbell_ringers": "呼び鈴を押した人",
+        "manage_keys": "鍵を管理",
+        "doorbell": "呼び鈴",
+        "manage_property": "物件を管理",
+        "enter": "入る",
+        "ring_doorbell": "呼び鈴を押す",
+        "properties": "物件",
+        "retrieve_properties": "所有物件を取得",
+        "show_owned_properties": "所有物件のみ表示",
+        "interior_preview": "内装プレビュー",
+        "start_decorating": "デコレーション開始",
+        "decorating_categories": "カテゴリー"
+    },
+    "instructButtons": {
+        "up": "上",
+        "down": "下",
+        "submit": "確定"
+    },
+    "keyMappings": {
+        "gizmo_translation": "移動モードに設定",
+        "gizmo_rotation": "回転モードに設定",
+        "gizmo_select": "現在ハイライトされているものを選択",
+        "gizmo_local": "ギズモをエンティティのローカルに設定"
+    },
+    "drawtext": {
+        "stash": "[E] - スタッシュ",
+        "exit": "[E] - 退出 | [G] - 管理",
+        "clothing": "[E] - 服装 | [G] - コーデ",
+        "logout": "[E] - ログアウト",
+        "view_property": "[E] - 物件を見る"
+    },
+    "logs": {
+        "create_property": "物件を作成しようとしています。",
+        "property_created": "物件 %s が正常に作成されました。",
+        "enter_property": "プレイヤー %s が物件 %s に入りました。",
+        "exit_property": "プレイヤー %s が物件ID %s から退出しました。",
+        "apartment_selected": "プレイヤー %s がアパート %s %s を選択しました。",
+        "added_keyholder": "%s を物件 %s のキーホルダーとして追加しました。",
+        "removed_keyholder": "%s を物件 %s のキーホルダーから削除しました。",
+        "rent_property": "プレイヤー %s が物件 %s を借りました。",
+        "buy_property": "プレイヤー %s が物件 %s を購入しました。",
+        "stop_renting": "プレイヤー %s が物件 %s のレンタルを停止しました。",
+        "add_decoration": "プレイヤー %s がデコレーション %s を物件 %s に追加しました。",
+        "remove_decoration": "プレイヤー %s がデコレーション %s を物件 %s から削除しました。"
+    }
+}
