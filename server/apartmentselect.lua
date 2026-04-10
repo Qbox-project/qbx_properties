@@ -60,6 +60,13 @@ RegisterNetEvent('qbx_properties:server:apartmentSelect', function(apartmentInde
 
     TriggerClientEvent('qbx_properties:client:addProperty', -1, sharedConfig.apartmentOptions[apartmentIndex].enter)
     EnterProperty(playerSource, id, true)
+    
+    local interior = sharedConfig.apartmentOptions[apartmentIndex].interior
+	local spawnCoord = sharedConfig.interiors[interior].firstspawn
+	local ped = GetPlayerPed(playerSource)
+	SetEntityCoords(ped, spawnCoord.x, spawnCoord.y, spawnCoord.z, false, false, false, false)
+	SetEntityHeading(ped, spawnCoord.w)
+        
     Wait(200)
     TriggerClientEvent('qb-clothes:client:CreateFirstCharacter', playerSource)
 end)
