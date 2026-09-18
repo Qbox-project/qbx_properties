@@ -57,16 +57,16 @@
     },
     "logs": {
         "create_property": "Proberen een eigendom te creëren.",
-        "property_created": "Property%sis succesvol aangemaakt.",
-        "enter_property": "Speler%sheeft eigenschap%singevoerd.",
-        "exit_property": "Speler%sheeft eigenschaps-id%sverlaten.",
-        "apartment_selected": "Speler%sgeselecteerd appartement%s%s.",
-        "added_keyholder": "%stoegevoegd als sleutelhouder aan de eigenschap%s.",
-        "removed_keyholder": "%sverwijderd als sleutelhouder van het pand%s.",
-        "rent_property": "Speler%shuurwoning%s.",
-        "buy_property": "Speler%sheeft eigendom%sgekocht.",
-        "stop_renting": "Speler%sis gestopt met het huren van onroerend goed%s.",
-        "add_decoration": "Speler%sheeft decoratie%stoegevoegd aan eigenschap%s.",
-        "remove_decoration": "Speler%sheeft decoratie%sverwijderd van eigendom%s."
+        "property_created": "Eigendom %s is succesvol aangemaakt.",
+        "enter_property": "Speler %s is eigendom %s binnengegaan.",
+        "exit_property": "Speler %s heeft eigendom %s verlaten.",
+        "apartment_selected": "Speler %s selecteerde appartement %s %s.",
+        "added_keyholder": "%s toegevoegd als sleutelhouder aan eigendom %s.",
+        "removed_keyholder": "%s verwijderd als sleutelhouder van eigendom %s.",
+        "rent_property": "Speler %s huurde eigendom %s.",
+        "buy_property": "Speler %s heeft eigendom %s gekocht.",
+        "stop_renting": "Speler %s is gestopt met het huren van eigendom %s.",
+        "add_decoration": "Speler %s heeft decoratie %s toegevoegd aan eigendom %s.",
+        "remove_decoration": "Speler %s heeft decoratie %s verwijderd van eigendom %s."
     }
 }
