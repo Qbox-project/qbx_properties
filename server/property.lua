@@ -7,6 +7,21 @@ local insideProperty = {}
 local citizenid = {}
 local ring = {}
 
+exports.ox_inventory:registerHook('openInventory', function(payload)
+    local source = payload.source
+    local propertyName, ownerIdentifier = payload.inventoryId:match("^qbx_properties_([%w%s]+):([A-Z%d]+)$")
+
+    if not enteredProperty[source] then return false end
+
+    local result = MySQL.single.await('SELECT `id` FROM `properties` WHERE `property_name` = ? AND `owner` = ?', {propertyName, ownerIdentifier})
+
+    return result.id == enteredProperty[source]
+end, {
+    inventoryFilter = {
+        '^qbx_properties_[%w]+',
+    }
+})
+
 function EnterProperty(playerSource, id, isSpawn)
     local property = MySQL.single.await('SELECT * FROM properties WHERE id = ?', {id})
     if not property then return end -- Lua and its stupid need check nil warnings

@@ -187,6 +187,8 @@ local function inputConfirm(apartmentIndex)
     Wait(1000) -- Wait for player to spawn correctly so clothing menu can load in nice
     TriggerServerEvent('QBCore:Server:OnPlayerLoaded')
     TriggerEvent('QBCore:Client:OnPlayerLoaded')
+    DeleteEntity(Board)
+    Board = nil
 end
 
 local function InputHandler()
